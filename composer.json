@@ -1,0 +1,40 @@
+{
+    "name": "billmate/magento2-nwt-billmatecheckout",
+    "description": "Billmate Checkout by Nordic Web Team",
+    "type": "magento2-module",
+    "version": "1.0.0-dev",
+    "require": {
+        "magento/module-checkout": "^100.3"
+    },
+    "authors": [
+        {
+            "name": "Billmate AB",
+            "email": "support@billmate.se",
+            "homepage": "https://billmate.se/",
+            "role": "Product Owner"
+        },
+        {
+            "name": "Nordic Web Team",
+            "email": "support@nordicwebteam.se",
+            "homepage": "https://nordicwebteam.se/",
+            "role": "Developer"
+        }
+    ],
+    "license": [
+        "BSD-3-Clause"
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Billmate\\NwtBillmateCheckout\\": ""
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://repo.magento.com/"
+        }
+    ]
+}
