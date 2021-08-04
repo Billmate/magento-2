@@ -1,0 +1,25 @@
+<?php
+
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+use Billmate\NwtBillmateCheckout\ViewModel\Checkout;
+
+$viewModel = $block->getViewModel();
+
+/**
+ * @var Template $block
+ * @var Escaper $escaper
+ * @var Checkout $viewModel
+ */
+
+?>
+
+<iframe
+    id="checkout"
+    name="billmateCheckoutIframe"
+    title="<?= $escaper->escapeHtmlAttr(__('Billmate Checkout Window')) ?>"
+    style="width:75%;min-height:800px;border:none;"
+    src="<?= /* @noEscape */ $viewModel->getIframeUrl() ?>"
+    scrolling="no"
+    sandbox="allow-same-origin allow-scripts allow-modals allow-popups allow-forms allow-top-navigation">
+</iframe>

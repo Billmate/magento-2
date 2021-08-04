@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="checkout_cart_index"/>
+    <body>
+        <referenceBlock name="checkout.item.price.row" template="Billmate_NwtBillmateCheckout::checkout/item/price/row.phtml" />
+        <referenceBlock name="checkout.cart.coupon" template="Billmate_NwtBillmateCheckout::checkout/coupon.phtml" />
+        <referenceContainer name="checkout.cart.container">
+            <block name="billmate.checkout.iframe" cacheable="false" after="-" template="Billmate_NwtBillmateCheckout::checkout/iframe.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Billmate\NwtBillmateCheckout\ViewModel\Checkout</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+        <referenceContainer name="checkout.cart.methods" remove="true" />
+        <referenceBlock name="checkout.cart.shipping">
+            <arguments>
+                <argument name="jsLayout" xsi:type="array">
+                    <item name="components" xsi:type="array">
+                        <item name="block-summary" xsi:type="array">
+                            <item name="children" xsi:type="array">
+                                <item name="block-rates" xsi:type="array">
+                                    <item name="component" xsi:type="string">Billmate_NwtBillmateCheckout/js/checkout/view/shipping-rates</item>
+                                </item>
+                                <item name="block-shipping" xsi:type="array">
+                                    <item name="children" xsi:type="null" />
+                                </item>
+                            </item>
+                        </item>
+                    </item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

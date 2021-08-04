@@ -1,0 +1,49 @@
+<?php
+
+use Magento\Framework\Escaper;
+use Magento\Weee\Block\Item\Price\Renderer;
+
+/**
+ * @var Renderer $block
+ * @var Escaper $escaper
+ */
+
+$item = $block->getItem();
+$rowTotalExclTax = $block->getRowDisplayPriceExclTax();
+$rowTotalInclTax = $block->getRowDisplayPriceInclTax();
+$componentName = "billmate-checkout-itemid-{$item->getId()}-subtotal";
+?>
+
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Magento_Ui/js/core/app": {
+                "components": {
+                    "<?= $escaper->escapeJs($componentName) ?>": {
+                        "component": "Billmate_NwtBillmateCheckout/js/checkout/view/item/subtotal",
+                        "row_total_incl_tax": "<?= $escaper->escapeJs($rowTotalInclTax) ?>",
+                        "row_total": "<?= $escaper->escapeJs($rowTotalExclTax) ?>"
+                    }
+                }
+            }
+        }
+    }
+</script>
+
+<span data-bind="scope: '<?= $escaper->escapeHtmlAttr($componentName) ?>'">
+    <?php if (($block->displayPriceInclTax() || $block->displayBothPrices()) && !$item->getNoSubtotal()): ?>
+        <span class="price-including-tax" data-label="<?= $escaper->escapeHtmlAttr(__('Incl. Tax')) ?>">
+            <span class="cart-price">
+            <?= /* @noEscape */ $block->setDataBindType('row_total_incl_tax')->formatPrice($rowTotalInclTax) ?>
+            </span>
+        </span>
+    <?php endif; ?>
+
+    <?php if ($block->displayPriceExclTax() || $block->displayBothPrices()): ?>
+        <span class="price-excluding-tax" data-label="<?= $escaper->escapeHtmlAttr(__('Excl. Tax')) ?>">
+            <span class="cart-price">
+                <?= /* @noEscape */ $block->setDataBindType('row_total')->formatPrice($rowTotalExclTax) ?>
+            </span>
+        </span>
+    <?php endif; ?>
+</span>

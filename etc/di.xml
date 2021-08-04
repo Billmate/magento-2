@@ -1,0 +1,72 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="BillmateFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">BillmateCommandPool</argument>
+            <argument name="code" xsi:type="const">Billmate\NwtBillmateCheckout\Gateway\Config\Config::METHOD_CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Billmate\NwtBillmateCheckout\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">Billmate\NwtBillmateCheckout\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">BillmateValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">BillmateValidatorPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BillmateCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <!--item name="authorize" xsi:type="string">BraintreeAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">BraintreeCaptureStrategyCommand</item>
+                <item name="void" xsi:type="string">BraintreeVoidCommand</item>
+                <item name="refund" xsi:type="string">BraintreeRefundCommand</item>
+                <item name="cancel" xsi:type="string">BraintreeVoidCommand</item-->
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BillmateAuthorizeCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">BillmateAuthorizeRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\TransferFactory</argument>
+            <argument name="client" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\Client\TransactionAuthorize</argument>
+            <argument name="handler" xsi:type="object">BillmateAuthorizationHandler</argument>
+            <argument name="validator" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\ErrorMapper\VirtualErrorMessageMapper</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BillmateAuthorizeRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="customer" xsi:type="string">Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder\CustomerDataBuilder</item>
+                <item name="payment" xsi:type="string">Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder\PaymentDataBuilder</item>
+                <item name="address" xsi:type="string">Billmate\NwtBillmateCheckout\Gateway\Request\AddressDataBuilder</item>
+                <!--item name="3dsecure" xsi:type="string">PayPal\Braintree\Gateway\Request\ThreeDSecureDataBuilder</item>
+                <item name="dynamic_descriptor" xsi:type="string">PayPal\Braintree\Gateway\Request\DescriptorDataBuilder</item>
+                <item name="customFields" xsi:type="string">PayPal\Braintree\Gateway\Request\CustomFieldsDataBuilder</item-->
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Configuration reader -->
+    <type name="Billmate\NwtBillmateCheckout\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Billmate\NwtBillmateCheckout\Gateway\Config\Config::METHOD_CODE</argument>
+        </arguments>
+    </type>
+
+    <!-- Plugins -->
+    <type name="Magento\Checkout\Controller\Cart\UpdatePost">
+        <plugin name="billmateAjaxCartUpdate" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Controller\Cart\UpdatePostPlugin"/>
+    </type>
+    <type name="Magento\Checkout\Controller\Cart\CouponPost">
+        <plugin name="billmateAjaxCouponPost" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Controller\Cart\CouponPostPlugin"/>
+    </type>
+    <type name="Magento\Tax\Block\Item\Price\Renderer">
+        <plugin name="billmateItemPriceRenderer" type="Billmate\NwtBillmateCheckout\Plugin\Tax\Block\Item\Price\RendererPlugin"/>
+    </type>
+    <type name="Magento\Checkout\Block\Cart">
+        <plugin name="bm_url" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Block\ChangeCheckoutUrl"/>
+    </type>
+    <type name="Magento\Checkout\Block\Onepage\Link">
+        <plugin name="bm_url" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Block\ChangeCheckoutUrl" />
+    </type>
+    <type name="Magento\Checkout\Block\Cart\Sidebar">
+        <plugin name="bm_url" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Block\ChangeCheckoutUrl" />
+    </type>
+</config>
