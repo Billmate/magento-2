@@ -18,7 +18,7 @@ $viewModel = $block->getViewModel();
     id="checkout"
     name="billmateCheckoutIframe"
     title="<?= $escaper->escapeHtmlAttr(__('Billmate Checkout Window')) ?>"
-    style="width:75%;min-height:800px;border:none;"
+    style="min-height:800px;"
     src="<?= /* @noEscape */ $viewModel->getIframeUrl() ?>"
     scrolling="no"
     sandbox="allow-same-origin allow-scripts allow-modals allow-popups allow-forms allow-top-navigation">

@@ -103,6 +103,12 @@ class Index implements HttpGetActionInterface
         }
 
         $this->saveQuote($quote);
+
+        if (!is_null($layoutType = $this->config->getLayoutType())) {
+            $resultPage->getConfig()->setPageLayout($layoutType);
+        }
+        $resultPage->getConfig()->getTitle()->set(__('Billmate Checkout'));
+
         return $resultPage;
     }
 

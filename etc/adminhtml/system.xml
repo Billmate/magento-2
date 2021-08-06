@@ -46,6 +46,10 @@
                     <label>Default shipping method</label>
                     <source_model>Magento\Shipping\Model\Config\Source\Allmethods</source_model>
                 </field>
+                <field id="layout_type" translate="label comment" type="select" sortOrder="1200" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Layout</label>
+                    <source_model>Billmate\NwtBillmateCheckout\Model\Config\Source\LayoutTypes</source_model>
+                </field>
             </group>
         </section>
     </system>

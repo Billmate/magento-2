@@ -37,6 +37,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
     const KEY_DEFAULT_SHIPPINGMETHOD = 'default_shippingmethod';
 
+    const KEY_LAYOUT_TYPE = 'layout_type';
+
     /**
      * Get Enabled flag
      *
@@ -201,6 +203,20 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
         return $this->getValue(
             self::KEY_DEFAULT_SHIPPINGMETHOD,
+            $storeId
+        ) ?? '';
+    }
+
+    /**
+     * Get layout type
+     *
+     * @param integer $storeId
+     * @return string
+     */
+    public function getLayoutType(int $storeId = null): string
+    {
+        return $this->getValue(
+            self::KEY_LAYOUT_TYPE,
             $storeId
         ) ?? '';
     }
