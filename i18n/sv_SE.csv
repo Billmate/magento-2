@@ -4,3 +4,7 @@
 "VAT", "Varav moms", module, Billmate_NwtBillmateCheckout
 "Total sum", "Totalsumma", module, Billmate_NwtBillmateCheckout
 "Add the following products", "Lägg till följande produkter", module, Billmate_NwtBillmateCheckout
+"Add to cart", "Lägg i varukorg", module, Billmate_NwtBillmateCheckout
+"Choose shipping method", "Välj fraktsätt", module, Billmate_NwtBillmateCheckout
+"Address and payment", "Adress och betalning", module, Billmate_NwtBillmateCheckout
+"Subscribe to the newsletter", "Prenumerera på nyhetsbrevet", module, Billmate_NwtBillmateCheckout

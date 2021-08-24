@@ -6,8 +6,9 @@
   // - - Default Variables
   $desktop: "(min-width: 1025px)";
   $tablet: "(min-width: 768px) and (max-width: 1024px)";
-  $tablet-down: "(max-width: 1024px)";
+  $tablet-down: "(max-width: 1023px)";
   $mobile: "(max-width: 767px)";
+  $mobile-down: "(max-width: 768px)";
   $large: "(min-width: 768px)";
   $small: "(max-width: 1024px)";
 
@@ -25,6 +26,10 @@
     }
   } @else if $size == mobile {
     @media only screen and #{$mobile} {
+      @content;
+    }
+  } @else if $size == mobile-down {
+    @media only screen and #{$mobile-down} {
       @content;
     }
   } @else if $size == large {

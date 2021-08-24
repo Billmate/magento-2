@@ -14,12 +14,15 @@ $viewModel = $block->getViewModel();
 
 ?>
 
-<iframe
-    id="checkout"
-    name="billmateCheckoutIframe"
-    title="<?= $escaper->escapeHtmlAttr(__('Billmate Checkout Window')) ?>"
-    style="min-height:800px;"
-    src="<?= /* @noEscape */ $viewModel->getIframeUrl() ?>"
-    scrolling="no"
-    sandbox="allow-same-origin allow-scripts allow-modals allow-popups allow-forms allow-top-navigation">
-</iframe>
+<div class="billmate-iframe-wrapper">
+    <strong class="billmate-heading"><?= __('Address and payment') ?></strong>
+    <iframe
+        id="checkout"
+        name="billmateCheckoutIframe"
+        title="<?= $escaper->escapeHtmlAttr(__('Billmate Checkout Window')) ?>"
+        style="min-height:800px;"
+        src="<?= /* @noEscape */ $viewModel->getIframeUrl() ?>"
+        scrolling="no"
+        sandbox="allow-same-origin allow-scripts allow-modals allow-popups allow-forms allow-top-navigation">
+    </iframe>
+</div>

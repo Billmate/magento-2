@@ -5,8 +5,8 @@
         <css src="Billmate_NwtBillmateCheckout::css/billmate-checkout.css"/>
     </head>
     <update handle="checkout_cart_index"/>
-
     <body>
+        <referenceBlock name="page.main.title" template="Billmate_NwtBillmateCheckout::checkout/title.phtml" />
         <referenceBlock name="checkout.item.price.row" template="Billmate_NwtBillmateCheckout::checkout/item/price/row.phtml" />
         <referenceBlock name="checkout.cart.coupon" template="Billmate_NwtBillmateCheckout::checkout/coupon.phtml" />
         <referenceBlock name="checkout.cart.form" template="Billmate_NwtBillmateCheckout::checkout/cart.phtml" />
@@ -19,7 +19,10 @@
                 </arguments>
             </block>
         </referenceContainer>
-        <referenceBlock name="checkout.cart.shipping">
+        <referenceContainer name="page.wrapper">
+            <container name="main.content.billmate.wrapper" htmlTag="div" htmlClass="billmate-content-wrapper" before="footer" />
+        </referenceContainer>
+        <referenceBlock name="checkout.cart.shipping" template="Billmate_NwtBillmateCheckout::checkout/shipping.phtml">
             <arguments>
                 <argument name="jsLayout" xsi:type="array">
                     <item name="components" xsi:type="array">
@@ -84,12 +87,16 @@
         
         <referenceBlock name="checkout.cart.crosssell" template="Billmate_NwtBillmateCheckout::product/list/items.phtml" />
 
+        <block name="billmate.checkout.newsletter" template="Billmate_NwtBillmateCheckout::checkout/newsletter.phtml" />
+
         <move element="checkout.cart.form" destination="billmate_checkoutSidebar" />
         <move element="page.main.title" destination="billmate_checkoutSidebar" before="-" />
         <move element="cart.summary" destination="billmate_checkoutSidebar" after="checkout.cart.form" />
         <move element="cart.discount" destination="billmate_checkoutSidebar" after="cart.summary" />
+        <move element="billmate.checkout.newsletter" destination="billmate_checkoutSidebar" after="cart.discount" />
         <move element="checkout.cart.shipping" destination="checkout.cart.container" before="billmate.checkout.iframe" />
         <move element="checkout.cart.crosssell" destination="checkout.cart.container" before="checkout.cart.shipping" />
+        <move element="main.content" destination="main.content.billmate.wrapper" />
 
         <referenceContainer name="checkout.cart.methods" remove="true" />
         <referenceContainer name="checkout.cart.order.actions.gift_options" remove="true" />

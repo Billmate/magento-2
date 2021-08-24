@@ -1,0 +1,127 @@
+.billmate-heading {
+    font-size: 32px;
+    font-weight: 500;
+    display: block;
+    margin: 0 auto;
+    text-transform: initial;
+    text-align: center;
+    @include breakpoint('mobile') {
+        font-size: 20px;
+    }
+    strong {
+        font-weight: 500;
+    }
+}
+
+.billmate-content-wrapper {
+    overflow-x: hidden;
+}
+
+.billmate-mobile-hidden {
+    @include breakpoint('mobile') {
+        display: none !important;
+    }
+}
+
+body.billmate-checkout-index {
+    .cart-container {
+        color: $black;
+        @include breakpoint('large') {
+            .form-cart {
+                margin: 10px 0;
+            }
+        }
+        input[type="checkbox"],
+        input[type="radio"] {
+            height: 21px;
+            width: 21px;
+            border-color: $border-color-1;
+            border-radius: 3px;
+            &:checked:after {
+                content: url('../images/checked.svg');
+                display: block;
+                margin-top: -1px;
+                margin-left: -1px;
+                top: 0;
+                left: 0;
+            }
+        }
+        input[type="text"] {
+            border-color: $border-color-1;
+            border-radius: 5px;
+            line-height: 23px;
+            max-width: 275px;
+            @include breakpoint('mobile') {
+                line-height: 21px;
+                width: 100%;
+            }
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        button {
+            text-transform: initial;
+            padding: 0 15px;
+            border-radius: 5px;
+            height: 50px;
+            max-width: 255px;
+            width: 100%;
+            @include breakpoint('mobile') {
+                font-size: 16px;
+                max-width: 100%;
+            }
+            &.action.primary {
+                background-color: $light-blue;
+                border-color: $light-blue;
+                @include breakpoint('desktop') {
+                    &:hover {
+                        background-color: $light-blue;
+                    }
+                }
+            }
+            span {
+                @include breakpoint('desktop') {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    transition: left ease-out 300ms, transform ease-out 300ms;
+                    white-space: nowrap;
+                }
+            }
+            &:after {
+                @include breakpoint('desktop') {
+                    content: url('../images/caret-right.svg');
+                    position: absolute;
+                    top: 0;
+                    right: 15px;
+                    line-height: 52px;
+                    opacity: 0;
+                    transition: opacity ease-out 300ms;
+                }
+            }
+            &:hover {
+                @include breakpoint('desktop') {
+                    &:after {
+                        opacity: 1;
+                    }
+                    span {
+                        left: 15px;
+                        transform: translate(0, -50%);
+                    }
+                }
+            }
+        }
+        .field {
+            margin-bottom: .857em;
+            label {
+                display: block;
+                margin-bottom: .857em;
+                letter-spacing: .2px;
+            }
+        }
+        .price {
+            color: $black;
+        }
+    }
+}

@@ -10,7 +10,7 @@ define([
         },
 
         _bindClickEvent: function () {
-            // To do: Add AJAX for quantity change and when removing products
+            // TODO: Add AJAX for quantity change and when removing products
             
             $(this.element).on('click', function () {
                 var inputId = $(this).data('product-id'),

@@ -18,7 +18,7 @@ $helperBillmate = $this->helper('\Billmate\NwtBillmateCheckout\Helper\Cart');
 ?>
 <tbody class="cart item">
     <tr class="item-info">
-        <td data-th="<?= $block->escapeHtml(__('Item')) ?>" class="col item">
+        <td data-th="<?= $block->escapeHtml(__('Item Image')) ?>" class="col item-img">
             <?php if ($block->hasProductUrl()) :?>
                 <a href="<?= $block->escapeUrl($block->getProductUrl()) ?>"
                    title="<?= $block->escapeHtml($block->getProductName()) ?>"
@@ -33,6 +33,9 @@ $helperBillmate = $this->helper('\Billmate\NwtBillmateCheckout\Helper\Cart');
             <?php else :?>
                 </span>
             <?php endif; ?>
+        </td>
+
+        <td data-th="<?= $block->escapeHtml(__('Item Description')) ?>" class="col item-desc">
             <div class="product-item-details">
                 <strong class="product-item-name">
                     <?php if ($block->hasProductUrl()) :?>

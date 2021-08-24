@@ -31,7 +31,7 @@ $hasCouponCode = (bool) strlen($block->getCouponCode());
     data-mage-init='{"collapsible":{"active": <?= $hasCouponCode ? 'true' : 'false' ?>, "openedState": "active", "saveState": false}}'
 >
     <div class="title" data-role="title">
-        <input type="checkbox" name="billmate-title" />
+        <input type="checkbox" name="billmate-discount" />
         <span id="block-discount-heading" role="heading" aria-level="2"><?= $escaper->escapeHtml(__('Enter discount code')) ?></span>
     </div>
     <div class="content" data-role="content" aria-labelledby="block-discount-heading">
