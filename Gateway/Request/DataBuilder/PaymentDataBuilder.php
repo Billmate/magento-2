@@ -9,41 +9,41 @@ class PaymentDataBuilder extends AbstractDataBuilder
     use Formatter;
 
     /**
-     * The billing amount of the request. This value must be greater than 0,
-     * and must match the currency format of the merchant account.
+     * Billmate Invoice ID
      */
-    const AMOUNT = 'amount';
+    const INVOICE_NUMBER = 'billmate_invoice_number';
 
     /**
-     * Payment ID
+     * Billmate Payment ID
      */
-    const PAYMENT_ID = 'billmatePaymentId';
+    const PAYMENT_NUMBER = 'billmate_payment_number';
 
     /**
      * The merchant account ID used to create a transaction.
-     * If no merchant account ID is specified, default account is used.
      */
-    const MERCHANT_ID = 'merchantID';
+    const MERCHANT_ID = 'merchant_id';
 
     /**
      * Order ID Key
      */
-    const ORDER_ID = 'orderId';
+    const ORDER_ID = 'order_id';
 
     /**
      * @inheritdoc
      */
     public function build(array $buildSubject): array
     {
-        $paymentDO = $this->readPayment($buildSubject);
+        $paymentDO = $this->subjectReader->readPayment($buildSubject);
 
         $payment = $paymentDO->getPayment();
         $order = $paymentDO->getOrder();
 
         $result = [
-            self::AMOUNT => $this->formatPrice($this->subjectReader->readAmount($buildSubject)),
-            self::PAYMENT_ID => $payment->getAdditionalInformation(
-                self::PAYMENT_ID
+            self::PAYMENT_NUMBER => $payment->getAdditionalInformation(
+                self::PAYMENT_NUMBER
+            ),
+            self::INVOICE_NUMBER=> $payment->getAdditionalInformation(
+                self::INVOICE_NUMBER
             ),
             self::ORDER_ID => $order->getOrderIncrementId()
         ];
@@ -55,5 +55,4 @@ class PaymentDataBuilder extends AbstractDataBuilder
 
         return $result;
     }
-
 }

@@ -1,0 +1,59 @@
+<?php
+use Magento\Checkout\Block\Cart\Shipping;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+use Magento\Framework\Escaper;
+
+/**
+ * @var Shipping $block
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
+?>
+
+<div id="billmate-block-shipping"
+     class="block shipping"
+>
+    <div class="title" data-role="title">
+        <strong id="block-shipping-heading" role="heading" aria-level="2">
+            <?= !$block->getQuote()->isVirtual()
+                ? $escaper->escapeHtml(__('Choose shipping method'))
+                : ''
+            ?>
+        </strong>
+    </div>
+    <div id="block-summary"
+         data-bind="scope:'block-summary'"
+         class="content"
+         data-role="content"
+         aria-labelledby="block-shipping-heading"
+         style="display: block"
+    >
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <script type="text/x-magento-init">
+            {
+                "#block-summary": {
+                    "Magento_Ui/js/core/app": <?= /* @noEscape */ $block->getJsLayout() ?>
+                }
+            }
+        </script>
+<?php $serializedCheckoutConfig = /* @noEscape */ $block->getSerializedCheckoutConfig();
+
+$scriptString = <<<script
+
+            window.checkoutConfig = {$serializedCheckoutConfig};
+            window.customerData = window.checkoutConfig.customerData;
+            window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
+            require([
+                'mage/url',
+                'Magento_Ui/js/block-loader'
+            ], function(url, blockLoader) {
+                blockLoader(
+                    "{$escaper->escapeJs($escaper->escapeUrl($block->getViewFileUrl('images/loader-1.gif')))}"
+                );
+                return url.setBaseUrl('{$escaper->escapeJs($escaper->escapeUrl($block->getBaseUrl()))}');
+            })
+script;
+?>
+        <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
+    </div>
+</div>

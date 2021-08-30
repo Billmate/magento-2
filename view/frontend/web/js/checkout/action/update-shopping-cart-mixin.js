@@ -1,60 +1,258 @@
 define([
         'jquery',
+        'ko',
+        'underscore',
         'uiRegistry',
-        'Billmate_NwtBillmateCheckout/js/checkout/action/reload-checkout'
+        'mage/url',
+        'Magento_Ui/js/modal/alert',
+        'Magento_Ui/js/modal/confirm',
+        'Magento_Customer/js/customer-data',
+        'Magento_Checkout/js/model/quote',
+        'Magento_Checkout/js/model/cart/totals-processor/default',
+        'Billmate_NwtBillmateCheckout/js/quote/cart-encoder',
+        'Billmate_NwtBillmateCheckout/js/checkout/view/item/subtotal',
+        'Billmate_NwtBillmateCheckout/js/checkout/action/reload-totals',
     ],
-    function($, uiRegistry, reloadTotals) {
+    function(
+        $,
+        ko,
+        _,
+        uiRegistry,
+        mageurl,
+        magealert,
+        confirm,
+        customerData,
+        quote,
+        totalsDefaultProvider,
+        cartEncoder,
+        subtotalViewModel,
+        reloadTotals
+    ) {
         'use strict';
 
         /**
+         * Update cart item subtotal view model with new totals
+         * 
          * @param {Object} item 
          */
-        const setNewSubtotals = function (item) {
+        const _setNewSubtotals = function (item) {
             const component = uiRegistry.get('billmate-checkout-itemid-' + item.item_id + '-subtotal')
-            let newRowTotal = item.row_total + item.weee_tax_applied_row_amount;
-            let newRowTotalInclTax = item.row_total_incl_tax + item.weee_tax_applied_row_amount;
+            const newRowTotal = item.row_total + item.weee_tax_applied_row_amount;
+            const newRowTotalInclTax = item.row_total_incl_tax + item.weee_tax_applied_row_amount;
 
             component.row_total(component.formatPrice(newRowTotal));
             component.row_total_incl_tax(component.formatPrice(newRowTotalInclTax));
         }
 
         const updateShoppingCartMixin = {
+            options: {
+                removerSelector: '.action-delete',
+                tableSelector: '#shopping-cart-table',
+                itemSubtotalSelector: '.subtotal > span'
+            },
+
+            _privateContentVersion: null,
+            _encodedCart: null,
+            _disableAutoUpdate: false,
+            _create: function () {
+                this._super();
+                this._bindCustomEvents();
+            },
+
+            /**
+             * Makes the update cart form submit into an ajax request
+             */
             submitForm: function () {
 
-                if(!$('body').hasClass('billmate-checkout-index')) {
-                    this.element
-                        .off('submit', this.onSubmit)
-                        .on('submit', function () {
-                            $(document.body).trigger('processStart');
-                        })
-                        .submit();
+                // Original widget function
+                if(!this._isBillmateCheckout()) {
+                    this._super();
+                    return true;
                 }
 
                 let requestData = $(this.element).serialize() + '&billmate=1';
                 $.ajax({
                     url: $(this.element).context.action,
                     data: requestData,
-                    type: 'post',
+                    method: 'POST',
+                    dataType: 'json',
                     context: this,
-    
-                    /** @inheritdoc */
+
                     beforeSend: function () {
                         $(document.body).trigger('processStart');
-                    },
-    
-                    /** @inheritdoc */
-                    complete: function () {
-                        $(document.body).trigger('processStop');
+                        this._disableAutoUpdate = true;
                     }
                 })
                 .done(function (response) {
                     reloadTotals(response);
                     let items = response.items;
                     Object.values(items).forEach(function (item) {
-                        setNewSubtotals(item);
+                        _setNewSubtotals(item);
                     });
+                    this._setNewPrivateContentVersion();
+                })
+                .always(function () {
+                    $(document.body).trigger('processStop');
+                    this._disableAutoUpdate = false;
                 });
             },
+
+            /**
+             * Handle removal of item in cart, making it an ajax request
+             * 
+             * @param {Object} event 
+             */
+            _removeHandler: function (event) {
+                event.preventDefault();
+                confirm({
+                    content: $.mage.__(
+                        'Are you sure you want to remove %1 from the cart?'
+                    ).replace('%1', $(event.target).attr('data-item-name')),
+                    buttons: [{
+                        text: $.mage.__('No'),
+                        class: 'action-secondary action-dismiss',
+                        click: function (event) {
+                            this.closeModal(event);
+                        }
+                    }, {
+                        text: $.mage.__('Yes'),
+                        class: 'action-primary action-accept',
+                        click: function (event) {
+                            this.closeModal(event, true);
+                        }
+                    }],
+                    actions: {
+                        confirm: function () {
+                            $.ajax(mageurl.build('checkout/cart/delete'), {
+                                dataType: 'json',
+                                method: 'post',
+                                context: this,
+                                data: {
+                                    id: $(event.target).attr('data-item-id'),
+                                    form_key: window.checkoutConfig.formKey,
+                                    billmate: 1
+                                },
+                                beforeSend: function () {
+                                    $(document.body).trigger('processStart');
+                                    this._disableAutoUpdate = true;
+                                }
+                            })
+                            .done(function (response) {
+                                reloadTotals(response);
+                                // We receive new html for all cart items
+                                this._setNewPrivateContentVersion();
+                                this._updateCartItems(response.carthtml);
+                            })
+                            .fail(function (fail) {
+                                magealert({content: $.mage.__('Failed to remove item')});
+                            })
+                            .always(function () {
+                                $(document.body).trigger('processStop');
+                                this._disableAutoUpdate = false;
+                            });
+                        }.bind(this)
+                    }
+                });
+            },
+
+            /**
+             * Replace current cart items html
+             * 
+             * @param {String} html new cart items html
+             */
+            _updateCartItems: function (html) {
+                const newCartPlaceholder = $('<div class="cart-placeholder" />').html(html).toggle();
+                $(this.options.tableSelector).find('tbody').remove();
+                $(this.options.tableSelector).append(newCartPlaceholder.find('tbody'));
+
+                // Re-bind events since we've replaced the html elements
+                this._bindCustomEvents();
+
+                $(this.options.tableSelector).find('tbody').each(function (index, elem) {
+                    // We must also reapply knockout binding to the price display
+                    ko.applyBindings(
+                        subtotalViewModel({}),
+                        _.first($(elem).find(this.options.itemSubtotalSelector)
+                    ));
+                }.bind(this));
+            },
+
+            /**
+             * Setup event handlers and subscribers
+             */
+            _bindCustomEvents: function () {
+                if (!this._isBillmateCheckout()) {
+                    return;
+                }
+                
+                this._privateContentVersion = $.mage.cookies.get('private_content_version');
+                this._encodedCart = cartEncoder(customerData.get('cart-data')())
+                this._on($(this.element.find(this.options.removerSelector)), {
+                    'click': this._removeHandler
+                });
+
+                // A watcher that detects changes to the cart from elsewhere, such as a second tab
+                setInterval(function () {
+                    const cookiePrivateContentVersion = $.mage.cookies.get('private_content_version');
+                    if (cookiePrivateContentVersion === this._privateContentVersion || this._disableAutoUpdate) {
+                        return;
+                    }
+
+                    this._privateContentVersion = cookiePrivateContentVersion;
+
+                    customerData.reload(['cart']);
+                    this._disableAutoUpdate = true;
+
+                    // This updates cart cache
+                    totalsDefaultProvider.estimateTotals(quote.shippingAddress()).then(function () {
+                        const newEncodedCart = cartEncoder(customerData.get('cart-data')());
+                        if (this._encodedCart === newEncodedCart) {
+                            this._disableAutoUpdate = false;
+                            return;
+                        }
+
+                        $.ajax({
+                            url: mageurl.build('billmate/checkout/getCartHtml'),
+                            method: 'GET',
+                            dataType: 'json',
+                            context: this,
+
+                            beforeSend: function () {
+                                $(document.body).trigger('processStart');
+                            }
+                        })
+                        .done(function (response) {
+                            if (!response.success) {
+                                magealert({content: response.message});
+                                return;
+                            }
+                            reloadTotals(response);
+                            // We receive new html for all cart items
+                            this._updateCartItems(response.carthtml);
+                        })
+                        /*.fail(function (fail) {
+                            //TODO show confirm dialog with message like "We are sorry, an error occurred, need to reload checkout"
+                            return;
+                        })*/
+                        .always(function () {
+                            $(document.body).trigger('processStop');
+                            this._disableAutoUpdate = false;
+                        })
+                    }.bind(this));
+
+                }.bind(this), 2000);
+            },
+
+            /**
+             * @returns {Boolean}
+             */
+            _isBillmateCheckout: function () {
+                return $('body').hasClass('billmate-checkout-index');
+            },
+
+            _setNewPrivateContentVersion() {
+                this._privateContentVersion = $.mage.cookies.get('private_content_version');
+            }
         };
 
         return function(targetWidget) {

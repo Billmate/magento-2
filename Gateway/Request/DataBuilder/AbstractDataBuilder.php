@@ -16,9 +16,17 @@ abstract class AbstractDataBuilder implements BuilderInterface
      */
     protected $config;
 
-    public function __construct(Config $config)
-    {
+    /**
+     * @var SubjectReader
+     */
+    protected $subjectReader;
+
+    public function __construct(
+        Config $config,
+        SubjectReader $subjectReader
+    ) {
         $this->config = $config;
+        $this->subjectReader = $subjectReader;
     }
 
     /**
@@ -29,6 +37,6 @@ abstract class AbstractDataBuilder implements BuilderInterface
      */
     protected function readPayment(array $payment)
     {
-        return SubjectReader::readPayment($payment);
+        return $this->subjectReader->readPayment($payment);
     }
 }
