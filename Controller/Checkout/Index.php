@@ -104,7 +104,7 @@ class Index implements HttpGetActionInterface
 
         $this->saveQuote($quote);
 
-        if (!is_null($layoutType = $this->config->getDesignGroupValue('layout_type'))) {
+        if (!is_null($layoutType = $this->config->getLayoutType())) {
             $resultPage->getConfig()->setPageLayout($layoutType);
         }
 

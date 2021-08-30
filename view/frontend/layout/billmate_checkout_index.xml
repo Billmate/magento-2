@@ -20,10 +20,6 @@
                 </arguments>
             </block> 
         </referenceContainer>
-		<referenceContainer name="store.menu" remove="true" />
-		<referenceContainer name="container_mobile_header_top" remove="true" />
-		<referenceContainer name="header_container" remove="true" />
-		<referenceBlock name="base-header-container" remove="true" />
         <referenceBlock name="top.search" remove="true" />
         <referenceBlock name="minicart" remove="true" />
 
