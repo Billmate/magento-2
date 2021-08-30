@@ -11,7 +11,7 @@ class LayoutTypes implements \Magento\Framework\Data\OptionSourceInterface
      */
     public function toOptionArray()
     {
-        return [['value' => '1column', 'label' => __('1 column')], ['value' => '2columns', 'label' => __('2 columns')]];
+        return [['value' => '1column-billmate', 'label' => __('1 column Billmate')], ['value' => '2columns-billmate', 'label' => __('2 columns Billmate')]];
     }
 
     /**
@@ -21,6 +21,6 @@ class LayoutTypes implements \Magento\Framework\Data\OptionSourceInterface
      */
     public function toArray()
     {
-        return ['1column' => __('1 column'), '2columns' => __('2 columns')];
+        return ['1column-billmate' => __('1 column Billmate'), '2columns-billmate' => __('2 columns Billmate')];
     }
 }

@@ -31,12 +31,29 @@ body.billmate-checkout-index {
                 margin: 10px 0;
             }
         }
+        input[type="text"] {
+            padding: .786em 1em;
+        }
+        input[type="text"], select, textarea {
+            appearance: none;
+            font-size: 16px;
+            height: auto;
+        }
         input[type="checkbox"],
         input[type="radio"] {
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            border: 1px solid $border-color-1;
+            position: relative;
             height: 21px;
             width: 21px;
-            border-color: $border-color-1;
             border-radius: 3px;
+            margin: 0;
+            appearance: none;
+            &:focus {
+                box-shadow: none;
+            }
             &:checked:after {
                 content: url('../images/checked.svg');
                 display: block;
@@ -73,10 +90,10 @@ body.billmate-checkout-index {
             &.action.primary {
                 background-color: $light-blue;
                 border-color: $light-blue;
-                @include breakpoint('desktop') {
-                    &:hover {
-                        background-color: $light-blue;
-                    }
+                box-shadow: none !important;
+                &:hover {
+                    background-color: $light-blue;
+                    border-color: $light-blue;
                 }
             }
             span {
@@ -122,6 +139,30 @@ body.billmate-checkout-index {
         }
         .price {
             color: $black;
+        }
+        .actions-toolbar,
+        .product-item-actions .actions-primary {
+            display: block;
+            width: 100%;
+            .primary {
+                display: block;
+                width: 100%;
+                float: none;
+                color: $white;
+                border-radius: 5px;
+                margin: 0;
+                position: relative;
+                font-size: 16px;
+                &:hover {
+                    color: $white;
+                    border: 0;
+                }
+            }
+        }
+    }
+    @include breakpoint('mobile') {
+        .page-header {
+            margin-bottom: 0;
         }
     }
 }

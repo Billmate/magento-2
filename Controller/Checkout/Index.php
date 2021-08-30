@@ -107,7 +107,13 @@ class Index implements HttpGetActionInterface
         if (!is_null($layoutType = $this->config->getLayoutType())) {
             $resultPage->getConfig()->setPageLayout($layoutType);
         }
-        $resultPage->getConfig()->getTitle()->set(__('Billmate Checkout'));
+
+        if ($layoutType == '2columns-billmate') {
+            $resultPage->addHandle('billmate_checkout_2columns');
+            $resultPage->getConfig()->getTitle()->set(__('Order details'));
+        } else {
+            $resultPage->getConfig()->getTitle()->set(__('Billmate Checkout'));
+        }
 
         return $resultPage;
     }

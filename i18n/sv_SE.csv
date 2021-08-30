@@ -1,4 +1,5 @@
 "Billmate Checkout", "Kassan", module, Billmate_NwtBillmateCheckout
+"Order details", "Orderdetaljer", module, Billmate_NwtBillmateCheckout
 "Modify", "Redigera", module, Billmate_NwtBillmateCheckout
 "Delivery", "Leverans", module, Billmate_NwtBillmateCheckout
 "VAT", "Varav moms", module, Billmate_NwtBillmateCheckout

@@ -15,6 +15,7 @@ $isVisibleProduct = $product->isVisibleInSiteVisibility();
 /** @var \Magento\Msrp\Helper\Data $helper */
 $helper = $this->helper(Magento\Msrp\Helper\Data::class);
 $helperBillmate = $this->helper('\Billmate\NwtBillmateCheckout\Helper\Cart');
+$twoColumnsLayout = in_array('billmate_checkout_2columns', $block->getLayout()->getUpdate()->getHandles());
 ?>
 <tbody class="cart item">
     <tr class="item-info">
@@ -71,40 +72,74 @@ $helperBillmate = $this->helper('\Billmate\NwtBillmateCheckout\Helper\Cart');
                     <?= $addInfoBlock->setItem($_item)->toHtml() ?>
                 <?php endif;?>
             </div>
+            <?php if ($twoColumnsLayout): ?>
+                <div class="field qty">
+                    <?php
+                        $formKey = $helperBillmate->getFormKey();
+                    ?>
+                    <div class="control qty">
+                        <label for="cart-<?= $block->escapeHtmlAttr($_item->getId()) ?>-qty">
+                            <span id="dec-<?= $_item->getId() ?>" class="input-number-decrement" data-product-id="<?= $_item->getId() ?>">-</span>
+                            <input id="cart-<?= $block->escapeHtmlAttr($_item->getId()) ?>-qty"
+                                name="cart[<?= $block->escapeHtmlAttr($_item->getId()) ?>][qty]"
+                                data-cart-item-id="<?php /* @escapeNotVerified */
+                                echo $_item->getSku() ?>"
+                                data-cart-product-id="<?php /* @escapeNotVerified */
+                                echo $_item->getId() ?>"
+                                data-cart-form-key="<?php echo $formKey->getFormKey(); ?>"                          
+                                data-cart-url-submit="<?= /* @escapeNotVerified */
+                                $block->getUrl('checkout/sidebar/updateItemQty') ?>"
+                                data-cart-url-remove="<?= /* @escapeNotVerified */
+                                $block->getUrl('checkout/sidebar/removeItem'); ?>"
+                                value="<?= $block->escapeHtmlAttr($block->getQty()) ?>"
+                                type="number"
+                                size="4"
+                                step="any"
+                                title="<?= $block->escapeHtmlAttr(__('Qty')) ?>"
+                                class="input-text qty"
+                                data-validate="{required:true,'validate-greater-than-zero':true}"
+                                data-role="cart-item-qty"/>
+                            <span id="inc-<?= $_item->getId() ?>" class="input-number-increment" data-product-id="<?= $_item->getId() ?>">+</span>
+                        </label>
+                    </div>
+                </div>
+            <?php endif;?>
         </td>
 
-        <td class="col qty" data-th="<?= $block->escapeHtml(__('Qty')) ?>">
-            <div class="field qty">
-                <?php
-                    $formKey = $helperBillmate->getFormKey();
-                ?>
-                <div class="control qty">
-                    <label for="cart-<?= $block->escapeHtmlAttr($_item->getId()) ?>-qty">
-                        <span id="inc-<?= $_item->getId() ?>" class="input-number-increment" data-product-id="<?= $_item->getId() ?>">+</span>
-                        <input id="cart-<?= $block->escapeHtmlAttr($_item->getId()) ?>-qty"
-                               name="cart[<?= $block->escapeHtmlAttr($_item->getId()) ?>][qty]"
-                               data-cart-item-id="<?php /* @escapeNotVerified */
-                               echo $_item->getSku() ?>"
-                               data-cart-product-id="<?php /* @escapeNotVerified */
-                               echo $_item->getId() ?>"
-                               data-cart-form-key="<?php echo $formKey->getFormKey(); ?>"                          
-                               data-cart-url-submit="<?= /* @escapeNotVerified */
-                               $block->getUrl('checkout/sidebar/updateItemQty') ?>"
-                               data-cart-url-remove="<?= /* @escapeNotVerified */
-                               $block->getUrl('checkout/sidebar/removeItem'); ?>"
-                               value="<?= $block->escapeHtmlAttr($block->getQty()) ?>"
-                               type="number"
-                               size="4"
-                               step="any"
-                               title="<?= $block->escapeHtmlAttr(__('Qty')) ?>"
-                               class="input-text qty"
-                               data-validate="{required:true,'validate-greater-than-zero':true}"
-                               data-role="cart-item-qty"/>
-                        <span id="dec-<?= $_item->getId() ?>" class="input-number-decrement" data-product-id="<?= $_item->getId() ?>">-</span>
-                    </label>
+        <?php if (!$twoColumnsLayout): ?>
+            <td class="col qty" data-th="<?= $block->escapeHtml(__('Qty')) ?>">
+                <div class="field qty">
+                    <?php
+                        $formKey = $helperBillmate->getFormKey();
+                    ?>
+                    <div class="control qty">
+                        <label for="cart-<?= $block->escapeHtmlAttr($_item->getId()) ?>-qty">
+                            <span id="inc-<?= $_item->getId() ?>" class="input-number-increment" data-product-id="<?= $_item->getId() ?>">+</span>
+                            <input id="cart-<?= $block->escapeHtmlAttr($_item->getId()) ?>-qty"
+                                name="cart[<?= $block->escapeHtmlAttr($_item->getId()) ?>][qty]"
+                                data-cart-item-id="<?php /* @escapeNotVerified */
+                                echo $_item->getSku() ?>"
+                                data-cart-product-id="<?php /* @escapeNotVerified */
+                                echo $_item->getId() ?>"
+                                data-cart-form-key="<?php echo $formKey->getFormKey(); ?>"                          
+                                data-cart-url-submit="<?= /* @escapeNotVerified */
+                                $block->getUrl('checkout/sidebar/updateItemQty') ?>"
+                                data-cart-url-remove="<?= /* @escapeNotVerified */
+                                $block->getUrl('checkout/sidebar/removeItem'); ?>"
+                                value="<?= $block->escapeHtmlAttr($block->getQty()) ?>"
+                                type="number"
+                                size="4"
+                                step="any"
+                                title="<?= $block->escapeHtmlAttr(__('Qty')) ?>"
+                                class="input-text qty"
+                                data-validate="{required:true,'validate-greater-than-zero':true}"
+                                data-role="cart-item-qty"/>
+                            <span id="dec-<?= $_item->getId() ?>" class="input-number-decrement" data-product-id="<?= $_item->getId() ?>">-</span>
+                        </label>
+                    </div>
                 </div>
-            </div>
-        </td>
+            </td>
+        <?php endif; ?>
 
         <td class="col price" data-th="<?= $block->escapeHtml(__('Price')) ?>">
             <div class="actions-toolbar">

@@ -1,4 +1,4 @@
-.billmate-checkout-index.page-layout-1column {
+.billmate-checkout-index {
     .cart-container {
         .form-cart {
             width: 100%;
@@ -8,7 +8,7 @@
                 margin: 0;
             }
         }
-        & > * {
+        & > *:not(.page-title-wrapper) {
             border: 1px solid $border-color;
             border-radius: 10px;
             box-shadow: $box-shadow;
@@ -25,46 +25,46 @@
                 margin-bottom: 30px;
             }
         }
-    }
-    .billmate-checkout-sidebar {
-        overflow: hidden;
-        position: relative;
-        padding-bottom: 110px;
-        @include breakpoint('large') {
-            &:before,
-            &:after {
-                content: '';
-                position: absolute;
-                height: 1px;
-                background: $border-color-1;
-                width: calc(100% - 180px);
-                bottom: 110px;
-                left: 0;
-                right: 0;
-                margin: 0 auto;
-                @include breakpoint('(max-width: 1060px)') {
-                    width: calc(100% - 90px);
+        .billmate-checkout-sidebar {
+            overflow: hidden;
+            position: relative;
+            padding-bottom: 110px;
+            @include breakpoint('large') {
+                &:before,
+                &:after {
+                    content: '';
+                    position: absolute;
+                    height: 1px;
+                    background: $border-color-1;
+                    width: calc(100% - 180px);
+                    bottom: 110px;
+                    left: 0;
+                    right: 0;
+                    margin: 0 auto;
+                    @include breakpoint('(max-width: 1060px)') {
+                        width: calc(100% - 90px);
+                    }
+                    @include breakpoint('small') {
+                        width: calc(100% - 40px);
+                    }
+                    @include breakpoint('mobile') {
+                        width: calc(100% - 30px);
+                    }
                 }
-                @include breakpoint('small') {
-                    width: calc(100% - 40px);
-                }
-                @include breakpoint('mobile') {
-                    width: calc(100% - 30px);
+                &:after {
+                    bottom: 65px;
                 }
             }
-            &:after {
-                bottom: 65px;
+            @include breakpoint('(max-width: 1060px)') {
+                padding-bottom: 110px;
             }
-        }
-        @include breakpoint('(max-width: 1060px)') {
-            padding-bottom: 110px;
-        }
-        @include breakpoint('small') {
-            padding-bottom: 110px;
-        }
-        @include breakpoint('mobile') {
-            display: flex;
-            flex-direction: column;
+            @include breakpoint('small') {
+                padding-bottom: 110px;
+            }
+            @include breakpoint('mobile') {
+                display: flex;
+                flex-direction: column;
+            }
         }
     }
     #checkout {
@@ -93,8 +93,17 @@
             padding-top: 15px;
         }
     }
-    .cart.table tbody {
+    .cart.table-wrapper {
+        @include breakpoint('mobile') {
+            border-top: 0;
+            margin-bottom: 0;
+        }
+    }
+    .cart-container .cart.table tbody {
         border-color: $border-color-1;
+        @include breakpoint('mobile') {
+            display: flex;
+        }
         &:first-child {
             border-top: 1px solid $border-color-1;
         }
@@ -112,9 +121,15 @@
             vertical-align: top;
             @include breakpoint('mobile') {
                 padding: 15px 0;
+                &:before {
+                    display: none !important;
+                }
             }
             a.product-item-photo {
                 padding-right: 20px;
+                position: relative;
+                top: auto;
+                left: auto;
                 @include breakpoint('mobile') {
                     padding-right: 15px;
                 }
@@ -124,11 +139,17 @@
                 text-transform: initial;
                 font-weight: 500;
                 margin: 0;
+                @include breakpoint('mobile') {
+                    font-size: 14px;
+                }
             }
             .item-options {
                 margin-top: 1em;
                 margin-bottom: 1em;
                 font-size: 16px;
+                @include breakpoint('mobile') {
+                    font-size: 14px;
+                }
             }
             dt {
                 font-weight: 500;
@@ -149,6 +170,8 @@
                 @include breakpoint('mobile') {
                     width: auto;
                     order: 0;
+                }
+                @include breakpoint('(max-width: 320px)') {
                     flex-basis: 40%;
                 }
             }
@@ -157,15 +180,20 @@
                 @include breakpoint('mobile') {
                     order: 0;
                     padding-bottom: 60px;
-                    max-width: 120px;
+                    max-width: 145px;
                 }
             }
-            &.qty {
+            .field.qty {
                 text-align: center;
                 @include breakpoint('mobile') {
                     order: 2;
                     position: absolute;
                     bottom: 0;
+                    left: 125px;
+                    float: none;
+                    width: auto;
+                }
+                @include breakpoint('(max-width: 320px)') {
                     left: 40%;
                 }
                 label {
@@ -222,6 +250,10 @@
                     order: 1;
                     width: 1%;
                     margin-left: auto;
+                    .actions-toolbar {
+                        min-height: 0;
+                        position: static;
+                    }
                 }
             }
             .actions-toolbar {
@@ -316,7 +348,7 @@
         width: 40%;
         float: right;
         padding: 0 20px;
-        margin-bottom: 20px;
+        margin-bottom: 0;
         background-color: $white;
         top: auto !important;
         position: static;
@@ -330,6 +362,10 @@
         .cart-totals {
             border-top: 0;
             padding-top: 0;
+            @include breakpoint('mobile') {
+                padding-left: 0;
+                padding-right: 0;
+            }
         }
         .data.totals {
             border: 0;
@@ -353,9 +389,6 @@
                 @include breakpoint('mobile') {
                     font-size: 14px;
                 }
-            }
-            td, th {
-                padding: 5px 0;
             }
             .totals.sub {
                 th:after {
@@ -405,7 +438,7 @@
                     }
                 }
                 td {
-                    padding-right: 20px;
+                    padding: 5px 20px 5px 0;
                     @include breakpoint('mobile') {
                         padding-right: 0;
                         font-size: 16px;
@@ -418,6 +451,8 @@
             @include breakpoint('mobile') {
                 tr {
                     width: 100%;
+                    display: flex;
+                    align-items: center;
                     justify-content: space-between;
                 }
             }
@@ -430,17 +465,32 @@
         float: left;
         width: 60%;
         padding: 5px 20px;
+        margin-bottom: 10px;
         @include breakpoint('mobile') {
             float: none;
             width: 100%;
             padding: 10px 0 5px;
             margin-left: 0;
+            border-bottom: 0;
         }
         .block.discount {
+            width: 100%;
+            .content {
+                padding-bottom: 0;
+                @include breakpoint('mobile') {
+                    padding: 0;
+                }
+            }
             .title {
                 display: flex;
                 align-items: center;
                 cursor: pointer;
+                @include breakpoint('mobile') {
+                    border-top: 0;
+                    padding-left: 0;
+                    padding-right: 0;
+                    padding-bottom: 0;
+                }
                 span {
                     font-size: 16px !important;
                     font-weight: 400 !important;
@@ -449,6 +499,12 @@
                     height: auto;
                     width: auto;
                     position: static;
+                    @include breakpoint('mobile') {
+                        font-size: 14px !important;
+                    }
+                }
+                &:after {
+                    display: none;
                 }
             }
             &:not(.active) {
@@ -469,8 +525,12 @@
                 max-width: 400px;
             }
         }
+        .field {
+            display: block;
+        }
         .fieldset.coupon {
             padding-top: 20px;
+            margin-bottom: 0;
         }
     }
     .billmate-newsletter {
@@ -487,7 +547,11 @@
             display: flex;
             align-items: center;
             span {
+                font-size: 16px;
                 padding-left: 10px;
+                @include breakpoint('mobile') {
+                    font-size: 14px;
+                }
             }
         }
     }
@@ -496,12 +560,22 @@
         width: 100vw;
         margin-left: calc(50% - 50vw);
         margin-right: calc(50% - 50vw);
+        float: none;
         @include breakpoint('mobile') {
             border-radius: 0;
         }
         .block-title {
             strong {
                 font-weight: 700
+            }
+        }
+        .product-item-info {
+            width: 100%;
+            &:hover {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                border: 0
             }
         }
         .crosssell-wrapper {
@@ -539,15 +613,19 @@
                     font-size: 16px;
                     font-weight: 500;
                     margin-bottom: 15px;
+                    @include breakpoint('mobile') {
+                        font-size: 14px;
+                    }
+                }
+                .price-label {
+                    display: none !important;
                 }
             }
         }
         button.primary {
             font-size: 16px;
             font-weight: 700;
-            @include breakpoint('(max-width: 1060px)') {
-                max-width: 100%;
-            }
+            max-width: 100%;
             @include breakpoint('mobile') {
                 font-size: 16px;
             }
@@ -646,8 +724,16 @@
         }
     }
     .block.shipping {
+        .fieldset {
+            margin-bottom: 0;
+        }
+        .items {
+            margin-top: 1em;
+            margin-bottom: 1em;
+        }
         .item-options {
             margin-left: 0;
+            margin-bottom: 0;
             padding: 20px;
             border-top: 1px solid $border-color-1;
             @include breakpoint('mobile') {
@@ -658,6 +744,7 @@
             }
             .choice {
                 width: 100%;
+                display: flex;
                 align-items: center;
                 justify-content: space-between;
             }
@@ -667,17 +754,21 @@
                 margin-bottom: 0;
             }
             .label {
+                font-size: 16px;
                 margin-left: 20px;
                 font-weight: 500;
                 @include breakpoint('mobile') {
                     margin-left: 10px;
-                    font-size: 16px;
                 }
             }
             .price-wrapper {
+                font-size: 16px;
                 flex: 1;
                 text-align: right;
                 font-weight: 500;
+                @include breakpoint('mobile') {
+                    font-size: 14px;
+                }
             }
             .radio {
                 top: -1px;
