@@ -1,11 +1,28 @@
 <?php
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
 /**
- * TODO: Implement newsletter functionality
-*/
+ * @var Template $block
+ * @var Escaper $escaper
+ */
 ?>
-<div class="billmate-newsletter">
-    <div class="wrapper">
-        <input type="checkbox" name="billmate-newsletter" />
-        <span id="block-newsletter-heading" role="heading" aria-level="2"><?= $escaper->escapeHtml(__('Subscribe to the newsletter')) ?></span>
-    </div>
+<div class="billmate-newsletter newsletter">
+    <form 
+        method="post"
+        action="<?= $escaper->escapeHtmlAttr($block->getUrl('billmate/checkout/subscibeNewsletter')); ?>"
+        id="billmate-checkout-newsletter-form"
+    >
+        <div class="fieldset comment wrapper">
+            <input 
+                type="checkbox"
+                name="newsletter"
+                value="1"
+                id="newsletter"
+                title="<?= $escaper->escapeHtmlAttr(__('Subscribe to the newsletter')) ?>" class="checkbox"/>
+            <label for="newsletter">
+                <?= $escaper->escapeHtml(__('Subscribe to the newsletter')) ?>
+            </label>
+        </div>
+    </form>
 </div>

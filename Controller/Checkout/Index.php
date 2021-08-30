@@ -4,26 +4,21 @@ namespace Billmate\NwtBillmateCheckout\Controller\Checkout;
 
 use Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter;
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
+use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Framework\View\Result\PageFactory;
-use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Checkout\Model\Session;
-use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Api\CartRepositoryInterface as QuoteRepositoryInterface;
 use Magento\Quote\Model\Quote\TotalsCollector;
+use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Quote\Model\Quote\Address;
 
 class Index implements HttpGetActionInterface
 {
     /**
-     * @var PageFactory
+     * @var ControllerUtil
      */
-    private $resultPageFactory;
-
-    /**
-     * @var ResultRedirectFactory
-     */
-    private $resultRedirectFactory;
+    private $util;
 
     /**
      * @var BillmateAdapter
@@ -34,11 +29,6 @@ class Index implements HttpGetActionInterface
      * @var Session
      */
     private $checkoutSession;
-
-    /**
-     * @var CustomerSession
-     */
-    private $customerSession;
 
     /**
      * @var QuoteRepositoryInterface
@@ -55,36 +45,44 @@ class Index implements HttpGetActionInterface
      */
     private $totalsCollector;
 
+    /**
+     * @var DirectoryHelper
+     */
+    private $directoryHelper;
+
     public function __construct(
-        PageFactory $resultPageFactory,
-        RedirectFactory $resultRedirectFactory,
+        ControllerUtil $util,
         BillmateAdapter $billmateAdapter,
         Session $checkoutSession,
-        CustomerSession $customerSession,
         QuoteRepositoryInterface $quoteRepo,
         Config $config,
-        TotalsCollector $totalsCollector
+        TotalsCollector $totalsCollector,
+        DirectoryHelper $directoryHelper
     ) {
-        $this->resultPageFactory = $resultPageFactory;
-        $this->resultRedirectFactory = $resultRedirectFactory;
+        $this->util = $util;
         $this->billmateAdapter = $billmateAdapter;
         $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
         $this->quoteRepo = $quoteRepo;
         $this->config = $config;
         $this->totalsCollector = $totalsCollector;
+        $this->directoryHelper = $directoryHelper;
     }
 
     public function execute()
     {
-        $resultPage = $this->resultPageFactory->create();
+        if (!$this->config->getEnabled()) {
+            return $this->util->forwardNoRoute();
+        }
+
+        $resultPage = $this->util->pageResult();
         $quote = $this->checkoutSession->getQuote();
 
         if (!$quote->hasItems() || $quote->getHasError() || !$quote->validateMinimumAmount()) {
-            return $this->resultRedirectFactory->create()->setPath('checkout/cart');
+            return $this->util->redirect('checkout/cart');
         }
 
-        $this->setDefaultShipping($quote);
+        $this->setQuoteDefaults($quote);
+        $this->setPaymentMethod($quote);
 
         if (!$quote->getReservedOrderId()) {
             $quote->reserveOrderId();
@@ -92,19 +90,21 @@ class Index implements HttpGetActionInterface
 
         $quotePaymentNumber = $quote->getPayment()->getAdditionalInformation('billmate_payment_number');
 
-        if (!$quotePaymentNumber) {
+        if (true || !$quotePaymentNumber) {
             $initCheckoutData = $this->billmateAdapter->initCheckout($quote);
-            $quote->getPayment()->setAdditionalInformation('billmate_payment_number', $initCheckoutData['number']);
-            $this->checkoutSession->setData('billmate_iframe_url', $initCheckoutData['url']);
-            $this->checkoutSession->setData('billmate_payment_number', $initCheckoutData['number']);
+            $paymentNumber = $initCheckoutData->getNumber();
+            $quote->getPayment()->setAdditionalInformation('billmate_payment_number', $paymentNumber);
+            $this->checkoutSession->setData('billmate_iframe_url', $initCheckoutData->getUrl());
+            $this->checkoutSession->setData('billmate_payment_number', $paymentNumber);
         } else {
             $updateCheckoutData = $this->billmateAdapter->updateCheckout($quote);
-            $this->checkoutSession->setData('billmate_iframe_url', $updateCheckoutData['url']);
+            $this->checkoutSession->setData('billmate_iframe_url', $updateCheckoutData->getUrl());
         }
+        // TODO error handling
 
         $this->saveQuote($quote);
 
-        if (!is_null($layoutType = $this->config->getLayoutType())) {
+        if (!is_null($layoutType = $this->config->getDesignGroupValue('layout_type'))) {
             $resultPage->getConfig()->setPageLayout($layoutType);
         }
 
@@ -126,8 +126,10 @@ class Index implements HttpGetActionInterface
      */
     private function saveQuote($quote)
     {
+        $payment = $quote->getPayment();
         if ($quote->dataHasChangedFor('reserved_order_id') ||
-            $quote->getPayment()->dataHasChangedFor('additional_information') ||
+            $payment->dataHasChangedFor('additional_information') ||
+            $payment->dataHasChangedFor('method') ||
             $quote->dataHasChangedFor('shipping_address') ||
             $quote->getShippingAddress()->dataHasChangedFor('shipping_amount')) {
             $this->quoteRepo->save($quote);
@@ -135,68 +137,95 @@ class Index implements HttpGetActionInterface
     }
 
     /**
+     * Set payment method to Billmate
+     *
      * @param Quote $quote
      * @return void
      */
-    private function setDefaultShipping($quote)
+    private function setPaymentMethod($quote)
     {
+        $payment = $quote->getPayment();
+        $paymentMethod = $payment->getMethod();
+
+        if (!$paymentMethod ||
+            $paymentMethod !== Config::METHOD_CODE
+        ) {
+            $payment->unsMethodInstance()->setMethod(Config::METHOD_CODE);
+            $quote->setTotalsCollectedFlag(false);
+        }
+    }
+
+    /**
+     * Set default and placeholder values
+     *
+     * @param Quote $quote
+     * @return void
+     */
+    private function setQuoteDefaults($quote)
+    {
+        $billingAddress = $quote->getBillingAddress();
         $shippingAddress = $quote->getShippingAddress();
-        if ($shippingAddress->getShippingMethod()) {
-            return;
-        }
-
-        $customer = $this->customerSession->getCustomerDataObject();
-        if ($customer) {
-            $quote->assignCustomer($customer);
-            $quote->getShippingAddress()->setCollectShippingRates(true)->collectShippingRates();
-        }
-
-        if (!$shippingAddress->getCountry() && !$shippingAddress->getPostcode()) {
-
-            // Set some default and placeholder values in address
-            $country = $this->config->getDefaultCountry();
-            $postcode = $this->config->getDefaultPostcode();
-
-            $addressData = [
-                'firstname' => '--',
-                'lastname' => '--',
-                'street' => '--',
-                'city' => '--',
-                'country_id' => $country,
-                'postcode' => $postcode,
-                'telephone' => '--'
-            ];
-
-            $quote->getBillingAddress()->addData($addressData);
-            $shippingAddress->addData($addressData);
-            $quote->setShippingAddress($shippingAddress);
-        }
+        $this->setAddressDefaults($billingAddress);
+        $this->setAddressDefaults($shippingAddress);
 
         $shippingAddress->setCollectShippingRates(true);
         $this->totalsCollector->collectAddressTotals($quote, $shippingAddress);
 
-        $shippingRates = $shippingAddress->getGroupedAllShippingRates();
-        $defShippingMethodCode = $this->config->getDefaultShippingMethod();
-
-        foreach ($shippingRates as $carrierRates) {
-            foreach ($carrierRates as $rate) {
-                $methods[$rate->getCode()] = $rate;
+        if (!$shippingAddress->getShippingMethod()) {
+            $shippingRates = $shippingAddress->getGroupedAllShippingRates();
+            $defShippingMethod = $this->config->getDefaultShippingMethod();
+    
+            $methods = [];
+            // Set a default shipping method
+            foreach ($shippingRates as $carrierRates) {
+                foreach ($carrierRates as $rate) {
+                    $methods[$rate->getCode()] = $rate;
+                }
             }
-        }
-
-        $firstAvailable = current($methods);
-        $shippingMethodCode = $methods[$defShippingMethodCode] ?? $firstAvailable->getCode();
-        if (!$shippingAddress->getShippingMethod() && $methods) {
-
-            if (isset($methods[$defShippingMethodCode])) {
-                $shippingMethodCode = $methods[$defShippingMethodCode];
-            } else {
-                $shippingMethodCode = $firstAvailable->getCode();
+    
+            $firstAvailable = current($methods);
+            if (!empty($methods)) {
+                if (isset($methods[$defShippingMethod])) {
+                    $shippingMethodCode = $methods[$defShippingMethod]->getCode();
+                } else {
+                    $shippingMethodCode = $firstAvailable->getCode();
+                }
             }
+    
+            $shippingAddress->setShippingMethod($shippingMethodCode);
         }
-
-        $shippingAddress->setShippingMethod($shippingMethodCode);
         $shippingAddress->collectShippingRates();
         $quote->collectTotals();
+    }
+
+    /**
+     * Set default and placeholder values if necessary
+     *
+     * @param Address $address
+     * @return void
+     */
+    private function setAddressDefaults($address)
+    {
+        $allowedCountries = $this->directoryHelper->getCountryCollection()->toOptionArray();
+        $country = $address->getCountryId();
+
+        // Postcode and country is necessary for initial shipping calculation
+        if (!$address->getCountry() ||
+            !$address->getPostcode() ||
+            !in_array($country, array_column($allowedCountries, 'value'))) {
+
+            $country = $this->config->getDefaultCountry();
+            $postcode = $this->config->getDefaultPostcode();
+
+            $addressData = [
+                'firstname' => '-',
+                'lastname' => '-',
+                'street1' => '-',
+                'country_id' => $country,
+                'postcode' => $postcode,
+            ];
+
+            $address->addData($addressData);
+        }
     }
 }

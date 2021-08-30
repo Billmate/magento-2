@@ -7,18 +7,42 @@
     <update handle="checkout_cart_index"/>
     <body>
         <referenceBlock name="page.main.title" template="Billmate_NwtBillmateCheckout::checkout/title.phtml" />
-        <referenceBlock name="checkout.item.price.row" template="Billmate_NwtBillmateCheckout::checkout/item/price/row.phtml" />
-        <referenceBlock name="checkout.cart.coupon" template="Billmate_NwtBillmateCheckout::checkout/coupon.phtml" />
         <referenceBlock name="checkout.cart.form" template="Billmate_NwtBillmateCheckout::checkout/cart.phtml" />
+
+        <referenceContainer name="content">
+            <block
+                before="-"
+                class="Magento\Cms\Block\Block"
+                name="billmate.checkout.additionalblock.top"
+                ifconfig="payment/nwt_billmate/design/enable_additional_block">
+                <arguments> 
+                    <argument name="block_id" xsi:type="helper" helper="Billmate\NwtBillmateCheckout\Gateway\Config\Config::getAdditionalBlock"/>
+                </arguments>
+            </block> 
+        </referenceContainer>
+		<referenceContainer name="store.menu" remove="true" />
+		<referenceContainer name="container_mobile_header_top" remove="true" />
+		<referenceContainer name="header_container" remove="true" />
+		<referenceBlock name="base-header-container" remove="true" />
+        <referenceBlock name="top.search" remove="true" />
+        <referenceBlock name="minicart" remove="true" />
+
+        <referenceBlock name="checkout.item.price.row" template="Billmate_NwtBillmateCheckout::checkout/cart/item/price/row.phtml">
+            <block class="Magento\Checkout\Block\Item\Price\Renderer" name="checkout.item.price.row.ko-viewmodel" as="ko-viewmodel" template="Billmate_NwtBillmateCheckout::checkout/cart/item/price/row/ko-viewmodel.phtml" />
+        </referenceBlock>
+        <referenceBlock name="checkout.cart.coupon" template="Billmate_NwtBillmateCheckout::checkout/coupon.phtml" />
+        <referenceContainer name="cart.summary" htmlClass="billmate-cart-summary" />
 
         <referenceContainer name="checkout.cart.container">
             <container name="billmate_checkoutSidebar" htmlTag="div" htmlClass="billmate-checkout-sidebar" />
-            <block name="billmate.checkout.iframe" cacheable="false" template="Billmate_NwtBillmateCheckout::checkout/iframe.phtml" after="-">
+            <block name="billmate.checkout.iframe" cacheable="false" template="Billmate_NwtBillmateCheckout::checkout/iframe.phtml" after="-">            
                 <arguments>
                     <argument name="view_model" xsi:type="object">Billmate\NwtBillmateCheckout\ViewModel\Checkout</argument>
+                    <argument name="purchase_initialized_hide_target" xsi:type="string">div.cart-container</argument>
                 </arguments>
             </block>
         </referenceContainer>
+
         <referenceContainer name="page.wrapper">
             <container name="main.content.billmate.wrapper" htmlTag="div" htmlClass="billmate-content-wrapper" before="footer" />
         </referenceContainer>

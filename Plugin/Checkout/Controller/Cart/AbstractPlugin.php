@@ -3,11 +3,13 @@
 namespace Billmate\NwtBillmateCheckout\Plugin\Checkout\Controller\Cart;
 
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
-use Magento\Checkout\Model\Session as CheckoutSession;
-use \Magento\Checkout\Controller\Cart as CartController;
+use Magento\Checkout\Controller\Cart as CartController;
 use Magento\Framework\Message\Error;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Billmate\NwtBillmateCheckout\ViewModel\CartHtml;
 
 abstract class AbstractPlugin
 {
@@ -16,6 +18,11 @@ abstract class AbstractPlugin
      * @var JsonFactory
      */
     protected $jsonResultFactory;
+
+    /**
+     * @var PageFactory
+     */
+    protected $pageResultFactory;
 
     /**
      * @var MessageManagerInterface
@@ -27,14 +34,21 @@ abstract class AbstractPlugin
      */
     protected $checkoutSession;
 
+    /**
+     * @var CartHtml
+     */
+    protected $cartHtml;
+
     public function __construct(
         JsonFactory $jsonResultFactory,
         MessageManagerInterface $messageManager,
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        CartHtml $cartHtml
     ) {
         $this->jsonResultFactory = $jsonResultFactory;
         $this->messageManager = $messageManager;
         $this->checkoutSession = $checkoutSession;
+        $this->cartHtml = $cartHtml;
     }
 
     /**
@@ -46,7 +60,8 @@ abstract class AbstractPlugin
      */
     public function afterExecute(CartController $subject, ResultInterface $result)
     {
-        $billmate = $subject->getRequest()->getParam('billmate', false);
+        $request = $subject->getRequest();
+        $billmate = $request->getParam('billmate', false);
         if (!$billmate) {
             return $result;
         }

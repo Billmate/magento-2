@@ -27,14 +27,14 @@ abstract class AbstractTransaction implements ClientInterface
     public function placeRequest(TransferInterface $transferObject)
     {
         $data = $transferObject->getBody();
-        $this->process($data);
-        return $data;
+        return $this->process($data);
     }
 
     /**
-     * Process http request
+     * Process transfer request
+     *
      * @param array $data
-     * @return boolean
+     * @return array
      */
     abstract protected function process(array $data);
 }

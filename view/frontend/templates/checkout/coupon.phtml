@@ -60,7 +60,7 @@ $hasCouponCode = (bool) strlen($block->getCouponCode());
                                 name="coupon_code"
                                 value="<?= $escaper->escapeHtmlAttr($block->getCouponCode()) ?>"
                                 placeholder="<?= $escaper->escapeHtmlAttr(__('Enter discount code')) ?>"
-                                <?php if ($hasCouponCode) :?>
+                                <?php if ($hasCouponCode):?>
                                    disabled="disabled"
                                 <?php endif; ?>
                         />
@@ -73,11 +73,13 @@ $hasCouponCode = (bool) strlen($block->getCouponCode());
                         </button>
                     </div>
                     <div class="primary" <?= (!$hasCouponCode) ? 'style="display: none"' : '' ?>>
-                        <button  type="button" class="action cancel primary" value="<?= $escaper->escapeHtmlAttr(__('Cancel Coupon')) ?>"><span><?= $escaper->escapeHtml(__('Cancel Coupon')) ?></span></button>
+                        <button type="button" class="action cancel primary" value="<?= $escaper->escapeHtmlAttr(__('Cancel Coupon')) ?>">
+                            <span><?= $escaper->escapeHtml(__('Cancel Coupon')) ?></span>
+                        </button>
                     </div>
                 </div>
             </div>
-            <?php if (!$hasCouponCode) : ?>
+            <?php if (!$hasCouponCode): ?>
                 <?= /* @noEscape */ $block->getChildHtml('captcha') ?>
             <?php endif; ?>
         </form>

@@ -17,12 +17,18 @@ $viewModel = $block->getViewModel();
 <strong class="billmate-heading"><?= __('Address and payment') ?></strong>
 <div class="billmate-iframe-wrapper">
     <iframe
-        id="checkout"
+        id="billmateCheckoutIframe"
         name="billmateCheckoutIframe"
         title="<?= $escaper->escapeHtmlAttr(__('Billmate Checkout Window')) ?>"
         style="min-height:720px;"
-        src="<?= /* @noEscape */ $viewModel->getIframeUrl() ?>"
+        src="<?= /* @noEscape */ $viewModel->getIframeUrl()  ?>?activateJsEvents=1"
         scrolling="no"
-        sandbox="allow-same-origin allow-scripts allow-modals allow-popups allow-forms allow-top-navigation">
+        sandbox="allow-same-origin allow-scripts allow-modals allow-popups allow-forms allow-top-navigation"
+        data-mage-init='{
+            "Billmate_NwtBillmateCheckout/js/checkout/model/checkout-handler": {
+                "purchaseInitializedHideTarget":"<?= /* @noEscape */ $block->getPurchaseInitializedHideTarget() ?>"
+            }
+        }'
+    >
     </iframe>
 </div>

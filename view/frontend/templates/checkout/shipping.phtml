@@ -1,7 +1,18 @@
-<?php /** @var $block \Magento\Checkout\Block\Cart\Shipping */ ?>
-<?php /** @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */ ?>
+<?php
+use Magento\Checkout\Block\Cart\Shipping;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+use Magento\Framework\Escaper;
 
-<div id="block-shipping" class="block shipping">
+/**
+ * @var Shipping $block
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
+?>
+
+<div id="billmate-block-shipping"
+     class="block shipping"
+>
     <div data-role="title">
         <strong id="block-shipping-heading" class="billmate-heading" role="heading" aria-level="2">
             <?= $block->escapeHtml(__('Choose shipping method')) ?>
@@ -12,6 +23,7 @@
          class="content"
          data-role="content"
          aria-labelledby="block-shipping-heading"
+         style="display: block"
     >
         <!-- ko template: getTemplate() --><!-- /ko -->
         <script type="text/x-magento-init">
@@ -33,9 +45,9 @@ $scriptString = <<<script
                 'Magento_Ui/js/block-loader'
             ], function(url, blockLoader) {
                 blockLoader(
-                    "{$block->escapeJs($block->escapeUrl($block->getViewFileUrl('images/loader-1.gif')))}"
+                    "{$escaper->escapeJs($escaper->escapeUrl($block->getViewFileUrl('images/loader-1.gif')))}"
                 );
-                return url.setBaseUrl('{$block->escapeJs($block->escapeUrl($block->getBaseUrl()))}');
+                return url.setBaseUrl('{$escaper->escapeJs($escaper->escapeUrl($block->getBaseUrl()))}');
             })
 script;
 ?>
