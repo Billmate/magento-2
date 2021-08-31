@@ -3,8 +3,8 @@
  * @var $block \Billmate\NwtBillmateCheckout\Block\Success
 */
 
-$orderId = 1;
-$realId = 1;
+$orderId = $block->getOrderId();
+$realId = $block->getRealOrderId();
 ?>
 <div class="checkout-success cart-container" id="billmate-checkout-success">
     <?php if ($orderId): ?>
