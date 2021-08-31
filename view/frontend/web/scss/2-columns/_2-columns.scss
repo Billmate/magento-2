@@ -6,6 +6,10 @@
         @include breakpoint('tablet-down') {
             text-align: center;
         }
+        @include breakpoint('mobile') {
+            font-size: 20px;
+            padding-bottom: 15px;
+        }
     }
     .column.main {
         display: flex;
@@ -24,7 +28,10 @@
             border-radius: 10px;
             box-shadow: $box-shadow;
             margin-bottom: 60px;
-            padding: 30px 20px;
+            padding: 30px 15px;
+        }
+        @include breakpoint('mobile') {
+            margin-bottom: 30px;
         }
     }
     .cart-container {
@@ -50,6 +57,10 @@
             margin-bottom: 0;
             border: 0;
         }
+        @include breakpoint('mobile') {
+            padding: 0;
+            margin-bottom: 0;
+        }
     }
     .billmate-checkout-sidebar {
         margin-bottom: 0;
@@ -60,6 +71,11 @@
         &:before,
         &:after {
             display: none;
+        }
+        .cart.table-wrapper {
+            .product-item-details {
+                padding-bottom: 0;
+            }
         }
     }
     #billmateCheckoutIframe {
@@ -73,6 +89,9 @@
     .cart.table tbody {
         &:first-child {
             border-top: 0;
+            @include breakpoint('mobile') {
+                border-top: 1px solid $border-color-1;
+            }
         }
         tr {
             td {
@@ -82,6 +101,14 @@
                 .field.qty {
                     margin-bottom: 0;
                     padding-top: 25px;
+                    @include breakpoint('mobile') {
+                        position: relative;
+                        left: auto;
+                        margin-bottom: 0;
+                    }
+                    @include breakpoint('(max-width: 320px)') {
+                        left: auto;
+                    }
                     label {
                         margin-bottom: 0;
                     }
@@ -96,6 +123,9 @@
                 }
                 &.price {
                     padding-right: 0;
+                    @include breakpoint('mobile') {
+                        width: auto;
+                    }
                     .price {
                         font-size: 16px;
                         @include breakpoint('mobile') {
@@ -105,6 +135,34 @@
                 }
                 .actions-toolbar + span {
                     right: 0;
+                }
+                &.item-desc {
+                    @include breakpoint('mobile') {
+                        padding-bottom: 15px;
+                    }
+                }
+                @include breakpoint('mobile') {
+                    .actions-toolbar {
+                        .action-edit {
+                            display: block !important;
+                            color: $black;
+                            padding-right: 40px;
+                            &:before {
+                                display: none;
+                            }
+                            span {
+                                font-size: 14px;
+                                text-decoration: underline;
+                                height: auto;
+                                margin: 0;
+                                position: static;
+                                width: auto;
+                            }
+                            &:hover {
+                                text-decoration: none;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -119,8 +177,22 @@
     }
     .cart-discount {
         padding-bottom: 15px;
-        .block.discount [name="coupon_code"] {
-            max-width: 100%;
+        @include breakpoint('mobile') {
+            padding-top: 20px;
+        }
+        .block.discount {
+            float: none;
+            [name="coupon_code"] {
+                max-width: 100%;
+            }
+        }
+    }
+    .billmate-newsletter {
+        .wrapper {
+            width: 100%;
+        }
+        @include breakpoint('mobile') {
+            padding-bottom: 20px;
         }
     }
     .billmate-cart-summary {
@@ -128,6 +200,10 @@
         .data.totals {
             td {
                 font-size: 16px;
+                @include breakpoint('mobile') {
+                    font-size: 14px;
+
+                }
             }
             .grand.totals {
                 position: relative;
@@ -140,9 +216,15 @@
                 td {
                     padding-right: 0;
                     font-size: 18px;
+                    @include breakpoint('mobile') {
+                        font-size: 16px;
+                    }
                 }
                 th, td {
                     padding: 20px 0;
+                    @include breakpoint('mobile') {
+                        padding: 15px 0;
+                    }
                 }
             }
             tr:first-child {
@@ -155,18 +237,41 @@
                     padding-bottom: 15px;
                 }
             }
+            @include breakpoint('mobile') {
+                tr {
+                    display: table-row;
+                    th {
+                        font-weight: 400;
+                    }
+                }
+            }
+        }
+        .checkout-methods-items {
+            margin: 0;
         }
     }
     .block.shipping {
         padding-top: 30px;
+        @include breakpoint('mobile-down') {
+            order: 11;
+        }
         .billmate-heading {
             font-size: 18px;
             padding-bottom: 0;
+            @include breakpoint('mobile-down') {
+                font-size: 26px;
+            }
+            @include breakpoint('mobile') {
+                font-size: 20px;
+            }
         }
         .item-options {
             padding: 17px 0;
             &:first-child {
                 border-top: 0;
+                @include breakpoint('mobile') {
+                    border-top: 1px solid $border-color-1;
+                }
             }
         }
     }

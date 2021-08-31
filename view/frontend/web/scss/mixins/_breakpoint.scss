@@ -11,7 +11,7 @@
   $mobile-down: "(max-width: 768px)";
   $large: "(min-width: 768px)";
   $small: "(max-width: 1024px)";
-
+ 
   @if $size == desktop {
     @media only screen and #{$desktop} {
       @content;

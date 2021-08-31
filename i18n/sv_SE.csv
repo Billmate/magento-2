@@ -21,3 +21,10 @@
 "Apply Discount Code","Använd Rabattkod"
 "Subscribe To Our Newsletter","Prenumerera På Nyhetsbrevet",
 "Are you sure you want to remove %1 from the cart?","Är du säker på att du vill ta bort %1 från varukorgen?"
+"Thank you for your purchase!", "Tack för ditt köp!", module, Billmate_NwtBillmateCheckout
+"We have received your order.", "Vi har mottagit din order.", module, Billmate_NwtBillmateCheckout
+"Order Details", "Orderdetaljer", module, Billmate_NwtBillmateCheckout
+"Order number:", "Ordernummer:", module, Billmate_NwtBillmateCheckout
+"Date:", "Datum:", module, Billmate_NwtBillmateCheckout
+"Payment method:", "Betalsätt:", module, Billmate_NwtBillmateCheckout
+"Sum", "Summa", module, Billmate_NwtBillmateCheckout

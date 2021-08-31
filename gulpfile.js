@@ -12,6 +12,10 @@ var config = {
     sass: {
         source: './view/frontend/web/scss/billmate-checkout.scss',
         dist: './view/frontend/web/css'
+    },
+    billmateSuccess: {
+        source: './view/frontend/web/scss/billmate-checkout-success.scss',
+        dist: './view/frontend/web/css'
     }
 };
 
@@ -28,6 +32,18 @@ var config = {
         .pipe(gulp.dest(config.sass.dist));
 });
 
+/**
+ * Billmate Success page task
+ */
+ gulp.task('billmateSuccess', function () {
+    return gulp.src(config.billmateSuccess.source)
+        .pipe(sass().on('error', sass.logError))
+        .pipe(cmq())
+        .pipe(autoPrefixer('last 2 versions'))
+        .pipe(plumber())
+        .pipe(cleanCss())
+        .pipe(gulp.dest(config.billmateSuccess.dist));
+});
 
 /**
  * Default task
@@ -36,6 +52,7 @@ var config = {
     return gulp.watch([
         './view/frontend/web/scss/**/*.scss'
     ], gulp.series([
-        'scss'
+        'scss',
+        'billmateSuccess'
     ]));
 });

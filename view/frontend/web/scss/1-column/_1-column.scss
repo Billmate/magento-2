@@ -94,6 +94,7 @@
         }
     }
     .cart.table-wrapper {
+        margin-bottom: 0;
         @include breakpoint('mobile') {
             border-top: 0;
             margin-bottom: 0;
@@ -123,6 +124,10 @@
                 padding: 15px 0;
                 &:before {
                     display: none !important;
+                }
+                &.qty {
+                    width: auto;
+                    float: none;
                 }
             }
             a.product-item-photo {
@@ -192,6 +197,10 @@
                     left: 125px;
                     float: none;
                     width: auto;
+                    margin-bottom: 15px;
+                    label {
+                        margin-bottom: 0;
+                    }
                 }
                 @include breakpoint('(max-width: 320px)') {
                     left: 40%;
@@ -219,6 +228,7 @@
                     border-left: 0;
                     border-right: 0;
                     margin-top: 0;
+                    text-align: center;
                     @include breakpoint('small') {
                         padding-left: 0;
                         padding-right: 0;
@@ -277,7 +287,7 @@
                     }
                 }
                 .action-delete {
-                    margin-left: 30px;
+                    margin-left: 40px;
                     @include breakpoint('mobile') {
                         margin-left: 0;
                         position: absolute;
@@ -345,7 +355,7 @@
         display: none;
     }
     .billmate-cart-summary {
-        width: 40%;
+        width: 45%;
         float: right;
         padding: 0 20px;
         margin-bottom: 0;
@@ -408,17 +418,17 @@
                 position: absolute;
                 display: flex;
                 justify-content: space-between;
-                width: calc(40% - 92px);
+                width: calc(45% - 100px);
                 right: 90px;
                 bottom: 60px;
                 padding: 10px 0;
                 @include breakpoint('(max-width: 1060px)') {
                     right: 45px;
-                    width: calc(40% - 55px);
+                    width: calc(45% - 60px);
                 }
                 @include breakpoint('small') {
                     right: 20px;
-                    width: calc(40% - 36px);
+                    width: calc(45% - 40px);
                 }
                 @include breakpoint('mobile') {
                     font-size: 16px;
@@ -463,12 +473,14 @@
         }
         .checkout-methods-items {
             padding: 0;
+            margin: 0;
         }
     }
     .cart-discount {
         float: left;
-        width: 60%;
+        width: 55%;
         padding: 5px 20px;
+        margin-top: 5px;
         margin-bottom: 10px;
         @include breakpoint('mobile') {
             float: none;
@@ -489,11 +501,10 @@
                 display: flex;
                 align-items: center;
                 cursor: pointer;
+                padding-bottom: 0;
                 @include breakpoint('mobile') {
                     border-top: 0;
-                    padding-left: 0;
-                    padding-right: 0;
-                    padding-bottom: 0;
+                    padding: 0;
                 }
                 span {
                     font-size: 16px !important;
@@ -539,17 +550,18 @@
     }
     .billmate-newsletter {
         float: left;
-        width: 60%;
+        width: 55%;
         padding: 0 20px 25px;
         @include breakpoint('mobile') {
             float: none;
             width: 100%;
-            padding: 0 0 20px;
+            padding: 0 0 15px;
             border-bottom: 1px solid $border-color-1
         }
         .wrapper {
             display: flex;
             align-items: center;
+            margin-bottom: 0;
             label {
                 font-size: 16px;
                 padding-left: 10px;
@@ -567,6 +579,7 @@
         float: none;
         @include breakpoint('mobile') {
             border-radius: 0;
+            margin-top: 0;
         }
         .block-title {
             strong {
@@ -593,11 +606,15 @@
                 padding: 40px 20px !important;
             }
             @include breakpoint('mobile') {
-                padding: 30px 15px !important;
+                padding: 0 15px !important;
+            }
+            .products.wrapper {
+                margin-bottom: 0;
             }
             ol.product-items {
                 margin-left: -10px;
                 margin-right: -10px;
+                margin-bottom: 0;
                 overflow: visible;
                 @include breakpoint('tablet-down') {
                     margin-left: 0;
@@ -610,6 +627,7 @@
             li.product-item {
                 padding-left: 10px;
                 padding-right: 10px;
+                margin-bottom: 0;
                 @include breakpoint('mobile') {
                     margin-bottom: 0;
                 }
@@ -617,11 +635,18 @@
                     font-size: 16px;
                     font-weight: 500;
                     margin-bottom: 15px;
+                    line-height: 25px;
+                    max-height: 25px;
+                    overflow: hidden;
+                    display: block;
                     @include breakpoint('mobile') {
                         font-size: 14px;
+                        line-height: 18px;
+                        max-height: 18px;
                     }
                 }
-                .price-label {
+                .price-label,
+                .price-to {
                     display: none !important;
                 }
             }

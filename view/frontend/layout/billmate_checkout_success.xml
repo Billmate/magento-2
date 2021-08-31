@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Success</title>
+        <css src="Billmate_NwtBillmateCheckout::css/billmate-checkout-success.css"/>
+        <script src="Billmage_NwtBillmateCheckout::js/checkout/action/success-actions.js" />
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <container name="billmate.success.wrapper" htmlTag="div" htmlId="billmate-success-wrapper">
+                <block class="Billmate\NwtBillmateCheckout\Block\Success" name="billmate.success" template="Billmate_NwtBillmateCheckout::checkout/success.phtml" cacheable="false"/>
+            </container>
+        </referenceContainer>
+
+        <referenceBlock name="page.main.title" remove="true" />
+    </body>
+</page>

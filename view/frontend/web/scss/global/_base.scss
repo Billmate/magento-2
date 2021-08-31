@@ -22,13 +22,40 @@
         display: none !important;
     }
 }
+.billmate-desktop-hidden {
+    @include breakpoint('large') {
+        display: none !important;
+    }
+}
 
-body.billmate-checkout-index {
+body.billmate-checkout-index,
+body.billmate-checkout-success {
+    .loading-mask {
+        display: block;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+        .loader {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+    .column.main {
+        @include breakpoint('large') {
+            min-height: 830px;
+        }
+        @include breakpoint('mobile') {
+            min-height: 450px;
+        }
+    }
     .cart-container {
         color: $black;
         @include breakpoint('large') {
             .form-cart {
-                margin: 10px 0;
+                margin: 15px 0;
             }
         }
         input[type="text"] {
@@ -76,7 +103,8 @@ body.billmate-checkout-index {
         input[type="number"] {
             -moz-appearance: textfield;
         }
-        button {
+        button,
+        .billmate-btn {
             text-transform: initial;
             padding: 0 15px;
             border-radius: 5px;
