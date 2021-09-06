@@ -6,12 +6,15 @@ use Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter;
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
 use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Checkout\Model\Session;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Api\CartRepositoryInterface as QuoteRepositoryInterface;
 use Magento\Quote\Model\Quote\TotalsCollector;
 use Magento\Directory\Helper\Data as DirectoryHelper;
+use Magento\Framework\Controller\AbstractResult;
 use Magento\Quote\Model\Quote\Address;
+use Magento\Checkout\Model\Type\Onepage;
+use Magento\Checkout\Helper\Data as CheckoutHelper;
+use Magento\Customer\Model\Session;
 
 class Index implements HttpGetActionInterface
 {
@@ -24,11 +27,6 @@ class Index implements HttpGetActionInterface
      * @var BillmateAdapter
      */
     private $billmateAdapter;
-
-    /**
-     * @var Session
-     */
-    private $checkoutSession;
 
     /**
      * @var QuoteRepositoryInterface
@@ -50,24 +48,41 @@ class Index implements HttpGetActionInterface
      */
     private $directoryHelper;
 
+    /**
+     * @var CheckoutHelper
+     */
+    private $checkoutHelper;
+
+    /**
+     * @var Session
+     */
+    private $customerSession;
+
     public function __construct(
         ControllerUtil $util,
         BillmateAdapter $billmateAdapter,
-        Session $checkoutSession,
         QuoteRepositoryInterface $quoteRepo,
         Config $config,
         TotalsCollector $totalsCollector,
-        DirectoryHelper $directoryHelper
+        DirectoryHelper $directoryHelper,
+        CheckoutHelper $checkoutHelper,
+        Session $customerSession
     ) {
         $this->util = $util;
         $this->billmateAdapter = $billmateAdapter;
-        $this->checkoutSession = $checkoutSession;
         $this->quoteRepo = $quoteRepo;
         $this->config = $config;
         $this->totalsCollector = $totalsCollector;
         $this->directoryHelper = $directoryHelper;
+        $this->checkoutHelper = $checkoutHelper;
+        $this->customerSession = $customerSession;
     }
 
+    /**
+     * Initializes Quote and Billmate Checkout
+     *
+     * @return AbstractResult
+     */
     public function execute()
     {
         if (!$this->config->getEnabled()) {
@@ -75,7 +90,8 @@ class Index implements HttpGetActionInterface
         }
 
         $pageResult = $this->util->pageResult();
-        $quote = $this->checkoutSession->getQuote();
+        $checkoutSession = $this->util->getCheckoutSession();
+        $quote = $checkoutSession->getQuote();
 
         if (!$quote->hasItems() || $quote->getHasError() || !$quote->validateMinimumAmount()) {
             return $this->util->redirect('checkout/cart');
@@ -94,11 +110,11 @@ class Index implements HttpGetActionInterface
             $initCheckoutData = $this->billmateAdapter->initCheckout($quote);
             $paymentNumber = $initCheckoutData->getNumber();
             $quote->getPayment()->setAdditionalInformation('billmate_payment_number', $paymentNumber);
-            $this->checkoutSession->setData('billmate_iframe_url', $initCheckoutData->getUrl());
-            $this->checkoutSession->setData('billmate_payment_number', $paymentNumber);
+            $checkoutSession->setData('billmate_iframe_url', $initCheckoutData->getUrl());
+            $checkoutSession->setData('billmate_payment_number', $paymentNumber);
         } else {
             $updateCheckoutData = $this->billmateAdapter->updateCheckout($quote);
-            $this->checkoutSession->setData('billmate_iframe_url', $updateCheckoutData->getUrl());
+            $checkoutSession->setData('billmate_iframe_url', $updateCheckoutData->getUrl());
         }
         // TODO error handling
 
@@ -151,6 +167,7 @@ class Index implements HttpGetActionInterface
      */
     private function setQuoteDefaults($quote)
     {
+        $this->setCheckoutMethod();
         $billingAddress = $quote->getBillingAddress();
         $shippingAddress = $quote->getShippingAddress();
         $this->setAddressDefaults($billingAddress);
@@ -162,6 +179,7 @@ class Index implements HttpGetActionInterface
         if (!$shippingAddress->getShippingMethod()) {
             $shippingRates = $shippingAddress->getGroupedAllShippingRates();
             $defShippingMethod = $this->config->getDefaultShippingMethod();
+            $shippingMethodCode = null;
     
             $methods = [];
             // Set a default shipping method
@@ -215,5 +233,28 @@ class Index implements HttpGetActionInterface
 
             $address->addData($addressData);
         }
+    }
+
+    /**
+     * Sets appropriate checkout method value on quote
+     *
+     * @return void
+     */
+    private function setCheckoutMethod()
+    {
+        $checkoutSession = $this->util->getCheckoutSession();
+        $quote = $checkoutSession->getQuote();
+        if ($this->customerSession->isLoggedIn()) {
+            $quote->setCheckoutMethod(Onepage::METHOD_CUSTOMER);
+            return;
+        }
+
+        if (!$quote->getCheckoutMethod()) {
+            if ($this->checkoutHelper->isAllowedGuestCheckout($quote)) {
+                $quote->setCheckoutMethod(Onepage::METHOD_GUEST);
+                return;
+            }
+            $quote->setCheckoutMethod(Onepage::METHOD_REGISTER);
+        };
     }
 }

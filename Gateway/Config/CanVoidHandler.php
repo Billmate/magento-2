@@ -9,6 +9,17 @@ use Magento\Payment\Gateway\Helper\SubjectReader;
 class CanVoidHandler implements ValueHandlerInterface
 {
     /**
+     * @var SubjectReader
+     */
+    private $subjectReader;
+
+    public function __construct(
+        SubjectReader $subjectReader
+    ) {
+        $this->subjectReader = $subjectReader;
+    }
+
+    /**
      * Retrieve method configured value
      *
      * @param array $subject
@@ -19,7 +30,7 @@ class CanVoidHandler implements ValueHandlerInterface
      */
     public function handle(array $subject, $storeId = null)
     {
-        $paymentDO = SubjectReader::readPayment($subject);
+        $paymentDO = $this->subjectReader->readPayment($subject);
         $canVoidFlag = true;
         $payment = $paymentDO->getPayment();
         if ((bool)$payment->getAmountPaid()) {

@@ -3,12 +3,16 @@
 namespace Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Article;
 
 use Magento\Quote\Model\Quote\Item;
+use Magento\Sales\Model\Order\CreditMemo\Item as CreditMemoItem;
 use Magento\Bundle\Model\Product\Type as BundleType;
 use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Article\DiscountsHandler;
 use Magento\Framework\DataObject;
+use Billmate\NwtBillmateCheckout\Gateway\Helper\CentsFormatter;
 
 class Price extends DataObject
 {
+    use CentsFormatter;
+
     /**
      * @var DiscountsHandler
      */
@@ -48,7 +52,7 @@ class Price extends DataObject
      * @param Item $quoteItem
      * @return void
      */
-    public function initializeByQuoteItem($quoteItem)
+    public function initializeByQuoteItem($quoteItem): void
     {
         $priceToConvert = $quoteItem->getPrice();
         $rowTotalToConvert = $quoteItem->getRowTotal() + $quoteItem->getWeeeTaxAppliedRowAmount();
@@ -60,19 +64,42 @@ class Price extends DataObject
         if ($productType === BundleType::TYPE_CODE && (int)$priceType === 0) {
             $this->aprice = 0;
             $this->withouttax = 0;
+            $this->discount = 0;
             return;
         }
 
         if ($quoteItem->getDiscountAmount() > 0) {
             $this->discountsHandler->add(
                 $quoteItem->getDiscountAmount(),
-                $quoteItem->getTaxPercent(),
+                (int)$quoteItem->getTaxPercent(),
                 $quoteItem->getDiscountTaxCompensationAmount()
             );
         }
 
         $this->aprice = $this->toCents($priceToConvert);
         $this->withouttax = $this->toCents($rowTotalToConvert);
+        $this->discount = $quoteItem->getDiscountPercent() ?? 0;
+    }
+
+    /**
+     * Initialize for use in the credit operation
+     *
+     * @param CreditMemoItem $crMemoItem
+     * @return void
+     */
+    public function initializeForCredit(CreditMemoItem $crMemoItem): void
+    {
+        $this->aprice = $this->toCents($crMemoItem->getPrice());
+        $this->withouttax = $this->toCents($crMemoItem->getRowTotal() + $crMemoItem->getWeeeTaxAppliedRowAmount());
+        $this->discount = $crMemoItem->getOrderItem()->getDiscountPercent() ?? 0;
+
+        if ($crMemoItem->getDiscountAmount() > 0) {
+            $this->discountsHandler->add(
+                $crMemoItem->getDiscountAmount(),
+                (int)$crMemoItem->getOrderItem()->getTaxPercent(),
+                $crMemoItem->getDiscountTaxCompensationAmount()
+            );
+        }
     }
 
     /**
@@ -81,7 +108,7 @@ class Price extends DataObject
      * @param int|float $discountAmount Discount amount as positive value
      * @return void
      */
-    public function initializeAsDiscount($discountAmount)
+    public function initializeAsDiscount($discountAmount): void
     {
         $this->aprice = $this->toCents(-1 * $discountAmount);
         $this->withouttax = $this->toCents(-1 * $discountAmount);
@@ -92,23 +119,12 @@ class Price extends DataObject
      *
      * @return array
      */
-    public function propertiesToArray()
+    public function propertiesToArray(): array
     {
         return [
             'aprice' => $this->aprice,
             'withouttax' => $this->withouttax,
             'discount' => $this->discount
         ];
-    }
-
-    /**
-     * Convert price to cents value
-     *
-     * @param int|float $value
-     * @return int
-     */
-    private function toCents($value)
-    {
-        return (int)100 * $value;
     }
 }

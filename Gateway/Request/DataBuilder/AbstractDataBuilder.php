@@ -6,6 +6,7 @@ use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Framework\DataObjectFactory;
 
 abstract class AbstractDataBuilder implements BuilderInterface
 {
@@ -21,22 +22,30 @@ abstract class AbstractDataBuilder implements BuilderInterface
      */
     protected $subjectReader;
 
+    /**
+     * @var DataObjectFactory
+     */
+    protected $dataObjectFactory;
+
     public function __construct(
         Config $config,
-        SubjectReader $subjectReader
+        SubjectReader $subjectReader,
+        DataObjectFactory $dataObjectFactory
     ) {
         $this->config = $config;
         $this->subjectReader = $subjectReader;
+        $this->dataObjectFactory = $dataObjectFactory;
     }
 
     /**
-     * Undocumented function
+     * Reads payment from subject
+     * Wrapper for Magento\Payment\Gateway\Helper\SubjectReader::readPayment
      *
-     * @param array $payment
+     * @param array $subject
      * @return PaymentDataObjectInterface
      */
-    protected function readPayment(array $payment)
+    protected function readPayment(array $subject)
     {
-        return $this->subjectReader->readPayment($payment);
+        return $this->subjectReader->readPayment($subject);
     }
 }

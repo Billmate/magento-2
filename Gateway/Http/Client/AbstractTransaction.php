@@ -5,20 +5,29 @@ namespace Billmate\NwtBillmateCheckout\Gateway\Http\Client;
 use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter;
+use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 
 abstract class AbstractTransaction implements ClientInterface
 {
     /**
-     * @var Adapter
+     * @var BillmateAdapter
      */
     protected $adapter;
 
     /**
+     * @var DataUtil
+     */
+    protected $dataUtil;
+
+    /**
      * @param BillmateAdapter $adapter
      */
-    public function __construct(BillmateAdapter $adapter)
-    {
+    public function __construct(
+        BillmateAdapter $adapter,
+        DataUtil $dataUtil
+    ) {
         $this->adapter = $adapter;
+        $this->dataUtil = $dataUtil;
     }
 
     /**

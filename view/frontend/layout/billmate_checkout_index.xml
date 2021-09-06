@@ -31,7 +31,7 @@
         <referenceBlock name="checkout.cart.coupon" template="Billmate_NwtBillmateCheckout::checkout/coupon.phtml" />
         <referenceContainer name="cart.summary" htmlClass="billmate-cart-summary" />
         <referenceContainer name="checkout.cart.container">
-            <block name="billmate.checkout.newsletter" before="checkout.cart.shipping" template="Billmate_NwtBillmateCheckout::checkout/newsletter.phtml" />
+            <block name="billmate.checkout.newsletter" after="checkout.cart.form" template="Billmate_NwtBillmateCheckout::checkout/newsletter.phtml" />
         </referenceContainer>
         <referenceContainer name="checkout.cart.items">
             <block name="billmate.checkout.iframe" cacheable="false" after="-" template="Billmate_NwtBillmateCheckout::checkout/iframe.phtml">
