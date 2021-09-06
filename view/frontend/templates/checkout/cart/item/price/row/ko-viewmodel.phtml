@@ -1,0 +1,34 @@
+<?php
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Magento\Weee\Block\Item\Price\Renderer;
+
+/**
+ * @var Template $block
+ * @var Renderer $renderer
+ * @var Escaper $escaper
+ */
+
+$renderer = $block->getRendererBlock();
+$item = $renderer->getItem();
+$rowTotalExclTax = $renderer->getRowDisplayPriceExclTax();
+$rowTotalInclTax = $renderer->getRowDisplayPriceInclTax();
+$componentName = "billmate-checkout-itemid-{$item->getId()}-subtotal";
+?>
+
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Magento_Ui/js/core/app": {
+                "components": {
+                    "<?= $escaper->escapeJs($componentName) ?>": {
+                        "component": "Billmate_NwtBillmateCheckout/js/checkout/view/item/subtotal",
+                        "row_total_incl_tax": "<?= $escaper->escapeJs($rowTotalInclTax) ?>",
+                        "row_total": "<?= $escaper->escapeJs($rowTotalExclTax) ?>"
+                    }
+                }
+            }
+        }
+    }
+</script>

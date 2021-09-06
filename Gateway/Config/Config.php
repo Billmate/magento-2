@@ -11,6 +11,13 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     const METHOD_CODE = 'nwt_billmate';
 
     /**
+     * Group keys
+     */
+    const GROUP_GENERAL = 'general';
+
+    const GROUP_DESIGN = 'design';
+
+    /**
      * Field keys
      */
     const KEY_ENABLED = 'enabled';
@@ -37,6 +44,28 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
     const KEY_DEFAULT_SHIPPINGMETHOD = 'default_shippingmethod';
 
+    const KEY_ENABLE_INVOICE_FEE = 'enable_invoice_fee';
+
+    const KEY_INVOICE_FEE_AMOUNT = 'invoice_fee_amount';
+
+    const KEY_ENABLE_ADDITIONAL_BLOCK = 'enable_additional_block';
+
+    const KEY_ADDITIONAL_BLOCK = 'additional_block';
+
+    /**
+     * Mapping of payment method IDs to descriptors
+     * @link https://billmate.github.io/api-docs/#getpaymentinfo - See Response Body -> PaymentData -> method
+     */
+    const PAYMENT_METHOD_MAPPING = [
+        '1' => 'Invoice Factoring',
+        '2' => 'Invoice Service',
+        '4' => 'Invoice Part Payment',
+        '8' => 'Card',
+        '16' => 'Bank',
+        '24' => 'Card/Bank',
+        '32' => 'Cash (Receipt)'
+    ];
+
     /**
      * Get Enabled flag
      *
@@ -45,7 +74,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getEnabled(int $storeId = null): bool
     {
-        return (bool)$this->getValue(
+        return (bool)$this->getGeneralGroupValue(
             self::KEY_ENABLED,
             $storeId
         );
@@ -59,7 +88,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getMerchantAccountId(int $storeId = null): string
     {
-        return $this->getValue(
+        return $this->getGeneralGroupValue(
             self::KEY_MERCHANT_ID,
             $storeId
         ) ?? '';
@@ -73,7 +102,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getTestMode(int $storeId = null): bool
     {
-        return (bool)$this->getValue(
+        return (bool)$this->getGeneralGroupValue(
             self::KEY_TEST_MODE,
             $storeId
         );
@@ -87,7 +116,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getApiVersion(int $storeId = null): string
     {
-        return $this->getValue(
+        return $this->getGeneralGroupValue(
             self::KEY_API_VERSION,
             $storeId
         ) ?? '';
@@ -101,7 +130,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getSecretKey(int $storeId = null): string
     {
-        return $this->getValue(
+        return $this->getGeneralGroupValue(
             self::KEY_SECRET_KEY,
             $storeId
         ) ?? '';
@@ -115,7 +144,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getTermsUrl(int $storeId = null): string
     {
-        return $this->getValue(
+        return $this->getGeneralGroupValue(
             self::KEY_TERMS_URL,
             $storeId
         ) ?? '';
@@ -129,7 +158,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getPrivacyPolicyUrl(int $storeId = null): string
     {
-        return $this->getValue(
+        return $this->getGeneralGroupValue(
             self::KEY_PRIVACY_POLICY_URL,
             $storeId
         ) ?? '';
@@ -143,7 +172,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getCompanyView(int $storeId = null): bool
     {
-        return (bool)$this->getValue(
+        return (bool)$this->getGeneralGroupValue(
             self::KEY_COMPANY_VIEW,
             $storeId
         );
@@ -157,7 +186,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getPhoneOnDelivery(int $storeId = null): bool
     {
-        return (bool)$this->getValue(
+        return (bool)$this->getGeneralGroupValue(
             self::KEY_PHONE_ON_DELIVERY,
             $storeId
         );
@@ -171,7 +200,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getDefaultCountry(int $storeId = null): string
     {
-        return $this->getValue(
+        return $this->getGeneralGroupValue(
             self::KEY_DEFAULT_COUNTRY,
             $storeId
         ) ?? '';
@@ -185,7 +214,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getDefaultPostcode(int $storeId = null): string
     {
-        return $this->getValue(
+        return $this->getGeneralGroupValue(
             self::KEY_DEFAULT_POSTCODE,
             $storeId
         ) ?? '';
@@ -199,9 +228,95 @@ class Config extends \Magento\Payment\Gateway\Config\Config
      */
     public function getDefaultShippingMethod(int $storeId = null): string
     {
-        return $this->getValue(
+        return $this->getGeneralGroupValue(
             self::KEY_DEFAULT_SHIPPINGMETHOD,
             $storeId
         ) ?? '';
+    }
+
+    /**
+     * Get enable invoice fee flag
+     *
+     * @param integer $storeId
+     * @return boolean
+     */
+    public function getEnableInvoiceFee(int $storeId): bool
+    {
+        return (bool)$this->getGeneralGroupValue(
+            self::KEY_ENABLE_INVOICE_FEE,
+            $storeId
+        );
+    }
+
+    /**
+     * Get invoice fee amount
+     *
+     * @param integer $storeId
+     * @return float
+     */
+    public function getInvoiceFeeAmount(int $storeId): float
+    {
+        return $this->getGeneralGroupValue(
+            self::KEY_INVOICE_FEE_AMOUNT,
+            $storeId
+        );
+    }
+
+    /**
+     * Get enable additional block flag
+     *
+     * @param integer $storeId
+     * @return boolean
+     */
+    public function getEnableAdditionalBlock(int $storeId = null): bool
+    {
+        return (bool)$this->getDesignGroupValue(
+            self::KEY_ENABLE_ADDITIONAL_BLOCK,
+            $storeId
+        );
+    }
+
+    /**
+     * Get additional block code
+     *
+     * @param integer $storeId
+     * @return string
+     */
+    public function getAdditionalBlock(int $storeId = null): string
+    {
+        return $this->getDesignGroupValue(
+            self::KEY_ADDITIONAL_BLOCK,
+            $storeId
+        ) ?? '';
+    }
+
+    /**
+     * Use for fields in the general group
+     *
+     * @param string $field
+     * @param integer $storeId
+     * @return mixed
+     */
+    private function getGeneralGroupValue(string $field, int $storeId = null)
+    {
+        return $this->getValue(
+            self::GROUP_GENERAL . '/' . $field,
+            $storeId
+        );
+    }
+
+    /**
+     * Use for fields in the design group
+     *
+     * @param string $field
+     * @param integer $storeId
+     * @return mixed
+     */
+    private function getDesignGroupValue(string $field, int $storeId = null)
+    {
+        return $this->getValue(
+            self::GROUP_DESIGN . '/' . $field,
+            $storeId
+        );
     }
 }

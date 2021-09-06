@@ -12,23 +12,15 @@ $item = $block->getItem();
 $rowTotalExclTax = $block->getRowDisplayPriceExclTax();
 $rowTotalInclTax = $block->getRowDisplayPriceInclTax();
 $componentName = "billmate-checkout-itemid-{$item->getId()}-subtotal";
+$koBlock = $block->getChildBlock('ko-viewmodel');
+
+if ($koBlock) {
+    $koBlock->setRendererBlock($block);
+    $koOutput = $item->getBillmateProcess() ? '' : $koBlock->toHtml();
+}
 ?>
 
-<script type="text/x-magento-init">
-    {
-        "*": {
-            "Magento_Ui/js/core/app": {
-                "components": {
-                    "<?= $escaper->escapeJs($componentName) ?>": {
-                        "component": "Billmate_NwtBillmateCheckout/js/checkout/view/item/subtotal",
-                        "row_total_incl_tax": "<?= $escaper->escapeJs($rowTotalInclTax) ?>",
-                        "row_total": "<?= $escaper->escapeJs($rowTotalExclTax) ?>"
-                    }
-                }
-            }
-        }
-    }
-</script>
+<?= /* @noEscape */ $koOutput ?>
 
 <span data-bind="scope: '<?= $escaper->escapeHtmlAttr($componentName) ?>'">
     <?php if (($block->displayPriceInclTax() || $block->displayBothPrices()) && !$item->getNoSubtotal()): ?>
