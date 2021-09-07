@@ -16,9 +16,8 @@ define([
                 var inputId = $(this).data('product-id'),
                     input = $("#cart-" + inputId + "-qty"),
                     currentQty = input.val(),
-                    dataSubmitUrl = input.data('cart-url-submit');
-                    // dataRefreshUrl = input.data('cart-url-update'),
-    
+                    formKey = $.mage.cookies.get('form_key');
+
                 if ($(this).hasClass('input-number-increment')) {
                     var qty = parseInt(currentQty) + parseInt(1);
     

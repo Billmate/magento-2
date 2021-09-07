@@ -31,22 +31,9 @@ class Success implements HttpGetActionInterface
 
     public function execute()
     {
-        // TODO: Fix this
-
-        // $checkout = $this->getSveaCheckout();
-        // $checkout->setCheckoutContext($this->sveaCheckoutContext);
         $session = $this->util->getCheckoutSession();
-
-
-        // if (!$this->sessionIsValid()) {
-        //     $checkout->getLogger()->error("Success Page: Success Validation invalid.");
-        //     $checkout->getLogger()->error(json_encode($session->getData()));
-        //     return $this->resultRedirectFactory->create()->setPath('checkout/cart');
-        // }
-
         $lastOrderId = $session->getLastOrderId();
-
-        $session->clearQuote(); //destroy quote, unset QuoteId && LastSuccessQuoteId
+        $session->clearQuote();
 
         $resultPage = $this->util->pageResult();
 

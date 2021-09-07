@@ -7,7 +7,11 @@
     <update handle="checkout_cart_index"/>
     <body>
         <referenceBlock name="page.main.title" template="Billmate_NwtBillmateCheckout::checkout/title.phtml" />
-        <referenceBlock name="checkout.cart.form" template="Billmate_NwtBillmateCheckout::checkout/cart.phtml" />
+        <referenceBlock name="checkout.cart.form" template="Billmate_NwtBillmateCheckout::checkout/cart.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">Billmate\NwtBillmateCheckout\ViewModel\HelperData</argument>
+            </arguments>
+        </referenceBlock>
 
         <referenceContainer name="content">
             <block

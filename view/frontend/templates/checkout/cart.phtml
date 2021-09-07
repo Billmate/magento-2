@@ -1,23 +1,26 @@
 <?php
+
+use Magento\Framework\Escaper;
+use Magento\Checkout\Block\Cart\Grid;
+use Billmate\NwtBillmateCheckout\ViewModel\HelperData;
+
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * @var Grid $block
+ * @var HelperData $viewModel
+ * @var Escaper $escaper
  */
 
-// phpcs:disable Magento2.Templates.ThisInTemplate
+$viewModel = $block->getViewModel();
+$mergedCells = ($viewModel->displayCartBothPrices() ? 2 : 1); 
+$twoColumnsLayout = in_array('billmate_checkout_2columns', $block->getLayout()->getUpdate()->getHandles());
 
-/**  @var $block \Magento\Checkout\Block\Cart\Grid */
-?>
-<?php 
-    $mergedCells = ($this->helper(Magento\Tax\Helper\Data::class)->displayCartBothPrices() ? 2 : 1); 
-    $twoColumnsLayout = in_array('billmate_checkout_2columns', $block->getLayout()->getUpdate()->getHandles());
 ?>
 <?= $block->getChildHtml('form_before') ?>
-<form action="<?= $block->escapeUrl($block->getUrl('checkout/cart/updatePost')) ?>"
+<form action="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updatePost')) ?>"
           method="post"
           id="form-validate"
           data-mage-init='{"Magento_Checkout/js/action/update-shopping-cart":
-              {"validationURL" : "<?= $block->escapeUrl($block->getUrl('checkout/cart/updateItemQty')) ?>",
+              {"validationURL" : "<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updateItemQty')) ?>",
               "updateCartActionContainer": "#update_cart_action_container"}
           }'
           class="form form-cart">

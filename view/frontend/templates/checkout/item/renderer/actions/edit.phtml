@@ -1,15 +1,18 @@
 <?php
+
+use Magento\Checkout\Block\Cart\Item\Renderer\Actions\Edit;
+use Magento\Framework\Escaper;
+
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * @var Edit $block
+ * @var Escaper $escaper
  */
 
-/** @var $block \Magento\Checkout\Block\Cart\Item\Renderer\Actions\Edit */
 ?>
 <?php if ($block->isProductVisibleInSiteVisibility()) :?>
     <a class="action action-edit billmate-mobile-hidden"
-       href="<?= $block->escapeUrl($block->getConfigureUrl()) ?>"
-       title="<?= $block->escapeHtmlAttr(__('Edit item parameters')) ?>">
-        <span><?= $block->escapeHtml(__('Modify')) ?></span>
+       href="<?= $escaper->escapeUrl($block->getConfigureUrl()) ?>"
+       title="<?= $escaper->escapeHtmlAttr(__('Edit item parameters')) ?>">
+        <span><?= $escaper->escapeHtml(__('Modify')) ?></span>
     </a>
 <?php endif ?>

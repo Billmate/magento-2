@@ -1,7 +1,12 @@
 <?php 
-/** 
- * @var $block \Billmate\NwtBillmateCheckout\Block\Success
-*/
+
+use Billmate\NwtBillmateCheckout\Block\Success;
+use Magento\Framework\Escaper;
+
+/**
+ * @var Success $block
+ * @var Escaper $escaper
+ */
 
 $orderId = $block->getOrderId();
 $realId = $block->getRealOrderId();
@@ -28,9 +33,9 @@ $realId = $block->getRealOrderId();
                         <strong><?= __('Order number:') ?></strong>
                         <span>
                             <?php if ($block->getCanViewOrder()) : ?>
-                                <span><?php echo __('#%1', sprintf('<a href="%s" class="order-number"><strong>%s</strong></a>', $block->escapeHtml($block->getViewOrderUrl()), $block->escapeHtml($block->getOrderId()))) ?></span>
+                                <span><?= __('#%1', sprintf('<a href="%s" class="order-number"><strong>%s</strong></a>', $escaper->escapeHtml($block->getViewOrderUrl()), $escaper->escapeHtml($block->getOrderId()))) ?></span>
                             <?php else : ?>
-                                <span><?php echo __('#%1', $block->escapeHtml($block->getOrderId())) ?></span>
+                                <span><?= __('#%1', $escaper->escapeHtml($block->getOrderId())) ?></span>
                             <?php endif; ?>
                         </span>
                     </li>
@@ -109,9 +114,7 @@ $realId = $block->getRealOrderId();
     <?php endif; ?>
     <div class="actions-toolbar">
         <div class="billmate-primary-wrapper">
-            <a class="action primary billmate-btn continue" href="<?php /* @escapeNotVerified */
-            echo $block->getUrl() ?>"><span><?php /* @escapeNotVerified */
-                    echo __('Continue Shopping') ?></span></a>
+            <a class="action primary billmate-btn continue" href="<?= $escaper->escapeHtmlAttr($block->getUrl()) ?>"><span><?= $escaper->escapeHtmlAttr(__('Continue Shopping')) ?></span></a>
         </div>
     </div>
 </div>
