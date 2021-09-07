@@ -10,15 +10,14 @@ define([
         },
 
         _bindClickEvent: function () {
-            // TODO: Add AJAX for quantity change and when removing products
+            // TODO: Add AJAX on quantity change
             
             $(this.element).on('click', function () {
                 var inputId = $(this).data('product-id'),
                     input = $("#cart-" + inputId + "-qty"),
                     currentQty = input.val(),
-                    dataSubmitUrl = input.data('cart-url-submit'),
+                    dataSubmitUrl = input.data('cart-url-submit');
                     // dataRefreshUrl = input.data('cart-url-update'),
-                    dataRemoveUrl = input.data('cart-url-remove');
     
                 if ($(this).hasClass('input-number-increment')) {
                     var qty = parseInt(currentQty) + parseInt(1);

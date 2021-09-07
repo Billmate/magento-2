@@ -31,6 +31,8 @@ class Success implements HttpGetActionInterface
 
     public function execute()
     {
+        // TODO: Fix this
+
         // $checkout = $this->getSveaCheckout();
         // $checkout->setCheckoutContext($this->sveaCheckoutContext);
         $session = $this->util->getCheckoutSession();
@@ -46,7 +48,6 @@ class Success implements HttpGetActionInterface
 
         $session->clearQuote(); //destroy quote, unset QuoteId && LastSuccessQuoteId
 
-        // need to be BEFORE event dispach (GA need to have layout loaded, to set the orderIds on the block)
         $resultPage = $this->util->pageResult();
 
         $this->eventManager->dispatch(

@@ -15,7 +15,7 @@ $isVisibleProduct = $product->isVisibleInSiteVisibility();
 /** @var \Magento\Msrp\Helper\Data $helper */
 $helper = $this->helper(Magento\Msrp\Helper\Data::class);
 $helperBillmate = $this->helper('\Billmate\NwtBillmateCheckout\Helper\Cart');
-$twoColumnsLayout = in_array('billmate_checkout_2columns', $block->getLayout()->getUpdate()->getHandles());
+$twoColumnsLayout = $_item->getTwoColumnsLayout();
 ?>
 <tbody class="cart item">
     <tr class="item-info">
@@ -89,8 +89,6 @@ $twoColumnsLayout = in_array('billmate_checkout_2columns', $block->getLayout()->
                                 data-cart-form-key="<?php echo $formKey->getFormKey(); ?>"                          
                                 data-cart-url-submit="<?= /* @escapeNotVerified */
                                 $block->getUrl('checkout/sidebar/updateItemQty') ?>"
-                                data-cart-url-remove="<?= /* @escapeNotVerified */
-                                $block->getUrl('checkout/sidebar/removeItem'); ?>"
                                 value="<?= $block->escapeHtmlAttr($block->getQty()) ?>"
                                 type="number"
                                 size="4"
@@ -124,8 +122,6 @@ $twoColumnsLayout = in_array('billmate_checkout_2columns', $block->getLayout()->
                                 data-cart-form-key="<?php echo $formKey->getFormKey(); ?>"                          
                                 data-cart-url-submit="<?= /* @escapeNotVerified */
                                 $block->getUrl('checkout/sidebar/updateItemQty') ?>"
-                                data-cart-url-remove="<?= /* @escapeNotVerified */
-                                $block->getUrl('checkout/sidebar/removeItem'); ?>"
                                 value="<?= $block->escapeHtmlAttr($block->getQty()) ?>"
                                 type="number"
                                 size="4"
