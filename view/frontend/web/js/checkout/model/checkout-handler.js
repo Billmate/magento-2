@@ -225,6 +225,19 @@ define([
         }.bind(this));
     }
 
+    /**
+     * Handle content_height event
+     * 
+     * @param {Object} data 
+     */
+    const _handleContentHeight = function (data) {
+        var iframe = this.element;
+        
+        if (data && data > 0) {
+            iframe.height(data + 'px');
+        }
+    }
+
     $.widget('billmate.checkoutHandler', {
         options: {
             genericErrorMessage: $.mage.__('Sorry, there has been an error processing your order. Please contact customer support.')
@@ -234,7 +247,8 @@ define([
         _eventHandlers: {
             'address_selected': _handleAddressSelected,
             'payment_method_selected': _handlePaymentMethodSelected,
-            'purchase_initialized': _handlePurchaseInitialized
+            'purchase_initialized': _handlePurchaseInitialized,
+            'content_height': _handleContentHeight
         },
         _create: function () {
             this._super();

@@ -1,0 +1,157 @@
+#billmate-success-wrapper {
+    border: 1px solid $border-color;
+    border-radius: 10px;
+    box-shadow: $box-shadow;
+    margin-bottom: 60px;
+    padding: 50px 90px;
+    @include breakpoint('(max-width: 1060px)') {
+        padding: 45px;
+    }
+    @include breakpoint('small') {
+        padding: 40px 20px;
+    }
+    @include breakpoint('mobile') {
+        padding: 30px 15px;
+        margin-bottom: 30px;
+    }
+}
+
+.billmate-success-heading {
+    font-size: 32px;
+    font-weight: 500;
+    text-align: center;
+    margin: 0 0 5px 0;
+    @include breakpoint('mobile') {
+        font-size: 20px;
+    }
+}
+
+.billmate-checkout-order-overview {
+    display: flex;
+    justify-content: space-between;
+    list-style: none none;
+    border-top: 1px solid $border-color-1;
+    border-bottom: 1px solid $border-color-1;
+    padding: 20px;
+    margin: 0 0 20px 0;
+    @include breakpoint('mobile') {
+        flex-wrap: wrap;
+        padding: 10px 0;
+    }
+    li {
+        @include breakpoint('mobile') {
+            width: 100%;
+            padding: 7px 0;
+            margin-bottom: 0;
+            & > span {
+                float: right;
+            }
+        }
+        strong {
+            display: block;
+            font-size: 18px;
+            font-weight: 500;
+            padding-bottom: 15px;
+            @include breakpoint('mobile') {
+                display: inline-block;
+                font-size: 14px;
+                padding-bottom: 0;
+            }
+        }
+    }
+}
+
+.billmate-checkout-order__items {
+    h3 {
+        padding-bottom: 15px;
+    }
+    table {
+        width: 100%;
+        margin-bottom: 45px;
+        @include breakpoint('mobile') {
+            margin-bottom: 25px;
+        }
+        th,
+        tr:last-child td {
+            font-size: 20px;
+            font-weight: 500;
+            @include breakpoint('mobile') {
+                font-size: 16px;
+            }
+        }
+        tr {
+            border-top: 1px solid $border-color-1;
+            &:last-child {
+                border-bottom: 1px solid $border-color-1;
+            }
+        }
+        .col-amount,
+        .col-subtotal {
+            text-align: right;
+        }
+        td, th {
+            padding: 0 20px;
+            line-height: 50px;
+            @include breakpoint('mobile') {
+                padding: 0;
+            }
+        }
+    }
+}
+
+.billmate-checkout-success {
+    .page-main {
+        padding-top: 60px;
+        @include breakpoint('mobile') {
+            padding-top: 15px;
+        }
+    }
+    .checkout-success {
+        &:before {
+            content: url('../images/checkmark-big.svg');
+            display: block;
+            margin: 0 auto 15px;
+            max-width: 60px;
+            @include breakpoint('mobile') {
+                max-width: 45px;
+            }
+        }
+    }
+    .billmate-checkout-grand-total {
+        width: 100%;
+        text-align: center;
+        padding: 20px 0;
+        .price {
+            font-size: 26px;
+            font-weight: 500;
+            color: $light-blue !important;
+            @include breakpoint('mobile') {
+                font-size: 22px; 
+            }
+        }
+    }
+    .logo-container {
+        padding: 20px 0 50px;
+        text-align: center;
+        @include breakpoint('mobile') {
+            padding: 10px 0 20px;
+            img {
+                max-width: 130px;
+            }
+        }
+    }
+    .actions-toolbar .billmate-primary-wrapper {
+        a.primary {
+            margin: 0 auto;
+            @include breakpoint('small') {
+                line-height: 50px;
+                text-align: center;
+            }
+        }
+    }
+    @include breakpoint('mobile') {
+        .cart-container {
+            padding-bottom: 0;
+        }
+    }
+}

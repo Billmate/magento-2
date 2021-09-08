@@ -1,0 +1,49 @@
+<?php
+
+use Magento\Framework\Escaper;
+use Magento\Checkout\Block\Cart\Grid;
+use Billmate\NwtBillmateCheckout\ViewModel\HelperData;
+
+/**
+ * @var Grid $block
+ * @var HelperData $viewModel
+ * @var Escaper $escaper
+ */
+
+$viewModel = $block->getViewModel();
+$mergedCells = ($viewModel->displayCartBothPrices() ? 2 : 1); 
+$twoColumnsLayout = in_array('billmate_checkout_2columns', $block->getLayout()->getUpdate()->getHandles());
+
+?>
+<?= $block->getChildHtml('form_before') ?>
+<form action="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updatePost')) ?>"
+          method="post"
+          id="form-validate"
+          data-mage-init='{"Magento_Checkout/js/action/update-shopping-cart":
+              {"validationURL" : "<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updateItemQty')) ?>",
+              "updateCartActionContainer": "#update_cart_action_container"}
+          }'
+          class="form form-cart">
+    <?= $block->getBlockHtml('formkey') ?>
+    <div class="cart table-wrapper<?= $mergedCells == 2 ? ' detailed' : '' ?>">
+        <?php if ($block->getPagerHtml()): ?>
+            <div class="cart-products-toolbar cart-products-toolbar-top toolbar"
+                 data-attribute="cart-products-toolbar-top"><?= $block->getPagerHtml() ?>
+            </div>
+        <?php endif ?>
+        <table id="shopping-cart-table"
+               class="cart items data table"
+               data-mage-init='{"shoppingCart":{"emptyCartButton": ".action.clear",
+               "updateCartActionContainer": "#update_cart_action_container"}}'>
+            <?php foreach ($block->getItems() as $_item): ?>
+                <?php if ($twoColumnsLayout) {
+                    $_item->setTwoColumnsLayout(true);
+                }
+                ?>
+                <?= $block->getItemHtml($_item) ?>
+            <?php endforeach ?>
+        </table>
+    </div>
+</form>
+<?= $block->getChildHtml('checkout.cart.order.actions') ?>
+<?= $block->getChildHtml('shopping.cart.table.after') ?>

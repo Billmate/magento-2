@@ -7,21 +7,21 @@ use Magento\Framework\Escaper;
  * @var Escaper $escaper
  */
 ?>
-<div id="dibs-easy-checkout_newsletter" class="dibs-easy-checkout-block newsletter">
+<div class="billmate-newsletter newsletter">
     <form 
         method="post"
         action="<?= $escaper->escapeHtmlAttr($block->getUrl('billmate/checkout/subscibeNewsletter')); ?>"
-        id="dibs-easy-checkout-newsletter-form"
+        id="billmate-checkout-newsletter-form"
     >
-        <div class="fieldset comment">
+        <div class="fieldset comment wrapper">
             <input 
                 type="checkbox"
                 name="newsletter"
                 value="1"
                 id="newsletter"
-                title="<?= $escaper->escapeHtmlAttr(__('Subscribe To Our Newsletter')) ?>" class="checkbox"/>
+                title="<?= $escaper->escapeHtmlAttr(__('Subscribe to the newsletter')) ?>" class="checkbox"/>
             <label for="newsletter">
-                <span class="tick"></span><?= $escaper->escapeHtml(__('Subscribe To Our Newsletter')) ?>
+                <?= $escaper->escapeHtml(__('Subscribe to the newsletter')) ?>
             </label>
         </div>
     </form>

@@ -9,6 +9,9 @@ define([
     'use strict';
 
     return Component.extend({
+        defaults: {
+            template: 'Billmate_NwtBillmateCheckout/checkout/shipping-rates'
+        },
         initObservable: function () {
             this._super();
             checkoutDataResolver.resolveEstimationAddress();

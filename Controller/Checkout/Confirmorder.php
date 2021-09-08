@@ -105,7 +105,7 @@ class Confirmorder implements HttpGetActionInterface
                 ->setLastOrderStatus($order->getStatus());
         }
 
-        return $this->util->redirect('checkout/onepage/success');
+        return $this->util->redirect('billmate/checkout/success');
     }
 
     /**
