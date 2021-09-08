@@ -5,6 +5,9 @@ namespace Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Article;
 use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\ArticleFactory;
 use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Article;
 
+/**
+ * Can collect discounts during Article generation, then convert them to the proper format for API calls to Billmate
+ */
 class DiscountsHandler
 {
     /**
@@ -17,11 +20,6 @@ class DiscountsHandler
      */
     private $discountsByTaxRates = [];
 
-    /**
-     * @var int
-     */
-    private $discountsProcessed = 0;
-
     public function __construct(
         ArticleFactory $articleFactory
     ) {
@@ -33,23 +31,22 @@ class DiscountsHandler
      *
      * @param int|float $amount Discount amount as a positive integer
      * @param int $taxRate Tax rate as a percentage (i.e. 25, not 0.25)
-     * @param int|float $taxCompensationAmount
+     * @param int|float $taxCompAmount
      * @return void
      */
-    public function add($amount, $taxRate, $taxCompensationAmount)
+    public function add($amount, $taxRate, $taxCompAmount)
     {
         $taxRateKey = $taxRate;
-        $this->discountsProcessed++;
         if (!isset($this->discountsByTaxRates[$taxRateKey])) {
             $this->discountsByTaxRates[$taxRateKey] = [
                 'amount' => $amount,
-                'taxCompensationAmount' => $taxCompensationAmount
+                'taxCompensationAmount' => $taxCompAmount
             ];
             return;
         }
 
         $this->discountsByTaxRates[$taxRateKey]['amount'] += $amount;
-        $this->discountsByTaxRates[$taxRateKey]['taxCompensationAmount'] += $taxCompensationAmount;
+        $this->discountsByTaxRates[$taxRateKey]['taxCompensationAmount'] += $taxCompAmount;
     }
 
     /**
@@ -63,7 +60,7 @@ class DiscountsHandler
         foreach ($this->discountsByTaxRates as $taxRate => $discountInfo) {
             $article = $this->articleFactory->create();
             $discountAmount = $discountInfo['amount'] - $discountInfo['taxCompensationAmount'];
-            $article->initializeAsDiscount(sprintf('Discount %s%%', $taxRate), $discountAmount, $taxRate);
+            $article->initializeAsDiscount(sprintf('Discount %s%% Tax', $taxRate), $discountAmount, $taxRate);
             $articles[] = $article;
         }
 

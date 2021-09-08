@@ -4,12 +4,12 @@ namespace Billmate\NwtBillmateCheckout\Model\Utils;
 
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Api\CartRepositoryInterface as QuoteRepositoryInterface;
-use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\ResourceModel\OrderFactory as OrderResourceFactory;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Framework\Exception\CouldNotSaveException;
 
 class OrderUtil
 {
@@ -38,23 +38,16 @@ class OrderUtil
     }
 
     /**
-     * Wrapper for Magento\Quote\Model\QuoteManagement::submit
+     * Wrapper for Magento\Quote\Model\QuoteManagement::placeOrder
      *
-     * @param Quote $quote
-     * @return Order Will be an empty object if order wasn't created
-     * @throws \Exception
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param integer $quoteId
+     * @throws CouldNotSaveException
+     * @return integer
+     * @see \Magento\Quote\Model\QuoteManagement::placeOrder
      */
-    public function submitQuote($quote)
+    public function placeOrder(int $quoteId): int
     {
-        $result = $this->quoteManagement->submit($quote);
-
-        if (!$result instanceof Order) {
-            // Here we return empty Order object for consistent return value
-            return $this->orderFactory->create();
-        }
-
-        return $result;
+        return $this->quoteManagement->placeOrder($quoteId);
     }
 
     /**

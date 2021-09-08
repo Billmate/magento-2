@@ -4,6 +4,7 @@ namespace Billmate\NwtBillmateCheckout\Gateway\Http\Client;
 
 use Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder\PaymentDataBuilder;
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
+use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
 
 class TransactionAuthorize extends AbstractTransaction
 {
@@ -12,20 +13,22 @@ class TransactionAuthorize extends AbstractTransaction
      */
     public function process(array $data)
     {
-        $invoiceNumber = $data[PaymentDataBuilder::INVOICE_NUMBER];
+        $invoiceNumber = $data[ResponseValidator::KEY_INVOICE_NUMBER];
+        $credentials = $data['credentials'];
+        $result = [];
         try {
-            $paymentInfo = $this->adapter->getPaymentInfo($invoiceNumber);
+            $paymentInfo = $this->adapter->getPaymentInfo($invoiceNumber, $credentials);
+            $methodId = $paymentInfo->getPaymentData()->getMethod();
+            $methodDescription = Config::PAYMENT_METHOD_MAPPING[$methodId];
+            $status = $paymentInfo->getPaymentData()->getStatus();
+            $result[ResponseValidator::KEY_INVOICE_NUMBER] = $invoiceNumber;
+            $result[ResponseValidator::KEY_METHOD_ID] = $methodId;
+            $result[ResponseValidator::KEY_METHOD_DESCRIPTION] = $methodDescription;
+            $result[ResponseValidator::KEY_STATUS] = $status;
         } catch (\Exception $e) {
-            throw $e; // TODO handle appropriately
+            $result[ResponseValidator::KEY_ERROR] = $e->getMessage();
         }
 
-        $methodId = $paymentInfo->getPaymentData()->getMethod();
-        $methodDescription = Config::PAYMENT_METHOD_MAPPING[$methodId];
-
-        return [
-            PaymentDataBuilder::INVOICE_NUMBER => $invoiceNumber,
-            'billmate_method_id' => $methodId,
-            'billmate_method_description' => $methodDescription
-        ];
+        return $result;
     }
 }

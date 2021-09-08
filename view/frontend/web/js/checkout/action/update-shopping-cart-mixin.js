@@ -186,7 +186,7 @@ define([
                 }
                 
                 this._privateContentVersion = $.mage.cookies.get('private_content_version');
-                this._encodedCart = cartEncoder(customerData.get('cart-data')())
+                this._encodedCart = cartEncoder(customerData.get('cart-data')());
                 this._on($(this.element.find(this.options.removerSelector)), {
                     'click': this._removeHandler
                 });

@@ -6,9 +6,10 @@ use Magento\Framework\Serialize\SerializerInterface;
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\DataObject;
+use Psr\Log\LoggerInterface;
 
 /**
- * Utility class for handling various types of data transformations
+ * Utility class for handling loggind and various types of data transformations
  */
 class DataUtil
 {
@@ -18,14 +19,18 @@ class DataUtil
 
     private Config $config;
 
+    private LoggerInterface $logger;
+
     public function __construct(
         SerializerInterface $serializer,
         DataObjectFactory $dataObjectFactory,
-        Config $config
+        Config $config,
+        LoggerInterface $logger
     ) {
         $this->serializer = $serializer;
         $this->dataObjectFactory = $dataObjectFactory;
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
@@ -97,5 +102,25 @@ class DataUtil
     {
         $key = $this->config->getSecretKey();
         return hash_hmac('sha512', $val, $key);
+    }
+
+    /**
+     * Get Config
+     *
+     * @return Config
+     */
+    public function getConfig(): Config
+    {
+        return $this->config;
+    }
+
+    /**
+     * Get logger
+     *
+     * @return LoggerInterface
+     */
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
     }
 }

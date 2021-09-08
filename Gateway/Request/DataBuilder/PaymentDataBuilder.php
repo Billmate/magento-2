@@ -3,15 +3,11 @@
 namespace Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder;
 
 use Magento\Payment\Helper\Formatter;
+use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
 
 class PaymentDataBuilder extends AbstractDataBuilder
 {
     use Formatter;
-
-    /**
-     * Billmate Invoice ID
-     */
-    const INVOICE_NUMBER = 'billmate_invoice_number';
 
     /**
      * Billmate Payment ID
@@ -42,16 +38,12 @@ class PaymentDataBuilder extends AbstractDataBuilder
             self::PAYMENT_NUMBER => $payment->getAdditionalInformation(
                 self::PAYMENT_NUMBER
             ),
-            self::INVOICE_NUMBER=> $payment->getAdditionalInformation(
-                self::INVOICE_NUMBER
+            ResponseValidator::KEY_INVOICE_NUMBER => $payment->getAdditionalInformation(
+                ResponseValidator::KEY_INVOICE_NUMBER
             ),
-            self::ORDER_ID => $order->getOrderIncrementId()
+            self::ORDER_ID => $order->getOrderIncrementId(),
+            'payment' => $payment
         ];
-
-        $merchantAccountId = $this->config->getMerchantAccountId();
-        if (!empty($merchantAccountId)) {
-            $result[self::MERCHANT_ID] = $merchantAccountId;
-        }
 
         return $result;
     }

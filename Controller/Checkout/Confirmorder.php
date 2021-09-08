@@ -2,10 +2,12 @@
 
 namespace Billmate\NwtBillmateCheckout\Controller\Checkout;
 
-use InvalidArgumentException;
 use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil;
+use Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder\CredentialsDataBuilder;
+use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
+use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
@@ -63,17 +65,17 @@ class Confirmorder implements HttpGetActionInterface
             $this->verifyRequest($content);
         } catch (\InvalidArgumentException $e) {
             $this->addErrorMessage();
-            return $this->util->redirect('checkout/cart');
+            return $this->redirectToCart();
         } catch (LocalizedException $e) {
             $this->addErrorMessage($e->getMessage());
-            return $this->util->redirect('checkout/cart');
+            return $this->redirectToCart();
         }
 
         try {
             $quote = $this->getQuoteForOrder();
         } catch (NoSuchEntityException $e) {
             $this->addErrorMessage();
-            return $this->util->redirect('checkout/cart');
+            return $this->redirectToCart();
         }
 
         $checkoutSession = $this->util->getCheckoutSession();
@@ -82,30 +84,31 @@ class Confirmorder implements HttpGetActionInterface
         $invoiceNumber = $content->getData('data')->getNumber();
 
         $payment = $quote->getPayment();
-        $payment->setAdditionalInformation('billmate_invoice_number', $invoiceNumber);
+        $payment->setAdditionalInformation(ResponseValidator::KEY_INVOICE_NUMBER, $invoiceNumber);
+        $payment->setAdditionalInformation(
+            CredentialsDataBuilder::KEY_BILLMATE_TEST_MODE,
+            $this->dataUtil->getConfig()->getTestMode()
+        );
+        $this->orderUtil->getQuoteRepository()->save($quote);
 
         try {
-            $order = $this->orderUtil->submitQuote($quote);
-        } catch (LocalizedException $e) {
-            //TODO handle
-            throw $e;
+           $this->orderUtil->placeOrder($quote->getId());
         } catch (\Exception $e) {
             //TODO Handle
             throw $e;
         }
 
-        // Set last successful quote and order data in session, necessary to access order success page
-        $quoteId = $quote->getId();
-        $checkoutSession = $this->util->getCheckoutSession();
-        $checkoutSession->setLastQuoteId($quoteId)->setLastSuccessQuoteId($quoteId);
-
-        if ($order && $order->getId()) {
-            $checkoutSession->setLastOrderId($order->getId())
-                ->setLastRealOrderId($order->getIncrementId())
-                ->setLastOrderStatus($order->getStatus());
-        }
-
         return $this->util->redirect('billmate/checkout/success');
+    }
+
+    /**
+     * Redirect shorthand
+     *
+     * @return Redirect
+     */
+    private function redirectToCart(): Redirect
+    {
+        return $this->util->redirect('checkout/cart');
     }
 
     /**
@@ -163,7 +166,7 @@ class Confirmorder implements HttpGetActionInterface
         $errors |= (!$quoteId) ? 4 : 0;
 
         if ($errors > 0) {
-            // TODO set specific error messages
+            // TODO log specific error messages
             throw new LocalizedException(__('Invalid request from Billmate'));
         }
     }

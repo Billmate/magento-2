@@ -6,10 +6,11 @@ use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Article\Price;
 use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Article\PriceFactory;
 use Magento\Framework\DataObject;
 use Magento\Quote\Model\Quote\Item;
+use Magento\Sales\Model\Order\CreditMemo\Item as CreditMemoItem;
 
 /**
  * Same data structure as Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\ResponseArticle,
- * This should be used when handling building an API request
+ * This should be used when building an API request
  * Use ResponseArticle for handling API responses
  */
 class Article extends DataObject
@@ -61,7 +62,7 @@ class Article extends DataObject
     }
 
     /**
-     * Initialize from quote item
+     * Initialize from quote item. Used for initCheckout and updateCheckout operations.
      *
      * @param Item $quoteItem
      * @return void
@@ -88,17 +89,31 @@ class Article extends DataObject
         $this->artnr = 'Discount_VAT' . $taxRate;
         $this->title = $name;
         $this->quantity = 1;
-        $this->discount = 0;
         $this->taxrate = $taxRate;
         $this->handleDiscountAmount($amount);
     }
 
     /**
-     * Convert to array
+     * Initialize from order item. Used for credit operation.
      *
+     * @param OrderItem $crMemoItem
      * @return void
      */
-    public function propertiesToArray()
+    public function initializForCredit(CreditMemoItem $crMemoItem)
+    {
+        $this->artnr = $crMemoItem->getSku();
+        $this->title = $crMemoItem->getName();
+        $this->quantity = $crMemoItem->getQty();
+        $this->taxrate = (int)$crMemoItem->getOrderItem()->getTaxPercent();
+        $this->handlePriceForCredit($crMemoItem);
+    }
+
+    /**
+     * Convert to array
+     *
+     * @return array
+     */
+    public function propertiesToArray(): array
     {
         $result = [
             'artnr' => $this->artnr,
@@ -120,6 +135,18 @@ class Article extends DataObject
     {
         $this->priceModel = $this->priceFactory->create();
         $this->priceModel->initializeByQuoteItem($quoteItem);
+    }
+
+    /**
+     * Initialize price model for credit operation
+     *
+     * @param CreditMemoItem $crMemoItem
+     * @return void
+     */
+    private function handlePriceForCredit($crMemoItem)
+    {
+        $this->priceModel = $this->priceFactory->create();
+        $this->priceModel->initializeForCredit($crMemoItem);
     }
 
     /**

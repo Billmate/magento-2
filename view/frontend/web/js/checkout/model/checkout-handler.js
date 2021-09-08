@@ -2,18 +2,20 @@ define([
     'jquery',
     'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/model/address-converter',
-    'Magento_Checkout/js/checkout-data',
     'Magento_Checkout/js/model/shipping-save-processor/default',
     'Magento_Checkout/js/action/select-billing-address',
+    'Magento_Checkout/js/action/set-billing-address',
+    'Magento_Ui/js/model/messageList',
     'mage/url',
     'Magento_Ui/js/modal/alert',
 ], function(
     $,
     quote,
     addressConverter,
-    checkoutData,
     shippingSaveProcessor,
     selectBillingAddress,
+    setBillingAddressAction,
+    globalMessageList,
     mageurl,
     magealert
 ) {
@@ -166,8 +168,13 @@ define([
             quote.shippingAddress(quote.billingAddress());
         }
 
+        // Save to backend if any actions were done
         if (action > 0) {
-            shippingSaveProcessor.saveShippingInformation();
+            if (quote.isVirtual()) {
+                setBillingAddressAction(globalMessageList);
+            } else {
+                shippingSaveProcessor.saveShippingInformation();
+            }
         }
 
         return action > 0;
