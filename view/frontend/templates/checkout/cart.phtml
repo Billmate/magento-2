@@ -17,13 +17,17 @@ $twoColumnsLayout = in_array('billmate_checkout_2columns', $block->getLayout()->
 ?>
 <?= $block->getChildHtml('form_before') ?>
 <form action="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updatePost')) ?>"
-          method="post"
-          id="form-validate"
-          data-mage-init='{"Magento_Checkout/js/action/update-shopping-cart":
-              {"validationURL" : "<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updateItemQty')) ?>",
-              "updateCartActionContainer": "#update_cart_action_container"}
-          }'
-          class="form form-cart">
+    method="post"
+    id="form-validate"
+    data-mage-init='{
+        "Magento_Checkout/js/action/update-shopping-cart": {
+            "validationURL" : "<?= $escaper->escapeUrl($block->getUrl('checkout/cart/updateItemQty')) ?>",
+            "updateCartActionContainer": "#update_cart_action_container",
+            "itemSubtotalSelector": ".price"
+        }
+    }'
+    class="form form-cart"
+>
     <?= $block->getBlockHtml('formkey') ?>
     <div class="cart table-wrapper<?= $mergedCells == 2 ? ' detailed' : '' ?>">
         <?php if ($block->getPagerHtml()): ?>
