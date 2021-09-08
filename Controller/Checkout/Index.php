@@ -89,7 +89,7 @@ class Index implements HttpGetActionInterface
             return $this->util->forwardNoRoute();
         }
 
-        $pageResult = $this->util->pageResult();
+        $resultPage = $this->util->pageResult();
         $checkoutSession = $this->util->getCheckoutSession();
         $quote = $checkoutSession->getQuote();
 
@@ -119,7 +119,19 @@ class Index implements HttpGetActionInterface
         // TODO error handling
 
         $this->saveQuote($quote);
-        return $pageResult;
+
+        if (!is_null($layoutType = $this->config->getLayoutType())) {
+            $resultPage->getConfig()->setPageLayout($layoutType);
+        }
+
+        if ($layoutType == '2columns-billmate') {
+            $resultPage->addHandle('billmate_checkout_2columns');
+            $resultPage->getConfig()->getTitle()->set(__('Order details'));
+        } else {
+            $resultPage->getConfig()->getTitle()->set(__('Billmate Checkout'));
+        }
+
+        return $resultPage;
     }
 
     /**

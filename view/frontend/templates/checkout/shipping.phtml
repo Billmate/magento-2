@@ -13,12 +13,9 @@ use Magento\Framework\Escaper;
 <div id="billmate-block-shipping"
      class="block shipping"
 >
-    <div class="title" data-role="title">
-        <strong id="block-shipping-heading" role="heading" aria-level="2">
-            <?= !$block->getQuote()->isVirtual()
-                ? $escaper->escapeHtml(__('Choose shipping method'))
-                : ''
-            ?>
+    <div data-role="title">
+        <strong id="block-shipping-heading" class="billmate-heading" role="heading" aria-level="2">
+            <?= $escaper->escapeHtml(__('Choose shipping method')) ?>
         </strong>
     </div>
     <div id="block-summary"

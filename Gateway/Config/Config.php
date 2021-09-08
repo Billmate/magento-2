@@ -52,6 +52,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
     const KEY_ADDITIONAL_BLOCK = 'additional_block';
 
+    const KEY_LAYOUT_TYPE = 'layout_type';
+
     /**
      * Mapping of payment method IDs to descriptors
      * @link https://billmate.github.io/api-docs/#getpaymentinfo - See Response Body -> PaymentData -> method
@@ -286,6 +288,20 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
         return $this->getDesignGroupValue(
             self::KEY_ADDITIONAL_BLOCK,
+            $storeId
+        ) ?? '';
+    }
+
+    /**
+     * Get layout type
+     *
+     * @param integer $storeId
+     * @return string
+     */
+    public function getLayoutType(int $storeId = null): string
+    {
+        return $this->getDesignGroupValue(
+            self::KEY_LAYOUT_TYPE,
             $storeId
         ) ?? '';
     }

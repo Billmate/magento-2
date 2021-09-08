@@ -98,7 +98,7 @@ class Confirmorder implements HttpGetActionInterface
             throw $e;
         }
 
-        return $this->util->redirect('checkout/onepage/success');
+        return $this->util->redirect('billmate/checkout/success');
     }
 
     /**

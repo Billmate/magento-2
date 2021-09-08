@@ -1,4 +1,14 @@
-"Choose shipping method","Välj fraktmetod"
+"Billmate Checkout", "Kassan", module, Billmate_NwtBillmateCheckout
+"Order details", "Orderdetaljer", module, Billmate_NwtBillmateCheckout
+"Modify", "Redigera", module, Billmate_NwtBillmateCheckout
+"Delivery", "Leverans", module, Billmate_NwtBillmateCheckout
+"VAT", "Varav moms", module, Billmate_NwtBillmateCheckout
+"Total sum", "Totalsumma", module, Billmate_NwtBillmateCheckout
+"Add the following products", "Lägg till följande produkter", module, Billmate_NwtBillmateCheckout
+"Add to cart", "Lägg i varukorg", module, Billmate_NwtBillmateCheckout
+"Choose shipping method", "Välj fraktsätt", module, Billmate_NwtBillmateCheckout
+"Address and payment", "Adress och betalning", module, Billmate_NwtBillmateCheckout
+"Subscribe to the newsletter", "Prenumerera på nyhetsbrevet", module, Billmate_NwtBillmateCheckout
 "Subtotal","Delsumma"
 "(Excl. Tax)","(Exkl. Moms)"
 "(Incl. Tax)","(Inkl. Moms)"
@@ -11,3 +21,10 @@
 "Apply Discount Code","Använd Rabattkod"
 "Subscribe To Our Newsletter","Prenumerera På Nyhetsbrevet",
 "Are you sure you want to remove %1 from the cart?","Är du säker på att du vill ta bort %1 från varukorgen?"
+"Thank you for your purchase!", "Tack för ditt köp!", module, Billmate_NwtBillmateCheckout
+"We have received your order.", "Vi har mottagit din order.", module, Billmate_NwtBillmateCheckout
+"Order Details", "Orderdetaljer", module, Billmate_NwtBillmateCheckout
+"Order number:", "Ordernummer:", module, Billmate_NwtBillmateCheckout
+"Date:", "Datum:", module, Billmate_NwtBillmateCheckout
+"Payment method:", "Betalsätt:", module, Billmate_NwtBillmateCheckout
+"Sum", "Summa", module, Billmate_NwtBillmateCheckout
