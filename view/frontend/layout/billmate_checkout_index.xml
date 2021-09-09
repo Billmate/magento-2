@@ -113,8 +113,8 @@
 
         <block name="billmate.checkout.newsletter" template="Billmate_NwtBillmateCheckout::checkout/newsletter.phtml" />
 
-        <move element="checkout.cart.form" destination="billmate_checkoutSidebar" />
         <move element="page.main.title" destination="billmate_checkoutSidebar" before="-" />
+        <move element="checkout.cart.form" destination="billmate_checkoutSidebar" after="page.main.title" />
         <move element="cart.summary" destination="billmate_checkoutSidebar" after="checkout.cart.form" />
         <move element="cart.discount" destination="billmate_checkoutSidebar" after="cart.summary" />
         <move element="billmate.checkout.newsletter" destination="billmate_checkoutSidebar" after="cart.discount" />
