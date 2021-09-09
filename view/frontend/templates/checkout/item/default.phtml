@@ -96,14 +96,24 @@ $twoColumnsLayout = $_item->getTwoColumnsLayout();
         <?php if (!$twoColumnsLayout): ?>
             <td class="col qty" data-th="<?= $escaper->escapeHtml(__('Qty')) ?>">
                 <div class="field qty">
-                    <div class="control qty">
+                    <div
+                        class="control qty"
+                        data-mage-init='{
+                            "Billmate_NwtBillmateCheckout/js/checkout/qtyAdjust": {}
+                        }'
+                    >
                         <label for="cart-<?= $escaper->escapeHtmlAttr($_item->getId()) ?>-qty">
-                            <span id="inc-<?= $_item->getId() ?>" class="input-number-increment" data-product-id="<?= $_item->getId() ?>">+</span>
+                            <span
+                                id="inc-<?= $_item->getId() ?>"
+                                class="input-number-increment"
+                                data-product-id="<?= $_item->getId() ?>"
+                            >
+                                +
+                            </span>
                             <input id="cart-<?= $escaper->escapeHtmlAttr($_item->getId()) ?>-qty"
                                 name="cart[<?= $escaper->escapeHtmlAttr($_item->getId()) ?>][qty]"
-                                data-cart-item-id="<?= $escaper->escapeHtmlAttr($_item->getSku()) ?>"
+                                data-cart-sku="<?= $escaper->escapeHtmlAttr($_item->getSku()) ?>"
                                 data-cart-product-id="<?= $escaper->escapeHtmlAttr($_item->getId()) ?>"
-                                data-cart-url-submit="<?= $escaper->escapeHtmlAttr($block->getUrl('checkout/sidebar/updateItemQty')) ?>"
                                 value="<?= $escaper->escapeHtmlAttr($block->getQty()) ?>"
                                 type="number"
                                 size="4"
@@ -112,7 +122,13 @@ $twoColumnsLayout = $_item->getTwoColumnsLayout();
                                 class="input-text qty"
                                 data-validate="{required:true,'validate-greater-than-zero':true}"
                                 data-role="cart-item-qty"/>
-                            <span id="dec-<?= $_item->getId() ?>" class="input-number-decrement" data-product-id="<?= $_item->getId() ?>">-</span>
+                            <span
+                                id="dec-<?= $_item->getId() ?>"
+                                class="input-number-decrement"
+                                data-product-id="<?= $_item->getId() ?>"
+                            >
+                                -
+                            </span>
                         </label>
                     </div>
                 </div>
@@ -127,12 +143,3 @@ $twoColumnsLayout = $_item->getTwoColumnsLayout();
         </td>
     </tr>
 </tbody>
-
-<script type="text/x-magento-init">
-    {
-        "#dec-<?= $_item->getId() ?>, #inc-<?= $_item->getId() ?>": {
-            "Billmate_NwtBillmateCheckout/js/checkout/qtyAdjust": {
-            }
-        }
-    }
-</script>

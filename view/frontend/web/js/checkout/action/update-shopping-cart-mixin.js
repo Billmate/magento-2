@@ -48,7 +48,8 @@ define([
             options: {
                 removerSelector: '.action-delete',
                 tableSelector: '#shopping-cart-table',
-                itemSubtotalSelector: '.subtotal > span'
+                itemSubtotalSelector: '.subtotal > span',
+                qtyAdjustSelector: '.control.qty'
             },
 
             _privateContentVersion: null,
@@ -129,7 +130,7 @@ define([
                                 context: this,
                                 data: {
                                     id: $(event.target).attr('data-item-id'),
-                                    form_key: window.checkoutConfig.formKey,
+                                    form_key: $.mage.cookies.get('form_key'),
                                     billmate: 1
                                 },
                                 beforeSend: function () {
@@ -169,11 +170,14 @@ define([
                 this._bindCustomEvents();
 
                 $(this.options.tableSelector).find('tbody').each(function (index, elem) {
-                    // We must also reapply knockout binding to the price display
+                    // We must also reapply knockout binding to price display, and reinitialize widget on qty adjustment buttons
                     ko.applyBindings(
                         subtotalViewModel({}),
-                        _.first($(elem).find(this.options.itemSubtotalSelector)
-                    ));
+                        _.first($(elem).find(this.options.itemSubtotalSelector))
+                    );
+
+                    $(elem).find(this.options.qtyAdjustSelector).qtyAdjust();
+
                 }.bind(this));
             },
 
@@ -190,6 +194,11 @@ define([
                 this._on($(this.element.find(this.options.removerSelector)), {
                     'click': this._removeHandler
                 });
+
+                window.addEventListener('submitCart', function () {
+                    this._disableAutoUpdate = true;
+                    this.element.submit();
+                }.bind(this));
 
                 // A watcher that detects changes to the cart from elsewhere, such as a second tab
                 setInterval(function () {

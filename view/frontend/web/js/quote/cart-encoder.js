@@ -7,7 +7,7 @@ define(function () {
      * @param {Object} cartData Expects 'cart-data' section from 'Magento_Customer/js/customer-data'
      */
     return function (cartData) {
-        if (!cartData.hasOwnProperty('totals')) {
+        if (!cartData.totals) {
             return '';
         }
 
