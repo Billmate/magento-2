@@ -70,14 +70,17 @@ $twoColumnsLayout = $_item->getTwoColumnsLayout();
             </div>
             <?php if ($twoColumnsLayout): ?>
                 <div class="field qty">
-                    <div class="control qty">
+                    <div
+                        class="control qty"
+                        data-mage-init='{
+                            "Billmate_NwtBillmateCheckout/js/checkout/qtyAdjust": {}
+                        }'
+                    >
                         <label for="cart-<?= $escaper->escapeHtmlAttr($_item->getId()) ?>-qty">
                             <span id="dec-<?= $_item->getId() ?>" class="input-number-decrement" data-product-id="<?= $_item->getId() ?>">-</span>
                             <input id="cart-<?= $escaper->escapeHtmlAttr($_item->getId()) ?>-qty"
                                 name="cart[<?= $escaper->escapeHtmlAttr($_item->getId()) ?>][qty]"
-                                data-cart-item-id="<?= $escaper->escapeHtmlAttr($_item->getSku()) ?>"
                                 data-cart-product-id="<?= $escaper->escapeHtmlAttr($_item->getId()) ?>"
-                                data-cart-url-submit="<?= $escaper->escapeHtmlAttr($block->getUrl('checkout/sidebar/updateItemQty')) ?>"
                                 value="<?= $escaper->escapeHtmlAttr($block->getQty()) ?>"
                                 type="number"
                                 size="4"
@@ -112,7 +115,6 @@ $twoColumnsLayout = $_item->getTwoColumnsLayout();
                             </span>
                             <input id="cart-<?= $escaper->escapeHtmlAttr($_item->getId()) ?>-qty"
                                 name="cart[<?= $escaper->escapeHtmlAttr($_item->getId()) ?>][qty]"
-                                data-cart-sku="<?= $escaper->escapeHtmlAttr($_item->getSku()) ?>"
                                 data-cart-product-id="<?= $escaper->escapeHtmlAttr($_item->getId()) ?>"
                                 value="<?= $escaper->escapeHtmlAttr($block->getQty()) ?>"
                                 type="number"
