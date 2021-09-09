@@ -24,22 +24,25 @@ define([
         },
 
         _bindClickEvent: function () {
-            
-            $(this._incrementElem).on('click', function () {
-                let currentQty = this._inputElem.val();
-                let qty = parseInt(currentQty) + parseInt(1);
-                this._inputElem.val(qty);
-                this._dispatchSubmitEvent();
-            }.bind(this));
-
-            $(this._decrementElem).on('click', function () {
-                let currentQty = this._inputElem.val();
-                if (currentQty > 1) {
-                    let qty = parseInt(currentQty) - parseInt(1);
+            this._on(this._incrementElem, {
+                'click': function () {
+                    let currentQty = this._inputElem.val();
+                    let qty = parseInt(currentQty) + parseInt(1);
                     this._inputElem.val(qty);
                     this._dispatchSubmitEvent();
                 }
-            }.bind(this));
+            });
+
+            this._on(this._decrementElem, {
+                'click': function () {
+                    let currentQty = this._inputElem.val();
+                    if (currentQty > 1) {
+                        let qty = parseInt(currentQty) - parseInt(1);
+                        this._inputElem.val(qty);
+                        this._dispatchSubmitEvent();
+                    }
+                }
+            });
         },
 
         _bindBlurEvent: function () {

@@ -37,6 +37,10 @@ define([
          */
         const _setNewSubtotals = function (item) {
             const component = uiRegistry.get('billmate-checkout-itemid-' + item.item_id + '-subtotal')
+            if (!component) {
+                return;
+            }
+
             const newRowTotal = item.row_total + item.weee_tax_applied_row_amount;
             const newRowTotalInclTax = item.row_total_incl_tax + item.weee_tax_applied_row_amount;
 
