@@ -30,9 +30,6 @@
         <referenceBlock name="checkout.item.price.row" template="Billmate_NwtBillmateCheckout::checkout/cart/item/price/row.phtml">
             <block class="Magento\Checkout\Block\Item\Price\Renderer" name="checkout.item.price.row.ko-viewmodel" as="ko-viewmodel" template="Billmate_NwtBillmateCheckout::checkout/cart/item/price/row/ko-viewmodel.phtml" />
         </referenceBlock>
-        <referenceBlock name="checkout.item.price.unit" template="Billmate_NwtBillmateCheckout::checkout/cart/item/price/row.phtml">
-            <block class="Magento\Checkout\Block\Item\Price\Renderer" name="checkout.item.price.unit.ko-viewmodel" as="ko-viewmodel" template="Billmate_NwtBillmateCheckout::checkout/cart/item/price/row/ko-viewmodel.phtml" />
-        </referenceBlock>
         <referenceBlock name="checkout.cart.coupon" template="Billmate_NwtBillmateCheckout::checkout/coupon.phtml" />
         <referenceContainer name="cart.summary" htmlClass="billmate-cart-summary" />
 
