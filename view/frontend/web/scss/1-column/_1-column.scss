@@ -303,22 +303,6 @@
                         display: none;
                     }
                 }
-                & + span {
-                    text-align: right;
-                    position: absolute;
-                    right: 20px;
-                    bottom: 20px;
-                    @include breakpoint('mobile') {
-                        right: 0;
-                        bottom: 15px;
-                    }
-                    .price {
-                        font-weight: 500;
-                        @include breakpoint('mobile') {
-                            font-size: 14px;
-                        }
-                    }
-                }
                 .action-delete,
                 .action-edit {
                     position: relative;
@@ -336,6 +320,21 @@
                 padding-right: 20px;
                 @include breakpoint('mobile') {
                     padding-right: 0;
+                }
+            }
+            .subtotal-container {
+                text-align: right;
+                position: relative;
+                top: 95px;
+                @include breakpoint('mobile') {
+                    right: 0;
+                    bottom: 15px;
+                }
+                .price {
+                    font-weight: 500;
+                    @include breakpoint('mobile') {
+                        font-size: 14px;
+                    }
                 }
             }
         }
