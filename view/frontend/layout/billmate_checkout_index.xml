@@ -22,7 +22,7 @@
                 <arguments> 
                     <argument name="block_id" xsi:type="helper" helper="Billmate\NwtBillmateCheckout\Gateway\Config\Config::getAdditionalBlock"/>
                 </arguments>
-            </block> 
+            </block>
         </referenceContainer>
         <referenceBlock name="top.search" remove="true" />
         <referenceBlock name="minicart" remove="true" />
@@ -30,16 +30,31 @@
         <referenceBlock name="checkout.item.price.row" template="Billmate_NwtBillmateCheckout::checkout/cart/item/price/row.phtml">
             <block class="Magento\Checkout\Block\Item\Price\Renderer" name="checkout.item.price.row.ko-viewmodel" as="ko-viewmodel" template="Billmate_NwtBillmateCheckout::checkout/cart/item/price/row/ko-viewmodel.phtml" />
         </referenceBlock>
-        <referenceBlock name="checkout.cart.coupon" template="Billmate_NwtBillmateCheckout::checkout/coupon.phtml" />
         <referenceContainer name="cart.summary" htmlClass="billmate-cart-summary" />
 
         <referenceContainer name="checkout.cart.container">
             <container name="billmate_checkoutSidebar" htmlTag="div" htmlClass="billmate-checkout-sidebar" />
-            <block name="billmate.checkout.iframe" cacheable="false" template="Billmate_NwtBillmateCheckout::checkout/iframe.phtml" after="-">            
+            <block name="billmate.checkout.iframe" cacheable="false" template="Billmate_NwtBillmateCheckout::checkout/iframe.phtml" after="-">
                 <arguments>
                     <argument name="view_model" xsi:type="object">Billmate\NwtBillmateCheckout\ViewModel\Checkout</argument>
                     <argument name="purchase_initialized_hide_target" xsi:type="string">div.cart-container</argument>
                 </arguments>
+            </block>
+            <block
+                class="Magento\Checkout\Block\Cart\Crosssell"
+                name="checkout.cart.crosssell"
+                template="Magento_Catalog::product/list/items.phtml"
+                after="-"
+                ifconfig="payment/nwt_billmate/design/enable_crosssell">
+                <arguments>
+                    <argument name="type" xsi:type="string">crosssell</argument>
+                    <argument name="view_model" xsi:type="object">Magento\Catalog\ViewModel\Product\Listing\PreparePostData</argument>
+                </arguments>
+                <block class="Magento\Catalog\Block\Product\ProductList\Item\Container" name="crosssell.product.addto" as="addto">
+                    <block class="Magento\Catalog\Block\Product\ProductList\Item\AddTo\Compare"
+                           name="crosssell.product.addto.compare" as="compare"
+                           template="Magento_Catalog::product/list/addto/compare.phtml"/>
+                </block>
             </block>
         </referenceContainer>
 
@@ -111,9 +126,18 @@
         
         <referenceBlock name="checkout.cart.crosssell" template="Billmate_NwtBillmateCheckout::product/list/items.phtml" />
 
-        <block name="billmate.checkout.newsletter" template="Billmate_NwtBillmateCheckout::checkout/newsletter.phtml" />
+        <block
+            name="billmate.checkout.newsletter"
+            template="Billmate_NwtBillmateCheckout::checkout/newsletter.phtml"
+            ifconfig="payment/nwt_billmate/design/enable_newsletter" />
 
-        <move element="page.main.title" destination="billmate_checkoutSidebar" before="-" />
+        <block
+            class="Magento\Checkout\Block\Cart\Coupon"
+            name="checkout.cart.coupon" as="coupon"
+            template="Magento_Checkout::cart/coupon.phtml"
+            ifconfig="payment/nwt_billmate/design/enable_newsletter" />
+
+            <move element="page.main.title" destination="billmate_checkoutSidebar" before="-" />
         <move element="checkout.cart.form" destination="billmate_checkoutSidebar" after="page.main.title" />
         <move element="cart.summary" destination="billmate_checkoutSidebar" after="checkout.cart.form" />
         <move element="cart.discount" destination="billmate_checkoutSidebar" after="cart.summary" />
