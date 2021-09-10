@@ -12,6 +12,6 @@ trait CentsFormatter
      */
     protected function toCents($value): int
     {
-        return (int)100 * $value;
+        return (int)bcmul(100, $value);
     }
 }
