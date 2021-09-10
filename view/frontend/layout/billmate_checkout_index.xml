@@ -134,8 +134,8 @@
         <block
             class="Magento\Checkout\Block\Cart\Coupon"
             name="checkout.cart.coupon" as="coupon"
-            template="Magento_Checkout::cart/coupon.phtml"
-            ifconfig="payment/nwt_billmate/design/enable_newsletter" />
+            template="Billmate_NwtBillmateCheckout::checkout/coupon.phtml"
+            ifconfig="payment/nwt_billmate/design/enable_discount" />
 
             <move element="page.main.title" destination="billmate_checkoutSidebar" before="-" />
         <move element="checkout.cart.form" destination="billmate_checkoutSidebar" after="page.main.title" />
