@@ -37,6 +37,10 @@ define([
          */
         const _setNewSubtotals = function (item) {
             const component = uiRegistry.get('billmate-checkout-itemid-' + item.item_id + '-subtotal')
+            if (!component) {
+                return;
+            }
+
             const newRowTotal = item.row_total + item.weee_tax_applied_row_amount;
             const newRowTotalInclTax = item.row_total_incl_tax + item.weee_tax_applied_row_amount;
 
@@ -48,7 +52,8 @@ define([
             options: {
                 removerSelector: '.action-delete',
                 tableSelector: '#shopping-cart-table',
-                itemSubtotalSelector: '.subtotal > span'
+                itemSubtotalSelector: '.subtotal > span',
+                qtyAdjustSelector: '.control.qty'
             },
 
             _privateContentVersion: null,
@@ -57,6 +62,62 @@ define([
             _create: function () {
                 this._super();
                 this._bindCustomEvents();
+
+                window.addEventListener('submitCart', function () {
+                    this._disableAutoUpdate = true;
+                    this.element.submit();
+                }.bind(this));
+
+                // A watcher that detects changes to the cart from elsewhere, such as a second tab
+                setInterval(function () {
+                    const cookiePrivateContentVersion = $.mage.cookies.get('private_content_version');
+                    if (cookiePrivateContentVersion === this._privateContentVersion || this._disableAutoUpdate) {
+                        return;
+                    }
+
+                    this._privateContentVersion = cookiePrivateContentVersion;
+
+                    customerData.reload(['cart']);
+                    this._disableAutoUpdate = true;
+
+                    // This updates cart cache
+                    totalsDefaultProvider.estimateTotals(quote.shippingAddress()).then(function () {
+                        const newEncodedCart = cartEncoder(customerData.get('cart-data')());
+                        if (this._encodedCart === newEncodedCart) {
+                            this._disableAutoUpdate = false;
+                            return;
+                        }
+
+                        $.ajax({
+                            url: mageurl.build('billmate/checkout/getCartHtml'),
+                            method: 'GET',
+                            dataType: 'json',
+                            context: this,
+
+                            beforeSend: function () {
+                                $(document.body).trigger('processStart');
+                            }
+                        })
+                        .done(function (response) {
+                            if (!response.success) {
+                                magealert({content: response.message});
+                                return;
+                            }
+                            reloadTotals(response);
+                            // We receive new html for all cart items
+                            this._updateCartItems(response.carthtml);
+                        })
+                        /*.fail(function (fail) {
+                            //TODO show confirm dialog with message like "We are sorry, an error occurred, need to reload checkout"
+                            return;
+                        })*/
+                        .always(function () {
+                            $(document.body).trigger('processStop');
+                            this._disableAutoUpdate = false;
+                        })
+                    }.bind(this));
+
+                }.bind(this), 2000);
             },
 
             /**
@@ -129,7 +190,7 @@ define([
                                 context: this,
                                 data: {
                                     id: $(event.target).attr('data-item-id'),
-                                    form_key: window.checkoutConfig.formKey,
+                                    form_key: $.mage.cookies.get('form_key'),
                                     billmate: 1
                                 },
                                 beforeSend: function () {
@@ -169,11 +230,14 @@ define([
                 this._bindCustomEvents();
 
                 $(this.options.tableSelector).find('tbody').each(function (index, elem) {
-                    // We must also reapply knockout binding to the price display
+                    // We must also reapply knockout binding to price display, and reinitialize widget on qty adjustment buttons
                     ko.applyBindings(
                         subtotalViewModel({}),
-                        _.first($(elem).find(this.options.itemSubtotalSelector)
-                    ));
+                        _.first($(elem).find(this.options.itemSubtotalSelector))
+                    );
+
+                    _.first($(elem).find(this.options.qtyAdjustSelector).qtyAdjust());
+
                 }.bind(this));
             },
 
@@ -190,57 +254,6 @@ define([
                 this._on($(this.element.find(this.options.removerSelector)), {
                     'click': this._removeHandler
                 });
-
-                // A watcher that detects changes to the cart from elsewhere, such as a second tab
-                setInterval(function () {
-                    const cookiePrivateContentVersion = $.mage.cookies.get('private_content_version');
-                    if (cookiePrivateContentVersion === this._privateContentVersion || this._disableAutoUpdate) {
-                        return;
-                    }
-
-                    this._privateContentVersion = cookiePrivateContentVersion;
-
-                    customerData.reload(['cart']);
-                    this._disableAutoUpdate = true;
-
-                    // This updates cart cache
-                    totalsDefaultProvider.estimateTotals(quote.shippingAddress()).then(function () {
-                        const newEncodedCart = cartEncoder(customerData.get('cart-data')());
-                        if (this._encodedCart === newEncodedCart) {
-                            this._disableAutoUpdate = false;
-                            return;
-                        }
-
-                        $.ajax({
-                            url: mageurl.build('billmate/checkout/getCartHtml'),
-                            method: 'GET',
-                            dataType: 'json',
-                            context: this,
-
-                            beforeSend: function () {
-                                $(document.body).trigger('processStart');
-                            }
-                        })
-                        .done(function (response) {
-                            if (!response.success) {
-                                magealert({content: response.message});
-                                return;
-                            }
-                            reloadTotals(response);
-                            // We receive new html for all cart items
-                            this._updateCartItems(response.carthtml);
-                        })
-                        /*.fail(function (fail) {
-                            //TODO show confirm dialog with message like "We are sorry, an error occurred, need to reload checkout"
-                            return;
-                        })*/
-                        .always(function () {
-                            $(document.body).trigger('processStop');
-                            this._disableAutoUpdate = false;
-                        })
-                    }.bind(this));
-
-                }.bind(this), 2000);
             },
 
             /**

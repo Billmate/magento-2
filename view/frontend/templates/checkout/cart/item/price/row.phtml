@@ -14,6 +14,7 @@ $rowTotalInclTax = $block->getRowDisplayPriceInclTax();
 $componentName = "billmate-checkout-itemid-{$item->getId()}-subtotal";
 $koBlock = $block->getChildBlock('ko-viewmodel');
 
+$koOutput = null;
 if ($koBlock) {
     $koBlock->setRendererBlock($block);
     $koOutput = $item->getBillmateProcess() ? '' : $koBlock->toHtml();
@@ -22,11 +23,11 @@ if ($koBlock) {
 
 <?= /* @noEscape */ $koOutput ?>
 
-<span data-bind="scope: '<?= $escaper->escapeHtmlAttr($componentName) ?>'">
+<span class="subtotal-container" data-bind="scope: '<?= $escaper->escapeHtmlAttr($componentName) ?>'">
     <?php if (($block->displayPriceInclTax() || $block->displayBothPrices()) && !$item->getNoSubtotal()): ?>
         <span class="price-including-tax" data-label="<?= $escaper->escapeHtmlAttr(__('Incl. Tax')) ?>">
             <span class="cart-price">
-            <?= /* @noEscape */ $block->setDataBindType('row_total_incl_tax')->formatPrice($rowTotalInclTax) ?>
+                <?= /* @noEscape */ $block->setDataBindType('row_total_incl_tax')->formatPrice($rowTotalInclTax) ?>
             </span>
         </span>
     <?php endif; ?>
@@ -34,7 +35,7 @@ if ($koBlock) {
     <?php if ($block->displayPriceExclTax() || $block->displayBothPrices()): ?>
         <span class="price-excluding-tax" data-label="<?= $escaper->escapeHtmlAttr(__('Excl. Tax')) ?>">
             <span class="cart-price">
-                <?= /* @noEscape */ $block->setDataBindType('row_total')->formatPrice($rowTotalExclTax) ?>
+                    <?= /* @noEscape */ $block->setDataBindType('row_total')->formatPrice($rowTotalExclTax) ?>
             </span>
         </span>
     <?php endif; ?>

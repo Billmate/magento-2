@@ -133,9 +133,6 @@
                         }
                     }
                 }
-                .actions-toolbar + span {
-                    right: 0;
-                }
                 &.item-desc {
                     @include breakpoint('mobile') {
                         padding-bottom: 15px;
@@ -163,6 +160,10 @@
                             }
                         }
                     }
+                }
+                .subtotal-container {
+                    position: relative;
+                    top: 25px;
                 }
             }
         }
