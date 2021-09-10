@@ -10,9 +10,10 @@ use Magento\Framework\Escaper;
 <div class="billmate-newsletter newsletter">
     <form 
         method="post"
-        action="<?= $escaper->escapeHtmlAttr($block->getUrl('billmate/checkout/subscibeNewsletter')); ?>"
         id="billmate-checkout-newsletter-form"
-    >
+        data-mage-init='{
+            "Billmate_NwtBillmateCheckout/js/checkout/model/newsletter-handler": {}
+        }'>
         <div class="fieldset comment wrapper">
             <input 
                 type="checkbox"

@@ -12,7 +12,8 @@ class BillmateQuoteRepository extends QuoteRepository
 {
     /**
      * We use @see \Magento\Quote\Model\QuoteManagement::placeOrder when completing an order with Billmate Checkout.
-     * But we need it to load an inactive quote. So we overwrite QuoteRepository::getActive in that context only.
+     * But we need it to load an inactive quote, and also always use email billing address as quote email.
+     * So we overwrite QuoteRepository::getActive in that context only.
      *
      * @param int $cartId
      * @param array $sharedStoreIds
@@ -20,6 +21,7 @@ class BillmateQuoteRepository extends QuoteRepository
      */
     public function getActive($cartId, array $sharedStoreIds = [])
     {
-        return $this->get($cartId, $sharedStoreIds);
+        $quote = $this->get($cartId, $sharedStoreIds);
+        $quote->setCustomerEmail($quote->getBillingAddress()->getEmail());
     }
 }

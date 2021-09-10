@@ -15,6 +15,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\Controller\AbstractResult;
+use Magento\Newsletter\Model\SubscriptionManager;
 
 /**
  * Used as accepturl for billmate payments
@@ -41,16 +42,23 @@ class Confirmorder implements HttpGetActionInterface
      */
     private $messageManager;
 
+    /**
+     * @var SubscriptionManager
+     */
+    private $subscriptionManager;
+
     public function __construct(
         ControllerUtil $util,
         OrderUtil $orderUtil,
         DataUtil $dataUtil,
-        MessageManagerInterface $messageManager
+        MessageManagerInterface $messageManager,
+        SubscriptionManager $subscriptionManager
     ) {
         $this->util = $util;
         $this->orderUtil = $orderUtil;
         $this->dataUtil = $dataUtil;
         $this->messageManager = $messageManager;
+        $this->subscriptionManager = $subscriptionManager;
     }
 
     /**
@@ -96,6 +104,10 @@ class Confirmorder implements HttpGetActionInterface
         } catch (\Exception $e) {
             //TODO Handle
             throw $e;
+        }
+
+        if ($checkoutSession->getData('billmate_subscribe_newsletter')) {
+            $this->subscriptionManager->subscribe($quote->getCustomerEmail(), $quote->getStore()->getWebsiteId());
         }
 
         return $this->util->redirect('billmate/checkout/success');
