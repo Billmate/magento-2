@@ -1,9 +1,7 @@
 define([
-    'jquery',
-    'mage/url'
+    'jquery'
 ], function(
-    $,
-    mageurl
+    $
 ) {
     $.widget('billmate.newsletterHandler', {
         _create: function () {
@@ -12,7 +10,7 @@ define([
                 'change': function () {
                     $.ajax({
                         method: 'POST',
-                        url: this.element.action,
+                        url: this.element.context.action,
                         data: $(this.element).serialize(),
                         dataType: 'json'                    
                     })
