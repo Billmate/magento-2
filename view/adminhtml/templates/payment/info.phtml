@@ -2,15 +2,13 @@
 
 use Billmate\NwtBillmateCheckout\ViewModel\Adminhtml\Payment;
 use Magento\Framework\Escaper;
-use Magento\Framework\View\Element\AbstractBlockMagento\Payment\Block\ConfigurableInfo;
+use Magento\Payment\Block\ConfigurableInfo;
 
 /**
  * @var ConfigurableInfo $block
  * @var Escaper $escaper
  * @var Payment $viewModel;
  */
-
-$viewModel = $block->getViewModel();
 
 ?>
 <div class="order-payment-method-name"><?= $escaper->escapeHtml($block->getMethod()->getTitle()); ?></div>
