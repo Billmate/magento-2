@@ -216,6 +216,12 @@
     <type name="Magento\Checkout\Block\Cart\Item\Renderer\Actions\Remove">
         <plugin name="billmateRemoveTemplate" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Block\Cart\Item\Renderer\Actions\RemovePlugin" />
     </type>
+    <type name="Magento\Quote\Api\BillingAddressManagementInterface">
+        <plugin name="billmateAddressManagement" type="Billmate\NwtBillmateCheckout\Plugin\Quote\Model\BillingAddressManagementPlugin" />
+    </type>
+    <type name="Magento\Checkout\Api\ShippingInformationManagementInterface">
+        <plugin name="billmateAddressManagement" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Model\ShippingInformationManagementPlugin" />
+    </type>
     <type name="Magento\Tax\Block\Item\Price\Renderer">
         <plugin name="billmateItemPriceRenderer" type="Billmate\NwtBillmateCheckout\Plugin\Tax\Block\Item\Price\RendererPlugin"/>
     </type>
