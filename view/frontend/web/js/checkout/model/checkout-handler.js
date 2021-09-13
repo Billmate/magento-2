@@ -114,7 +114,7 @@ define([
             const handler = this._eventHandlers[eventName];
             if (typeof handler === 'function') {
                 const runHandler = handler.bind(this);
-                this._invalidated = handler(iframeEventData);
+                this._invalidated = runHandler(iframeEventData);
                 this.update();
             }
         },
