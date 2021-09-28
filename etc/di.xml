@@ -117,7 +117,6 @@
             <argument name="config" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Config\Config</argument>
             <argument name="data" xsi:type="array">
                 <item name="template" xsi:type="string">Billmate_NwtBillmateCheckout::payment/info.phtml</item>
-                <item name="view_model" xsi:type="object">Billmate\NwtBillmateCheckout\ViewModel\Adminhtml\Payment</item>
             </argument>
         </arguments>
     </virtualType>
@@ -215,6 +214,12 @@
     </type>
     <type name="Magento\Checkout\Block\Cart\Item\Renderer\Actions\Remove">
         <plugin name="billmateRemoveTemplate" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Block\Cart\Item\Renderer\Actions\RemovePlugin" />
+    </type>
+    <type name="Magento\Quote\Api\BillingAddressManagementInterface">
+        <plugin name="billmateBillingAddressManagement" type="Billmate\NwtBillmateCheckout\Plugin\Quote\Model\BillingAddressManagementPlugin" />
+    </type>
+    <type name="Magento\Checkout\Api\ShippingInformationManagementInterface">
+        <plugin name="billmateShippingInformationManagement" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Model\ShippingInformationManagementPlugin" />
     </type>
     <type name="Magento\Tax\Block\Item\Price\Renderer">
         <plugin name="billmateItemPriceRenderer" type="Billmate\NwtBillmateCheckout\Plugin\Tax\Block\Item\Price\RendererPlugin"/>

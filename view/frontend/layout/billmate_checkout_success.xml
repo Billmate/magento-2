@@ -4,7 +4,7 @@
     <head>
         <title>Success</title>
         <css src="Billmate_NwtBillmateCheckout::css/billmate-checkout-success.css"/>
-        <script src="Billmage_NwtBillmateCheckout::js/checkout/action/success-actions.js" />
+        <script src="Billmate_NwtBillmateCheckout::js/checkout/action/success-actions.js" />
     </head>
     <body>
         <referenceContainer name="content">
