@@ -26,6 +26,7 @@ define([
             newAddressClone.street = [address.street, address.street2];
             newAddressClone.postcode = address.zip;
             newAddressClone.telephone = address.phone;
+            newAddressClone.countryId = address.country;
             return addressConverter.formAddressDataToQuoteAddress(newAddressClone);
         };
 
