@@ -74,6 +74,9 @@ define([
             selectBillingAddress(
                 addressConverter.formAddressDataToQuoteAddress(window.checkoutConfig.billingAddressFromData)
             );
+            selectShippingAddress(
+                addressConverter.formAddressDataToQuoteAddress(window.checkoutConfig.shippingAddressFromData)
+            );
         },
 
         /**

@@ -1,11 +1,9 @@
 define([
     'Magento_Checkout/js/view/cart/shipping-rates',
     'Magento_Checkout/js/model/checkout-data-resolver',
-    'Magento_Checkout/js/action/select-shipping-method',
-    'Magento_Checkout/js/model/shipping-save-processor/default',
-    'Magento_Checkout/js/checkout-data',
-    'Magento_Checkout/js/model/cart/estimate-service',
-], function(Component, checkoutDataResolver, selectShippingMethodAction, shippingSaveProcessor, checkoutData) {
+    'Billmate_NwtBillmateCheckout/js/checkout/action/save-shipping-method',
+    'Magento_Checkout/js/model/shipping-save-processor/default'
+], function(Component, checkoutDataResolver, saveShippingMethod, processor) {
     'use strict';
 
     return Component.extend({
@@ -24,12 +22,7 @@ define([
          * @returns bool
          */
          selectShippingMethod: function (methodData) {
-            selectShippingMethodAction(methodData);
-            checkoutData.setSelectedShippingRate(methodData['carrier_code'] + '_' + methodData['method_code']);
-            window.dispatchEvent(new Event('billmateLock'));
-            shippingSaveProcessor.saveShippingInformation().then(function () {
-                window.dispatchEvent(new Event('billmateUpdate'));
-            });
+            saveShippingMethod(methodData, processor);
             return true;
         }
     });
