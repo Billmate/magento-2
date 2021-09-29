@@ -7,7 +7,7 @@ use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil;
 use Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder\CredentialsDataBuilder;
 use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
-use Magento\Backend\Model\View\Result\Redirect;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
