@@ -3,6 +3,7 @@ define([
     'Billmate_NwtBillmateCheckout/js/checkout/model/checkout-handler/address-handler',
     'Magento_Checkout/js/action/select-billing-address',
     'Magento_Checkout/js/model/address-converter',
+    'Magento_Checkout/js/model/quote',
     'mage/url',
     'Magento_Ui/js/modal/alert',
 ], function(
@@ -10,35 +11,11 @@ define([
     addressHandler,
     selectBillingAddress,
     addressConverter,
+    quote,
     mageurl,
     magealert
 ) {
     'use strict';
-
-    const _handlePaymentMethodSelected = function (data) {
-        const methodId = data.method;
-
-        $.ajax({
-            method: 'POST',
-            url: mageurl.build('billmate/checkout/savePaymentMethod'),
-            data: {methodId: methodId, form_key: $.mage.cookies.get('form_key')},
-            dataType: 'json',
-            beforeSend: function () {
-                $(document.body).trigger('processStart');
-            }
-        }).done(function (response) {
-            if (!response.success) {
-                const message = response.message ?? this.options.genericErrorMessage;
-                magealert({content: message});
-            }
-        }.bind(this))
-        .fail(function (fail) {
-            magealert({content: this.options.genericErrorMessage});
-        }.bind(this))
-        .always(function () {
-            $(document.body).trigger('processStop');
-        });
-    }
 
     /**
      * Handle purchase_initialized event
@@ -46,7 +23,8 @@ define([
      * @param {Object} data 
      */
     const _handlePurchaseInitialized = function (data) {
-        $(this.options.purchaseInitializedHideTarget).toggle();
+        window.dispatchEvent(new Event('disableCartAutoUpdate'));
+        $(this.options.purchaseInitializedHideTarget).hide();
         $.ajax({
             method: 'POST',
             url: mageurl.build('billmate/checkout/purchaseInitialized'),
@@ -56,14 +34,12 @@ define([
             if (!response.success) {
                 const message = response.message ?? this.options.genericErrorMessage;
                 magealert({content: message});
-                $(this.options.purchaseInitializedHideTarget).toggle();
                 return;
             }
             this._postMessage('purchase_complete');
         }.bind(this))
         .fail(function (fail) {
             magealert({content: this.options.genericErrorMessage});
-            $(this.options.purchaseInitializedHideTarget).toggle();
         }.bind(this));
     }
 
@@ -88,15 +64,16 @@ define([
         _invalidated: true,
         _eventHandlers: {
             'address_selected': addressHandler(),
-            'payment_method_selected': _handlePaymentMethodSelected,
             'purchase_initialized': _handlePurchaseInitialized,
             'content_height': _handleContentHeight
         },
         _create: function () {
             this._super();
+            quote.paymentMethod({method: this.options.methodCode, title: this.options.methodTitle});
             window.addEventListener('message', this._handleMessage.bind(this));
             window.addEventListener('billmateLock', this.lock.bind(this));
             window.addEventListener('billmateUpdate', this._handleBillmateUpdateEvent.bind(this));
+            this._postMessage('update'); // To capture pre-loaded address if present
             selectBillingAddress(
                 addressConverter.formAddressDataToQuoteAddress(window.checkoutConfig.billingAddressFromData)
             );

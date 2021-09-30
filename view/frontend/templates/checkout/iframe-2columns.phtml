@@ -26,7 +26,9 @@ $viewModel = $block->getViewModel();
         sandbox="allow-same-origin allow-scripts allow-modals allow-popups allow-forms allow-top-navigation"
         data-mage-init='{
             "Billmate_NwtBillmateCheckout/js/checkout/model/checkout-handler": {
-                "purchaseInitializedHideTarget":"<?= /* @noEscape */ $block->getPurchaseInitializedHideTarget() ?>"
+                "purchaseInitializedHideTarget":"<?= /* @noEscape */ $block->getPurchaseInitializedHideTarget() ?>",
+                "methodCode":"<?= $escaper->escapeHtmlAttr($viewModel->getPaymentMethodCode()) ?>",
+                "methodTitle":"<?= $escaper->escapeHtmlAttr($viewModel->getPaymentMethodTitle()) ?>"
             }
         }'
     >

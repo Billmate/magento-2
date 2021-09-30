@@ -157,7 +157,7 @@ $_item = null;
         {
             "[data-role=tocart-form], .form.map.checkout": {
                 "catalogAddToCart": {
-                    "product_sku": "<?= $escaper->escapeJs($_item->getSku()) ?>"
+                    "product_sku": "<?= $escaper->escapeHtml($_item->getSku()) ?>"
                 }
             }
         }
