@@ -20,7 +20,7 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     /**
      * Field keys
      */
-    const KEY_ENABLED = 'enabled';
+    const KEY_ACTIVE = 'active';
 
     const KEY_TEST_MODE = 'testmode';
 
@@ -68,16 +68,17 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         '32' => 'Cash (Receipt)'
     ];
 
+
     /**
-     * Get Enabled flag
+     * Get Active flag
      *
      * @param integer $storeId
      * @return boolean
      */
-    public function getEnabled(int $storeId = null): bool
+    public function getActive(int $storeId = null): bool
     {
-        return (bool)$this->getGeneralGroupValue(
-            self::KEY_ENABLED,
+        return (bool)$this->getValue(
+            self::KEY_ACTIVE,
             $storeId
         );
     }

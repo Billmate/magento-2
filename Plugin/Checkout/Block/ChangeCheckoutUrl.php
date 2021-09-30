@@ -25,7 +25,7 @@ class ChangeCheckoutUrl
      */
     public function afterGetCheckoutUrl($subject, $result)
     {
-        if ($this->config->getEnabled()) {
+        if ($this->config->getActive()) {
             return $subject->getUrl('billmate/checkout');
         }
         return $result;

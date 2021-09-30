@@ -85,7 +85,7 @@ class Index implements HttpGetActionInterface
      */
     public function execute()
     {
-        if (!$this->config->getEnabled()) {
+        if (!$this->config->getActive()) {
             return $this->util->forwardNoRoute();
         }
 

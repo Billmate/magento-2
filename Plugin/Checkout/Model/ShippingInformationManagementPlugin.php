@@ -46,7 +46,7 @@ class ShippingInformationManagementPlugin
         $cartId,
         ShippingInformationInterface $addressInformation
     ) {
-        if (!$this->config->getEnabled()) {
+        if (!$this->config->getActive()) {
             return;
         }
 

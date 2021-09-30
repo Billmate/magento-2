@@ -6,9 +6,10 @@
 				<label>Billmate Checkout by Nordic Web Team</label>
                 <group id="general" translate="label comment" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>General</label>
-                    <field id="enabled" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enabled</label>
+                    <field id="active" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Active</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/nwt_billmate/active</config_path>
                     </field>
                     <field id="merchant_id" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant ID</label>
