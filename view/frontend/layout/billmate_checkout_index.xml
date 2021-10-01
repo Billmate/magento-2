@@ -37,7 +37,7 @@
             <block name="billmate.checkout.iframe" cacheable="false" template="Billmate_NwtBillmateCheckout::checkout/iframe.phtml" after="-">
                 <arguments>
                     <argument name="view_model" xsi:type="object">Billmate\NwtBillmateCheckout\ViewModel\Checkout</argument>
-                    <argument name="purchase_initialized_hide_target" xsi:type="string">div.cart-container</argument>
+                    <argument name="purchase_initialized_hide_target" xsi:type="string">.billmate-checkout-sidebar,#billmate-block-shipping,.block.crosssell</argument>
                 </arguments>
             </block>
             <block
