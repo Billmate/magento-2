@@ -2,8 +2,10 @@
 
 namespace Billmate\NwtBillmateCheckout\ViewModel;
 
+use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Payment\Helper\Data as PaymentHelper;
 
 class Checkout implements ArgumentInterface
 {
@@ -12,10 +14,18 @@ class Checkout implements ArgumentInterface
      */
     private $checkoutSession;
 
+    /**
+     * @var PaymentHelper
+     */
+    private $paymentHelper;
+
+    private $methodInstance;
     public function __construct(
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        PaymentHelper $paymentHelper
     ) {
         $this->checkoutSession = $checkoutSession;
+        $this->paymentHelper = $paymentHelper;
     }
 
     /**
@@ -46,5 +56,26 @@ class Checkout implements ArgumentInterface
     public function getIframeUrl()
     {
         return $this->checkoutSession->getData('billmate_iframe_url');
+    }
+
+    /**
+     * Get payment method code
+     *
+     * @return string
+     */
+    public function getPaymentMethodCode()
+    {
+        return Config::METHOD_CODE;
+    }
+
+    /**
+     * Get payment method title
+     *
+     * @return string
+     */
+    public function getPaymentMethodTitle()
+    {
+        $instance = $this->paymentHelper->getMethodInstance(Config::METHOD_CODE);
+        return $instance->getTitle();
     }
 }

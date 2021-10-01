@@ -3,11 +3,9 @@
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\Escaper;
 use Billmate\NwtBillmateCheckout\ViewModel\Checkout;
-use Magento\Framework\View\TemplateEngine\Php;
 
 /**
  * @var Template $block
- * @var Php $this
  * @var Escaper $escaper
  * @var Checkout $viewModel
  */
@@ -28,7 +26,9 @@ $viewModel = $block->getViewModel();
         sandbox="allow-same-origin allow-scripts allow-modals allow-popups allow-forms allow-top-navigation"
         data-mage-init='{
             "Billmate_NwtBillmateCheckout/js/checkout/model/checkout-handler": {
-                "purchaseInitializedHideTarget":"<?= /* @noEscape */ $block->getPurchaseInitializedHideTarget() ?>"
+                "purchaseInitializedHideTarget":"<?= $escaper->escapeHtmlAttr($block->getPurchaseInitializedHideTarget()) ?>",
+                "methodCode":"<?= $escaper->escapeHtmlAttr($viewModel->getPaymentMethodCode()) ?>",
+                "methodTitle":"<?= $escaper->escapeHtmlAttr($viewModel->getPaymentMethodTitle()) ?>"
             }
         }'
     >

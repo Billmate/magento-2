@@ -6,9 +6,10 @@
 				<label>Billmate Checkout by Nordic Web Team</label>
                 <group id="general" translate="label comment" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>General</label>
-                    <field id="enabled" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Enabled</label>
+                    <field id="active" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Active</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/nwt_billmate/active</config_path>
                     </field>
                     <field id="merchant_id" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Merchant ID</label>
@@ -62,6 +63,10 @@
                 </group>
                 <group id="design" translate="label comment" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Design</label>
+                    <field id="layout_type" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Layout</label>
+                        <source_model>Billmate\NwtBillmateCheckout\Model\Config\Source\LayoutTypes</source_model>
+                    </field>
                     <field id="enable_additional_block" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Use additional block</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -72,7 +77,7 @@
                         <source_model>Magento\Cms\Model\Config\Source\Block</source_model>
                         <comment>Shown above the checkout content</comment>
                         <depends>
-                            <field id="enable_additional_block" />
+                            <field id="enable_additional_block">1</field>
                         </depends>
                     </field>
                     <field id="enable_discount" translate="label" type="select" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">

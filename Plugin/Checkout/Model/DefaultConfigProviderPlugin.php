@@ -46,7 +46,7 @@ class DefaultConfigProviderPlugin
      */
     public function afterGetConfig($subject, $output)
     {
-        if (!$this->config->getEnabled()) {
+        if (!$this->config->getActive()) {
             return $output;
         }
 

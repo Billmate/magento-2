@@ -49,7 +49,7 @@ class BillingAddressManagementPlugin
         AddressInterface $address,
         $useForShipping = false
     ) {
-        if (!$this->config->getEnabled()) {
+        if (!$this->config->getActive()) {
             return;
         }
 

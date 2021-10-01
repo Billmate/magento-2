@@ -85,7 +85,7 @@ class Index implements HttpGetActionInterface
      */
     public function execute()
     {
-        if (!$this->config->getEnabled()) {
+        if (!$this->config->getActive()) {
             return $this->util->forwardNoRoute();
         }
 
@@ -106,7 +106,7 @@ class Index implements HttpGetActionInterface
 
         $quotePaymentNumber = $quote->getPayment()->getAdditionalInformation('billmate_payment_number');
 
-        if (true || !$quotePaymentNumber) {
+        if (!$quotePaymentNumber) {
             $initCheckoutData = $this->billmateAdapter->initCheckout($quote);
             $paymentNumber = $initCheckoutData->getNumber();
             $quote->getPayment()->setAdditionalInformation('billmate_payment_number', $paymentNumber);

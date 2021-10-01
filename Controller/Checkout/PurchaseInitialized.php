@@ -39,6 +39,10 @@ class PurchaseInitialized implements HttpPostActionInterface
         }
 
         $checkoutSession = $this->util->getCheckoutSession();
+        if ($checkoutSession->getData('billmate_quote_id')) {
+            return $this->util->jsonResult(['success' => true]);
+        }
+
         $quote = $checkoutSession->getQuote();
         $quote->setIsActive(false);
         $checkoutSession->setData('billmate_quote_id', $quote->getId());

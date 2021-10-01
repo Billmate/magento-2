@@ -3,13 +3,15 @@ define([
     'Magento_Checkout/js/model/quote',
     'Magento_Checkout/js/model/address-converter',
     'Magento_Checkout/js/model/shipping-save-processor/default',
-    'Magento_Checkout/js/action/set-billing-address'
+    'Magento_Checkout/js/action/set-billing-address',
+    'Magento_Customer/js/model/customer',
 ], function (
     $,
     quote,
     addressConverter,
     shippingSaveProcessor,
-    setBillingAddressAction
+    setBillingAddressAction,
+    customerModel
 ) {
     'use strict';
 
@@ -172,6 +174,10 @@ define([
                     setBillingAddressAction();
                 } else {
                     shippingSaveProcessor.saveShippingInformation();
+                }
+
+                if (!customerModel.isLoggedIn()) {
+                    quote.guestEmail = quote.billingAddress().email;
                 }
             }
 

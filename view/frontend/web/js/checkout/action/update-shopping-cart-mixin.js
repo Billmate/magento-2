@@ -61,12 +61,26 @@ define([
             _disableAutoUpdate: false,
             _create: function () {
                 this._super();
-                this._bindCustomEvents();
+                if (!this._isBillmateCheckout()) {
+                    return this;
+                }
 
                 window.addEventListener('submitCart', function () {
                     this._disableAutoUpdate = true;
                     this.element.submit();
                 }.bind(this));
+
+                window.addEventListener('disableCartAutoUpdate', function () {
+                    this._disableAutoUpdate = true;
+                }.bind(this));
+
+                window.addEventListener('enableCartAutoUpdate', function () {
+                    this._disableAutoUpdate = false;
+                }.bind(this));
+
+                this._bindEventsToElements();
+                this._setNewPrivateContentVersion();
+                this._encodedCart = cartEncoder(customerData.get('cart-data')());
 
                 // A watcher that detects changes to the cart from elsewhere, such as a second tab
                 setInterval(function () {
@@ -226,8 +240,8 @@ define([
                 $(this.options.tableSelector).find('tbody').remove();
                 $(this.options.tableSelector).append(newCartPlaceholder.find('tbody'));
 
-                // Re-bind events since we've replaced the html elements
-                this._bindCustomEvents();
+                // Re-bind element-bound events since we've replaced the html elements
+                this._bindEventsToElements();
 
                 $(this.options.tableSelector).find('tbody').each(function (index, elem) {
                     // We must also reapply knockout binding to price display, and reinitialize widget on qty adjustment buttons
@@ -242,15 +256,13 @@ define([
             },
 
             /**
-             * Setup event handlers and subscribers
+             * Setup element-bound event handlers
              */
-            _bindCustomEvents: function () {
+            _bindEventsToElements: function () {
                 if (!this._isBillmateCheckout()) {
                     return;
                 }
-                
-                this._privateContentVersion = $.mage.cookies.get('private_content_version');
-                this._encodedCart = cartEncoder(customerData.get('cart-data')());
+
                 this._on($(this.element.find(this.options.removerSelector)), {
                     'click': this._removeHandler
                 });

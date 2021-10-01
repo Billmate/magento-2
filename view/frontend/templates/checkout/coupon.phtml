@@ -19,7 +19,7 @@ $hasCouponCode = (bool) strlen($block->getCouponCode());
                 "components": {
                     "billmateCheckoutCoupon": {
                         "component": "Billmate_NwtBillmateCheckout/js/checkout/view/coupon",
-                        "couponCode": "<?= $escaper->escapeJs($block->getCouponCode()) ?>"
+                        "couponCode": "<?= $escaper->escapeHtml($block->getCouponCode()) ?>"
                     }
                 }
             }

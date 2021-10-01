@@ -22,10 +22,10 @@ $componentName = "billmate-checkout-itemid-{$item->getId()}-subtotal";
         "*": {
             "Magento_Ui/js/core/app": {
                 "components": {
-                    "<?= $escaper->escapeJs($componentName) ?>": {
+                    "<?= $escaper->escapeHtml($componentName) ?>": {
                         "component": "Billmate_NwtBillmateCheckout/js/checkout/view/item/subtotal",
-                        "row_total_incl_tax": "<?= $escaper->escapeJs($rowTotalInclTax) ?>",
-                        "row_total": "<?= $escaper->escapeJs($rowTotalExclTax) ?>"
+                        "row_total_incl_tax": "<?= $escaper->escapeHtml($rowTotalInclTax) ?>",
+                        "row_total": "<?= $escaper->escapeHtml($rowTotalExclTax) ?>"
                     }
                 }
             }
