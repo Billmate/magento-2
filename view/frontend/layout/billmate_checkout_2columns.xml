@@ -12,5 +12,10 @@
         <move element="checkout.cart.shipping" destination="billmate_checkoutSidebar" after="-" />
 
         <referenceBlock name="checkout.cart.crosssell" remove="true" />
+        <referenceBlock name="billmate.checkout.iframe">
+            <arguments>
+                <argument name="purchase_initialized_hide_target" xsi:type="string">div.cart-container</argument>
+            </arguments>
+        </referenceBlock>
     </body>
 </page>
