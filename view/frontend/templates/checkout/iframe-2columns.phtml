@@ -28,7 +28,8 @@ $viewModel = $block->getViewModel();
             "Billmate_NwtBillmateCheckout/js/checkout/model/checkout-handler": {
                 "purchaseInitializedHideTarget":"<?= /* @noEscape */ $block->getPurchaseInitializedHideTarget() ?>",
                 "methodCode":"<?= $escaper->escapeHtmlAttr($viewModel->getPaymentMethodCode()) ?>",
-                "methodTitle":"<?= $escaper->escapeHtmlAttr($viewModel->getPaymentMethodTitle()) ?>"
+                "methodTitle":"<?= $escaper->escapeHtmlAttr($viewModel->getPaymentMethodTitle()) ?>",
+                "defaultErrorMessage":"<?= $escaper->escapeHtmlAttr($block->getDefaultErrorMessage()) ?>"
             }
         }'
     >

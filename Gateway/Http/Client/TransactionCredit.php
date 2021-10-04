@@ -66,7 +66,6 @@ class TransactionCredit extends AbstractTransaction
             $result[ResponseValidator::KEY_INVOICE_NUMBER] = $invoiceNumber;
         } catch (\Exception $e) {
             $result[ResponseValidator::KEY_ERROR] = $e->getMessage();
-            throw $e; // TODO remove and implement proper validation
         }
 
         return $result;

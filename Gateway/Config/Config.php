@@ -20,8 +20,15 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     /**
      * Field keys
      */
+
+    /**
+     * No group (path payment/nwt_billmate/%)
+     */
     const KEY_ACTIVE = 'active';
 
+    /**
+     * Group = general
+     */
     const KEY_TEST_MODE = 'testmode';
 
     const KEY_MERCHANT_ID = 'merchant_id';
@@ -48,6 +55,11 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
     const KEY_INVOICE_FEE_AMOUNT = 'invoice_fee_amount';
 
+    const KEY_DEFAULT_ERROR_MESSAGE = 'default_error_message';
+
+    /**
+     * Group = design
+     */
     const KEY_ENABLE_ADDITIONAL_BLOCK = 'enable_additional_block';
 
     const KEY_ADDITIONAL_BLOCK = 'additional_block';
@@ -263,6 +275,20 @@ class Config extends \Magento\Payment\Gateway\Config\Config
             self::KEY_INVOICE_FEE_AMOUNT,
             $storeId
         );
+    }
+
+    /**
+     * Get default error message
+     *
+     * @param int $storeId
+     * @return string
+     */
+    public function getDefaultErrorMessage(int $storeId = null): string
+    {
+        return $this->getGeneralGroupValue(
+            self::KEY_DEFAULT_ERROR_MESSAGE,
+            $storeId
+        ) ?? '';
     }
 
     /**

@@ -60,6 +60,10 @@
                             <field id="enable_invoice_fee" />
                         </depends>
                     </field>
+                    <field id="default_error_message" translate="label comment" type="textarea" sortOrder="1400" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Default Error Message</label>
+                        <comment>Error message to display to customer if in production mode and a critical error occurs in backend</comment>
+                    </field>
                 </group>
                 <group id="design" translate="label comment" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Design</label>

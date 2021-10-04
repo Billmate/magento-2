@@ -28,3 +28,5 @@
 "Date:", "Datum:", module, Billmate_NwtBillmateCheckout
 "Payment method:", "Betalsätt:", module, Billmate_NwtBillmateCheckout
 "Sum", "Summa", module, Billmate_NwtBillmateCheckout
+"We are sorry, an error has occurred with our payment service. If this error persists, please contact customer support.","Vi beklagar - ett fel har uppstått med vår betaltjänst. Om felet inte upphör, vänligen kontakta kundtjänst.", module, Billmate_NwtBillmateCheckout
+"We are sorry, an error occurred, and we need to reload the checkout.","Vi beklagar, ett fel uppstod och vi behöver ladda om kassan.", module, Billmate_NwtBillmateCheckout

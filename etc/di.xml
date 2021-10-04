@@ -134,23 +134,15 @@
         </arguments>
     </type>
 
-    <virtualType name="BillmateCheckoutLoggerDebugHandler" type="Magento\Framework\Logger\Handler\Base">
-        <arguments>
-            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
-            <argument name="fileName" xsi:type="string"><![CDATA[var/log/billmatecheckout/debug.log]]></argument>
-        </arguments>
-    </virtualType>
-
     <virtualType name="BillmateCheckoutLogger" type="Magento\Framework\Logger\Monolog">
         <arguments>
             <argument name="handlers"  xsi:type="array">
-                <item name="debug" xsi:type="object">BillmateCheckoutLoggerDebugHandler</item>
                 <item name="error" xsi:type="object">Billmate\NwtBillmateCheckout\Logger\Handler\Error</item>
             </argument>
         </arguments>
     </virtualType>
 
-    <type name="Billmate\NwtBillmateCheckout\Model\Utils\DataUtil">
+    <type name="Billmate\NwtBillmateCheckout\Model\Utils\ErrorUtil">
         <arguments>
             <argument name="logger" xsi:type="object">BillmateCheckoutLogger</argument>
         </arguments>
