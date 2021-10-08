@@ -121,10 +121,17 @@ define([
                             // We receive new html for all cart items
                             this._updateCartItems(response.carthtml);
                         })
-                        /*.fail(function (fail) {
-                            //TODO show confirm dialog with message like "We are sorry, an error occurred, need to reload checkout"
+                        .fail(function (fail) {
+                            magealert({
+                                content: 'We are sorry, an error occurred, and we need to reload the checkout.',
+                                actions: {
+                                    always: function () {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
                             return;
-                        })*/
+                        })
                         .always(function () {
                             $(document.body).trigger('processStop');
                             this._disableAutoUpdate = false;

@@ -22,6 +22,7 @@
                     <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
                     <default_country>SE</default_country>
                     <default_postcode>100 12</default_postcode>
+                    <default_error_message>We are sorry, an error has occurred with our payment service. If this error persists, please contact customer support.</default_error_message>
                 </general>
             </nwt_billmate>
         </payment>

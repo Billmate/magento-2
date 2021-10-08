@@ -5,6 +5,7 @@ namespace Billmate\NwtBillmateCheckout\Controller\Checkout;
 use Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter;
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
 use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
+use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Api\CartRepositoryInterface as QuoteRepositoryInterface;
@@ -39,6 +40,11 @@ class Index implements HttpGetActionInterface
     private $config;
 
     /**
+     * @var DataUtil
+     */
+    private $dataUtil;
+
+    /**
      * @var TotalsCollector
      */
     private $totalsCollector;
@@ -63,6 +69,7 @@ class Index implements HttpGetActionInterface
         BillmateAdapter $billmateAdapter,
         QuoteRepositoryInterface $quoteRepo,
         Config $config,
+        DataUtil $dataUtil,
         TotalsCollector $totalsCollector,
         DirectoryHelper $directoryHelper,
         CheckoutHelper $checkoutHelper,
@@ -72,6 +79,7 @@ class Index implements HttpGetActionInterface
         $this->billmateAdapter = $billmateAdapter;
         $this->quoteRepo = $quoteRepo;
         $this->config = $config;
+        $this->dataUtil = $dataUtil;
         $this->totalsCollector = $totalsCollector;
         $this->directoryHelper = $directoryHelper;
         $this->checkoutHelper = $checkoutHelper;
@@ -106,17 +114,22 @@ class Index implements HttpGetActionInterface
 
         $quotePaymentNumber = $quote->getPayment()->getAdditionalInformation('billmate_payment_number');
 
-        if (!$quotePaymentNumber) {
-            $initCheckoutData = $this->billmateAdapter->initCheckout($quote);
-            $paymentNumber = $initCheckoutData->getNumber();
-            $quote->getPayment()->setAdditionalInformation('billmate_payment_number', $paymentNumber);
-            $checkoutSession->setData('billmate_iframe_url', $initCheckoutData->getUrl());
-            $checkoutSession->setData('billmate_payment_number', $paymentNumber);
-        } else {
-            $updateCheckoutData = $this->billmateAdapter->updateCheckout($quote);
-            $checkoutSession->setData('billmate_iframe_url', $updateCheckoutData->getUrl());
+        try {
+            if (!$quotePaymentNumber) {
+                $initCheckoutData = $this->billmateAdapter->initCheckout($quote);
+                $paymentNumber = $initCheckoutData->getNumber();
+                $quote->getPayment()->setAdditionalInformation('billmate_payment_number', $paymentNumber);
+                $checkoutSession->setData('billmate_iframe_url', $initCheckoutData->getUrl());
+                $checkoutSession->setData('billmate_payment_number', $paymentNumber);
+            } else {
+                $updateCheckoutData = $this->billmateAdapter->updateCheckout($quote);
+                $checkoutSession->setData('billmate_iframe_url', $updateCheckoutData->getUrl());
+            }
+        } catch (\Exception $e) {
+            $this->dataUtil->setContextPaymentNumber($quotePaymentNumber);
+            $this->dataUtil->displayExceptionMessage($e);
+            return $this->util->redirect('checkout/cart');
         }
-        // TODO error handling
 
         $this->saveQuote($quote);
 

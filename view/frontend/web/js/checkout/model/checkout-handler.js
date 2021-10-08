@@ -32,14 +32,14 @@ define([
             dataType: 'json'
         }).done(function (response) {
             if (!response.success) {
-                const message = response.message ?? this.options.genericErrorMessage;
+                const message = response.message ?? this.options.defaultErrorMessage;
                 magealert({content: message});
                 return;
             }
             this._postMessage('purchase_complete');
         }.bind(this))
         .fail(function (fail) {
-            magealert({content: this.options.genericErrorMessage});
+            magealert({content: this.options.defaultErrorMessage});
         }.bind(this));
     }
 
@@ -57,9 +57,6 @@ define([
     }
 
     $.widget('billmate.checkoutHandler', {
-        options: {
-            genericErrorMessage: $.mage.__('Sorry, there has been an error processing your order. Please contact customer support.')
-        },
         _isLocked: false,
         _invalidated: true,
         _eventHandlers: {
@@ -124,6 +121,10 @@ define([
                 method: 'GET'
             })
             .done(function (data) {
+                if (!data.success) {
+                    magealert({content: this.options.defaultErrorMessage});
+                    return;
+                }
                 this._invalidated = true;
                 this.update();
             }.bind(this))

@@ -38,6 +38,7 @@
                 <arguments>
                     <argument name="view_model" xsi:type="object">Billmate\NwtBillmateCheckout\ViewModel\Checkout</argument>
                     <argument name="purchase_initialized_hide_target" xsi:type="string">.billmate-checkout-sidebar,#billmate-block-shipping,.block.crosssell</argument>
+                    <argument name="default_error_message" xsi:type="helper" helper="Billmate\NwtBillmateCheckout\Gateway\Config\Config::getDefaultErrorMessage" />
                 </arguments>
             </block>
             <block
