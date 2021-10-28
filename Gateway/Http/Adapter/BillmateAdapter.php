@@ -129,8 +129,7 @@ class BillmateAdapter
             'orderid' => $quote->getReservedOrderId(),
             'accepturl' => $this->url->getUrl('billmate/checkout/confirmorder'),
             'cancelurl' => $this->url->getUrl('checkout/cart'),
-            'callbackurl' => $this->url->getUrl('billmate/checkout/callback'),
-            'returnmethod' => 'GET'
+            'callbackurl' => $this->url->getUrl('billmate/checkout/callback')
         ];
 
         $checkoutData = [

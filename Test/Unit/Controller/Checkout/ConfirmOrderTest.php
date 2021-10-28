@@ -61,21 +61,20 @@ class ConfirmOrderTest extends TestCase
         $this->dataUtil = $this->createMock(DataUtil::class);
         $this->subscriptionManager = $this->createMock(SubscriptionManager::class);
 
-        $requestParams = [
-            'credentials' => '{"hash":"hash"}',
-            'data' => '{"number":"number","status":"Created","orderid":"orderid","url":"url"}'
-        ];
         $request = $this->createMock(HttpRequest::class);
-        $request->method('getParams')->willReturn($requestParams);
 
+        $contentObj = new DataObject();
         $credentialsObj = new DataObject(['hash' => 'hash']);
         $dataObj = new DataObject(['number' => 'number', 'status' => 'Created', 'orderid' => 'orderid', 'url' => 'url']);
+        $contentObj->setData('data', $dataObj);
+        $contentObj->setData('credentials', $credentialsObj);
 
         $requestObj = new DataObject();
         $requestObj->setData(['credentials' => $credentialsObj, 'data' => $dataObj]);
+        $request->method('getContent')->willReturn(json_encode($contentObj->toArray()));
 
         $this->dataUtil->method('unserialize')
-            ->willReturnOnConsecutiveCalls($credentialsObj, $dataObj)
+            ->willReturnOnConsecutiveCalls($contentObj, $credentialsObj, $dataObj)
         ;
 
         $this->dataUtil->method('createDataObject')->willReturn($requestObj);
@@ -133,10 +132,9 @@ class ConfirmOrderTest extends TestCase
     {
         $this->setupFailureMock();
         $this->config->method('getTestMode')->willReturn(true);
-        $this->dataUtil->expects($this->exactly(3))
+        $this->dataUtil->expects($this->exactly(2))
             ->method('displayErrorMessage')
             ->withConsecutive(
-                ['Invalid hash in request from Billmate'],
                 ['Order with this increment ID (orderid) already exists in Magento'],
                 ['No quote ID found in the session']
             );

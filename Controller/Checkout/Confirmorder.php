@@ -14,11 +14,14 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\Controller\AbstractResult;
 use Magento\Newsletter\Model\SubscriptionManager;
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\Request\InvalidRequestException;
 
 /**
  * Used as accepturl for billmate payments
  */
-class Confirmorder implements HttpGetActionInterface
+class Confirmorder implements HttpGetActionInterface, CsrfAwareActionInterface
 {
     /**
      * @var ControllerUtil
@@ -114,6 +117,35 @@ class Confirmorder implements HttpGetActionInterface
         return $this->util->redirect('billmate/checkout/success');
     }
 
+
+    /**
+     * @inheritDoc
+     */
+    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
+    {
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateForCsrf(RequestInterface $request): ?bool
+    {
+        if ($this->util->getRequest()->getMethod() !== 'POST') {
+            return false;
+        }
+
+        $checkoutSession = $this->util->getCheckoutSession();
+        $this->dataUtil->setContextPaymentNumber($checkoutSession->getBillmatePaymentNumber());
+        $content = $this->dataUtil->unserialize($this->util->getRequest()->getContent());
+        if (!$this->dataUtil->verifyHash($content)) {
+            $this->addErrorMessage('Invalid hash in request from Billmate');
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Redirect shorthand
      *
@@ -149,25 +181,14 @@ class Confirmorder implements HttpGetActionInterface
     }
 
     /**
-     * Get request content dependeing on configured return method
+     * Get POST request content
      *
      * @return DataObject
      * @throws \InvalidArgumentException
      */
     private function extractContent(): DataObject
     {
-        $returnMethod = 'GET'; // TODO change to config;
-        if ($returnMethod === 'GET') {
-            $params = $this->util->getRequest()->getParams();
-            $credentials = $this->dataUtil->unserialize($params['credentials']);
-            $data = $this->dataUtil->unserialize($params['data']);
-            return $this->dataUtil->createDataObject([
-                'credentials' => $credentials,
-                'data' =>  $data
-            ]);
-        }
-
-        $this->dataUtil->unserialize($this->util->getRequest()->getContent());
+        return $this->dataUtil->unserialize($this->util->getRequest()->getContent());
     }
 
     /**
@@ -180,29 +201,21 @@ class Confirmorder implements HttpGetActionInterface
     private function verifyRequest($requestContent): void
     {
         $errors = 0;
-
-        // Error = hash not valid
-        $errors |= !$this->dataUtil->verifyHash($requestContent);
-
         // Error = order already exists for this increment ID
         $incrementId = $requestContent->getData('data')->getOrderid();
-        $errors |= ($this->orderUtil->loadOrderByIncrementId($incrementId)->getId()) ? 2 : 0;
+        $errors |= ($this->orderUtil->loadOrderByIncrementId($incrementId)->getId());
 
         // Error = Missing quote to process
         $quoteId = $this->util->getCheckoutSession()->getBillmateQuoteId();
-        $errors |= (!$quoteId) ? 4 : 0;
+        $errors |= (!$quoteId) ? 2 : 0;
 
         if ($errors > 0) {
             $messages = [];
             if ($errors & 1) {
-                $messages[] = 'Invalid hash in request from Billmate';
-            }
-
-            if ($errors & 2) {
                 $messages[] = sprintf('Order with this increment ID (%s) already exists in Magento', $incrementId);
             }
 
-            if ($errors & 4) {
+            if ($errors & 2) {
                 $messages[] = 'No quote ID found in the session';
             }
 
