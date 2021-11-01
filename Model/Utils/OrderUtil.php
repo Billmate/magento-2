@@ -9,7 +9,10 @@ use Magento\Sales\Model\ResourceModel\OrderFactory as OrderResourceFactory;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Service\InvoiceService;
+use Magento\Framework\DB\Transaction;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 
 class OrderUtil
@@ -24,6 +27,12 @@ class OrderUtil
 
     private OrderFactory $orderFactory;
 
+    private InvoiceService $invoiceService;
+
+    private InvoiceSender $invoiceSender;
+
+    private Transaction $transaction;
+
     private SearchCriteriaBuilder $criteriaBuilder;
 
     public function __construct(
@@ -32,6 +41,9 @@ class OrderUtil
         OrderRepositoryInterface $orderRepo,
         OrderResourceFactory $orderResourceFactory,
         OrderFactory $orderFactory,
+        InvoiceService $invoiceService,
+        InvoiceSender $invoiceSender,
+        Transaction $transaction,
         SearchCriteriaBuilder $criteriaBuilder
     ) {
         $this->quoteManagement = $quoteManagement;
@@ -39,19 +51,45 @@ class OrderUtil
         $this->orderRepo = $orderRepo;
         $this->orderResourceFactory = $orderResourceFactory;
         $this->orderFactory = $orderFactory;
+        $this->invoiceService = $invoiceService;
+        $this->invoiceSender = $invoiceSender;
+        $this->transaction = $transaction;
         $this->criteriaBuilder = $criteriaBuilder;
     }
 
     /**
-     * Wrapper for Magento\Quote\Model\QuoteManagement::placeOrder
+     * Wrapper for Magento\Quote\Model\QuoteManagement::placeOrder,
+     * also creates invoice if payment method is Swish
      *
      * @param integer $quoteId
+     * @param string $paymentMethod
      * @return integer
+     * @throws \Exception
      * @see \Magento\Quote\Model\QuoteManagement::placeOrder
      */
-    public function placeOrder(int $quoteId): int
+    public function placeOrder(int $quoteId, string $paymentMethod = null): int
     {
-        return $this->quoteManagement->placeOrder($quoteId);
+        $orderId = $this->quoteManagement->placeOrder($quoteId);
+        if (strtolower($paymentMethod) !== 'swish') {
+            return $orderId;
+        }
+
+        /** @var Order $order */
+        $order = $this->orderRepo->get($orderId);
+        $invoice = $this->invoiceService->prepareInvoice($order);
+        $invoice->register();
+        $order
+            ->setState(\Magento\Sales\Model\Order::STATE_PROCESSING)
+            ->addCommentToStatusHistory('Swish Payment completed', true, true)
+        ;
+        $transactionSave = $this->transaction->addObject(
+            $invoice
+        )->addObject(
+            $order
+        );
+        $transactionSave->save();
+        $this->invoiceSender->send($invoice);
+        return $orderId;
     }
 
     /**
