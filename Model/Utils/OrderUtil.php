@@ -9,7 +9,8 @@ use Magento\Sales\Model\ResourceModel\OrderFactory as OrderResourceFactory;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 
 class OrderUtil
 {
@@ -23,25 +24,28 @@ class OrderUtil
 
     private OrderFactory $orderFactory;
 
+    private SearchCriteriaBuilder $criteriaBuilder;
+
     public function __construct(
         QuoteManagement $quoteManagement,
         QuoteRepositoryInterface $quoteRepo,
         OrderRepositoryInterface $orderRepo,
         OrderResourceFactory $orderResourceFactory,
-        OrderFactory $orderFactory
+        OrderFactory $orderFactory,
+        SearchCriteriaBuilder $criteriaBuilder
     ) {
         $this->quoteManagement = $quoteManagement;
         $this->quoteRepo = $quoteRepo;
         $this->orderRepo = $orderRepo;
         $this->orderResourceFactory = $orderResourceFactory;
         $this->orderFactory = $orderFactory;
+        $this->criteriaBuilder = $criteriaBuilder;
     }
 
     /**
      * Wrapper for Magento\Quote\Model\QuoteManagement::placeOrder
      *
      * @param integer $quoteId
-     * @throws CouldNotSaveException
      * @return integer
      * @see \Magento\Quote\Model\QuoteManagement::placeOrder
      */
@@ -86,5 +90,18 @@ class OrderUtil
     public function getQuoteRepository(): QuoteRepositoryInterface
     {
         return $this->quoteRepo;
+    }
+
+     /**
+     * Get quote by Reserved Order Id
+      *
+      * @param string $reservedOrderId
+      * @return CartInterface|null
+      */
+    public function getQuoteByReservedOrderId(string $reservedOrderId): ?CartInterface
+    {
+        $criteria = $this->criteriaBuilder->addFilter('reserved_order_id', $reservedOrderId)->create();
+        $result = $this->quoteRepo->getList($criteria)->getItems();
+        return array_shift($result);
     }
 }

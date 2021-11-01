@@ -71,7 +71,7 @@ class ConfirmOrderTest extends TestCase
 
         $requestObj = new DataObject();
         $requestObj->setData(['credentials' => $credentialsObj, 'data' => $dataObj]);
-        $request->method('getContent')->willReturn(json_encode($contentObj->toArray()));
+        $request->method('getParam')->willReturn('');
 
         $this->dataUtil->method('unserialize')
             ->willReturnOnConsecutiveCalls($contentObj, $credentialsObj, $dataObj)
@@ -82,21 +82,6 @@ class ConfirmOrderTest extends TestCase
 
         $this->config = $this->createMock(Config::class);
         $this->dataUtil->method('getConfig')->willReturn($this->config);
-        $this->checkoutSession = $this->getMockBuilder(CheckoutSession::class)
-            ->disableOriginalConstructor()
-            ->disableOriginalClone()
-            ->disableArgumentCloning()
-            ->disallowMockingUnknownTypes()
-            ->addMethods([
-                'getBillmateQuoteId',
-                'getBillmateSubscribeNewsletter',
-                'getBillmatePaymentNumber',
-                'unsBillmatePaymentNumber'
-            ])
-            ->onlyMethods(['getQuote', 'clearQuote'])
-            ->getMock()
-        ;
-        $this->controllerUtil->method('getCheckoutSession')->willReturn($this->checkoutSession);
     }
 
     /**
@@ -132,11 +117,10 @@ class ConfirmOrderTest extends TestCase
     {
         $this->setupFailureMock();
         $this->config->method('getTestMode')->willReturn(true);
-        $this->dataUtil->expects($this->exactly(2))
+        $this->dataUtil->expects($this->exactly(1))
             ->method('displayErrorMessage')
-            ->withConsecutive(
-                ['Order with this increment ID (orderid) already exists in Magento'],
-                ['No quote ID found in the session']
+            ->with(
+                'Order with this increment ID (orderid) already exists in Magento'
             );
         $this->controllerUtil->expects($this->once())->method('redirect')->with('checkout/cart');
         $confirmOrder = new Confirmorder(
@@ -188,11 +172,9 @@ class ConfirmOrderTest extends TestCase
         $quote->method('getId')->willReturn(1);
         $payment = $this->createMock(Payment::class);
         $quote->method('getPayment')->willReturn($payment);
-        $this->checkoutSession->method('getBillmateQuoteId')->willReturn(1);
-        $this->checkoutSession->method('getBillmateSubscribeNewsletter')->willReturn(false);
-        $this->checkoutSession->method('getQuote')->willReturn($quote);
 
         $this->orderUtil->method('loadOrderByIncrementId')->willReturn($order);
+        $this->orderUtil->method('getQuoteByReservedOrderId')->willReturn($quote);
     }
 
     /**
@@ -211,9 +193,6 @@ class ConfirmOrderTest extends TestCase
         $quote->method('getId')->willReturn(null);
         $payment = $this->createMock(Payment::class);
         $quote->method('getPayment')->willReturn($payment);
-        $this->checkoutSession->method('getBillmateQuoteId')->willReturn(null);
-        $this->checkoutSession->method('getBillmateSubscribeNewsletter')->willReturn(false);
-        $this->checkoutSession->method('getQuote')->willReturn($quote);
 
         $this->orderUtil->method('loadOrderByIncrementId')->willReturn($order);
     }

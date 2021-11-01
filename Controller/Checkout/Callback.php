@@ -5,9 +5,12 @@ namespace Billmate\NwtBillmateCheckout\Controller\Checkout;
 use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
-use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\Request\InvalidRequestException;
 
-class Callback implements HttpGetActionInterface
+class Callback implements HttpPostActionInterface, CsrfAwareActionInterface
 {
     /**
      * @var ControllerUtil
@@ -61,5 +64,37 @@ class Callback implements HttpGetActionInterface
         $order->addCommentToStatusHistory('Billmate callback received', false);
         $this->orderUtil->saveOrder($order);
         return $result->setHttpResponseCode(200);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
+    {
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateForCsrf(RequestInterface $request): ?bool
+    {
+        if ($this->util->getRequest()->getMethod() !== 'POST') {
+            return false;
+        }
+
+        try {
+            $credentails = $this->dataUtil->unserialize($this->util->getRequest()->getParam('credentials', ''));
+            $data = $this->dataUtil->unserialize($this->util->getRequest()->getParam('data', ''));
+            $content = $this->dataUtil->createDataObject(['credentials' => $credentails, 'data' => $data]);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        if (!$this->dataUtil->verifyHash($content)) {
+            return false;
+        }
+
+        return true;
     }
 }

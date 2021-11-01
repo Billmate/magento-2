@@ -31,9 +31,14 @@ class Success implements HttpGetActionInterface
 
     public function execute()
     {
+        if (!$this->sessionIsValid()) {
+            return $this->util->forwardNoRoute();
+        }
+
         $session = $this->util->getCheckoutSession();
         $lastOrderId = $session->getLastOrderId();
         $session->clearQuote();
+        $session->unsBillmatePaymentNumber();
 
         $resultPage = $this->util->pageResult();
 
@@ -45,7 +50,7 @@ class Success implements HttpGetActionInterface
         return $resultPage;
     }
 
-    public function sessionIsValid()
+    private function sessionIsValid()
     {
         if (!$this->util->getCheckoutSession()->getLastSuccessQuoteId()) {
             return false;
