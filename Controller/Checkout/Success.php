@@ -32,7 +32,7 @@ class Success implements HttpGetActionInterface
     public function execute()
     {
         if (!$this->sessionIsValid()) {
-            return $this->util->forwardNoRoute();
+            return $this->util->redirect('checkout/cart');
         }
 
         $session = $this->util->getCheckoutSession();
