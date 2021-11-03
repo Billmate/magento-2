@@ -110,7 +110,7 @@ class Confirmorder implements HttpPostActionInterface, CsrfAwareActionInterface
         $this->orderUtil->getQuoteRepository()->save($quote);
 
         try {
-           $orderId = $this->orderUtil->placeOrder($quote->getId());
+           $this->orderUtil->placeOrder($quote->getId());
         } catch (\Exception $e) {
             $this->addExceptionMessage($e);
             return $this->redirectToCart();
