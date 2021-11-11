@@ -2,6 +2,7 @@ define([
     'jquery',
     'Billmate_NwtBillmateCheckout/js/checkout/model/checkout-handler/address-handler',
     'Magento_Checkout/js/action/select-billing-address',
+    'Magento_Checkout/js/action/select-shipping-address',
     'Magento_Checkout/js/model/address-converter',
     'Magento_Checkout/js/model/quote',
     'mage/url',
@@ -10,6 +11,7 @@ define([
     $,
     addressHandler,
     selectBillingAddress,
+    selectShippingAddress,
     addressConverter,
     quote,
     mageurl,
@@ -73,6 +75,9 @@ define([
             this._postMessage('update'); // To capture pre-loaded address if present
             selectBillingAddress(
                 addressConverter.formAddressDataToQuoteAddress(window.checkoutConfig.billingAddressFromData)
+            );
+            selectShippingAddress(
+                addressConverter.formAddressDataToQuoteAddress(window.checkoutConfig.shippingAddressFromData)
             );
         },
 

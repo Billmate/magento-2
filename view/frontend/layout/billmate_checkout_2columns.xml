@@ -9,7 +9,7 @@
         
         <move element="billmate.checkout.iframe" destination="billmate.checkout.sidebar" />
         <move element="page.main.title" destination="checkout.cart.container" before="-" />
-        <move element="checkout.cart.shipping" destination="billmate_checkoutSidebar" after="-" />
+        <move element="checkout.cart.shipping.container" destination="billmate_checkoutSidebar" after="-" />
 
         <referenceBlock name="checkout.cart.crosssell" remove="true" />
         <referenceBlock name="billmate.checkout.iframe">
