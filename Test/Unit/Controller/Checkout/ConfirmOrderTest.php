@@ -7,7 +7,6 @@ use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
-use Magento\Newsletter\Model\SubscriptionManager;
 use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\DataObject;
 use Magento\Sales\Model\Order;
@@ -35,16 +34,6 @@ class ConfirmOrderTest extends TestCase
     private $dataUtil;
 
     /**
-     * @var SubscriptionManager|MockObject
-     */
-    private $subscriptionManager;
-
-    /**
-     * @var CheckoutSession|MockObject
-     */
-    private $checkoutSession;
-
-    /**
      * @var Config|MockObject
      */
     private $config;
@@ -59,7 +48,6 @@ class ConfirmOrderTest extends TestCase
         $this->controllerUtil = $this->createMock(ControllerUtil::class);
         $this->orderUtil = $this->createMock(OrderUtil::class);
         $this->dataUtil = $this->createMock(DataUtil::class);
-        $this->subscriptionManager = $this->createMock(SubscriptionManager::class);
 
         $request = $this->createMock(HttpRequest::class);
 
@@ -95,8 +83,7 @@ class ConfirmOrderTest extends TestCase
         $confirmOrder = new Confirmorder(
             $this->controllerUtil,
             $this->orderUtil,
-            $this->dataUtil,
-            $this->subscriptionManager
+            $this->dataUtil
         );
         $this->dataUtil->expects($this->never())
             ->method('displayErrorMessage');
@@ -126,8 +113,7 @@ class ConfirmOrderTest extends TestCase
         $confirmOrder = new Confirmorder(
             $this->controllerUtil,
             $this->orderUtil,
-            $this->dataUtil,
-            $this->subscriptionManager
+            $this->dataUtil
         );
         $confirmOrder->execute();
     }
@@ -150,8 +136,7 @@ class ConfirmOrderTest extends TestCase
         $confirmOrder = new Confirmorder(
             $this->controllerUtil,
             $this->orderUtil,
-            $this->dataUtil,
-            $this->subscriptionManager
+            $this->dataUtil
         );
         $confirmOrder->execute();
     }

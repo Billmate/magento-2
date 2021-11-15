@@ -14,13 +14,14 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\Controller\AbstractResult;
-use Magento\Newsletter\Model\SubscriptionManager;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 
 /**
- * Used as accepturl for billmate payments
+ * Used as accepturl for billmate payments.
+ * Creates orders for payment methods that don't use the checkout_success js event,
+ * like Card and Bank Transfer payments
  */
 class Confirmorder implements HttpPostActionInterface, CsrfAwareActionInterface
 {
@@ -40,11 +41,6 @@ class Confirmorder implements HttpPostActionInterface, CsrfAwareActionInterface
     private $dataUtil;
 
     /**
-     * @var SubscriptionManager
-     */
-    private $subscriptionManager;
-
-    /**
      * Stores result of request verification
      *
      * @var DataObject
@@ -61,13 +57,11 @@ class Confirmorder implements HttpPostActionInterface, CsrfAwareActionInterface
     public function __construct(
         ControllerUtil $util,
         OrderUtil $orderUtil,
-        DataUtil $dataUtil,
-        SubscriptionManager $subscriptionManager
+        DataUtil $dataUtil
     ) {
         $this->util = $util;
         $this->orderUtil = $orderUtil;
         $this->dataUtil = $dataUtil;
-        $this->subscriptionManager = $subscriptionManager;
         $this->verifyResult = $dataUtil->createDataObject(['verified' => false]);
         $this->requestContent = $dataUtil->createDataObject();
     }
@@ -114,10 +108,6 @@ class Confirmorder implements HttpPostActionInterface, CsrfAwareActionInterface
         } catch (\Exception $e) {
             $this->addExceptionMessage($e);
             return $this->redirectToCart();
-        }
-
-        if ($payment->getAdditionalInformation('subscribe_newsletter')) {
-            $this->subscriptionManager->subscribe($quote->getCustomerEmail(), $quote->getStore()->getWebsiteId());
         }
 
         return $this->util->redirect('billmate/checkout/success');
@@ -199,9 +189,9 @@ class Confirmorder implements HttpPostActionInterface, CsrfAwareActionInterface
      */
     private function extractContent(): void
     {
-        $credentails = $this->dataUtil->unserialize($this->util->getRequest()->getParam('credentials', ''));
+        $credentials = $this->dataUtil->unserialize($this->util->getRequest()->getParam('credentials', ''));
         $data = $this->dataUtil->unserialize($this->util->getRequest()->getParam('data', ''));
-        $this->requestContent = $this->dataUtil->createDataObject(['credentials' => $credentails, 'data' => $data]);
+        $this->requestContent = $this->dataUtil->createDataObject(['credentials' => $credentials, 'data' => $data]);
     }
 
     /**

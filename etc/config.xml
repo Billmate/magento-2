@@ -5,7 +5,8 @@
             <nwt_billmate>
                 <model>BillmateFacade</model>
                 <title>Billmate Checkout</title>
-                <payment_action>authorize</payment_action>
+                <payment_action>initialize</payment_action>
+                <can_initialize>true</can_initialize>
                 <order_status>processing</order_status>
                 <order_state>processing</order_state>
                 <is_gateway>1</is_gateway>

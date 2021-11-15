@@ -58,13 +58,44 @@ define([
         }
     }
 
+    /**
+     * Handle checkout_success event
+     * 
+     * @param {Object} data 
+     */
+    const _handleCheckoutSuccess = function (data) {
+        if (this._checkoutComplete) {
+            return;
+        }
+
+        $.ajax({
+            method: 'POST',
+            url: mageurl.build('billmate/checkout/successEvent'),
+            data: {form_key: $.mage.cookies.get('form_key')},
+            dataType: 'json'
+        }).done(function (response) {
+            if (!response.success) {
+                const message = response.message ?? this.options.defaultErrorMessage;
+                magealert({content: message});
+                return;
+            }
+            this.checkoutComplete = true;
+            location.href = mageurl.build('billmate/checkout/success');
+        }.bind(this))
+        .fail(function () {
+            magealert({content: this.options.defaultErrorMessage});
+        }.bind(this));
+    }
+
     $.widget('billmate.checkoutHandler', {
         _isLocked: false,
         _invalidated: true,
+        _checkoutComplete: false,
         _eventHandlers: {
             'address_selected': addressHandler(),
             'purchase_initialized': _handlePurchaseInitialized,
-            'content_height': _handleContentHeight
+            'content_height': _handleContentHeight,
+            'checkout_success': _handleCheckoutSuccess,
         },
         _create: function () {
             this._super();

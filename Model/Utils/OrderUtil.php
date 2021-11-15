@@ -2,6 +2,7 @@
 
 namespace Billmate\NwtBillmateCheckout\Model\Utils;
 
+use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
 use Magento\Quote\Model\QuoteManagement;
 use Magento\Quote\Api\CartRepositoryInterface as QuoteRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -14,6 +15,7 @@ use Magento\Framework\DB\Transaction;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Sales\Model\Order\Payment;
 
 class OrderUtil
 {
@@ -59,37 +61,43 @@ class OrderUtil
 
     /**
      * Wrapper for Magento\Quote\Model\QuoteManagement::placeOrder,
-     * also creates invoice if payment method is Swish
      *
      * @param integer $quoteId
-     * @param string $paymentMethod
      * @return integer
      * @throws \Exception
      * @see \Magento\Quote\Model\QuoteManagement::placeOrder
      */
-    public function placeOrder(int $quoteId, string $paymentMethod = null): int
+    public function placeOrder(int $quoteId): int
     {
-        $orderId = $this->quoteManagement->placeOrder($quoteId);
-        if (strtolower($paymentMethod) !== 'swish') {
-            return $orderId;
+        return $this->quoteManagement->placeOrder($quoteId);
+    }
+
+    /**
+     * Authorizes order payment.
+     * Creates and captures invoice if payment method is Swish.
+     * Saves Order and Invoice.
+     * 
+     * @param Order $order
+     * @return void
+     */
+    public function authorizePayment(Order $order): void
+    {
+        /** @var Payment $payment */
+        $payment = $order->getPayment();
+        $payment->authorize(true, $order->getBaseTotalDue());
+        $payment->setAmountAuthorized($order->getTotalDue());
+
+        $transactionSave = $this->transaction->addObject($order);
+        $methodId = $payment->getAdditionalInformation(ResponseValidator::KEY_METHOD_ID);
+        if (1024 === (int)$methodId) {
+            $invoice = $this->invoiceService->prepareInvoice($order);
+            $invoice->register();
+            $invoice->addComment('Payment was completed with Swish.');
+            $transactionSave = $this->transaction->addObject($invoice);
+            $this->invoiceSender->send($invoice);
         }
 
-        /** @var Order $order */
-        $order = $this->orderRepo->get($orderId);
-        $invoice = $this->invoiceService->prepareInvoice($order);
-        $invoice->register();
-        $order
-            ->setState(\Magento\Sales\Model\Order::STATE_PROCESSING)
-            ->addCommentToStatusHistory('Swish Payment completed', true, true)
-        ;
-        $transactionSave = $this->transaction->addObject(
-            $invoice
-        )->addObject(
-            $order
-        );
         $transactionSave->save();
-        $this->invoiceSender->send($invoice);
-        return $orderId;
     }
 
     /**

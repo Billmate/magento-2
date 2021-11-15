@@ -39,6 +39,7 @@ class Success implements HttpGetActionInterface
         $lastOrderId = $session->getLastOrderId();
         $session->clearQuote();
         $session->unsBillmatePaymentNumber();
+        $session->unsBillmateQuoteId();
 
         $resultPage = $this->util->pageResult();
 
