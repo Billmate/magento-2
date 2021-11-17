@@ -50,7 +50,7 @@ class Callback implements HttpPostActionInterface, CsrfAwareActionInterface
     {
         $result = $this->util->jsonResult();
         $orderId = $this->requestContent->getDataByPath('data/orderid');
-        if (!is_numeric($orderId)) {
+        if (null === $orderId) {
             return $result->setHttpResponseCode(400)->setData(['error' => 'Invalid order id']);
         }
 
