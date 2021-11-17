@@ -73,9 +73,9 @@ class ControllerUtil
      * @param string $path
      * @return Redirect
      */
-    public function redirect(string $path): Redirect
+    public function redirect(string $path, array $params = []): Redirect
     {
-        return $this->redirectFactory->create()->setPath($path);
+        return $this->redirectFactory->create()->setPath($path, $params);
     }
 
     /**

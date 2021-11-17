@@ -97,6 +97,10 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     </field>
                 </group>
+                <group id="dev" translate="label comment" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Development</label>
+                    <field id="callback_domain" type="text" showInDefault="1" showInWebsite="1" showInStore="1"><label>Callback domain for testing</label></field>
+                </group>
             </group>
         </section>
     </system>

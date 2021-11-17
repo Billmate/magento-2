@@ -7,7 +7,6 @@ use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
-use Magento\Newsletter\Model\SubscriptionManager;
 use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\DataObject;
 use Magento\Sales\Model\Order;
@@ -35,16 +34,6 @@ class ConfirmOrderTest extends TestCase
     private $dataUtil;
 
     /**
-     * @var SubscriptionManager|MockObject
-     */
-    private $subscriptionManager;
-
-    /**
-     * @var CheckoutSession|MockObject
-     */
-    private $checkoutSession;
-
-    /**
      * @var Config|MockObject
      */
     private $config;
@@ -59,23 +48,21 @@ class ConfirmOrderTest extends TestCase
         $this->controllerUtil = $this->createMock(ControllerUtil::class);
         $this->orderUtil = $this->createMock(OrderUtil::class);
         $this->dataUtil = $this->createMock(DataUtil::class);
-        $this->subscriptionManager = $this->createMock(SubscriptionManager::class);
 
-        $requestParams = [
-            'credentials' => '{"hash":"hash"}',
-            'data' => '{"number":"number","status":"Created","orderid":"orderid","url":"url"}'
-        ];
         $request = $this->createMock(HttpRequest::class);
-        $request->method('getParams')->willReturn($requestParams);
 
+        $contentObj = new DataObject();
         $credentialsObj = new DataObject(['hash' => 'hash']);
         $dataObj = new DataObject(['number' => 'number', 'status' => 'Created', 'orderid' => 'orderid', 'url' => 'url']);
+        $contentObj->setData('data', $dataObj);
+        $contentObj->setData('credentials', $credentialsObj);
 
         $requestObj = new DataObject();
         $requestObj->setData(['credentials' => $credentialsObj, 'data' => $dataObj]);
+        $request->method('getParam')->willReturn('');
 
         $this->dataUtil->method('unserialize')
-            ->willReturnOnConsecutiveCalls($credentialsObj, $dataObj)
+            ->willReturnOnConsecutiveCalls($contentObj, $credentialsObj, $dataObj)
         ;
 
         $this->dataUtil->method('createDataObject')->willReturn($requestObj);
@@ -83,21 +70,6 @@ class ConfirmOrderTest extends TestCase
 
         $this->config = $this->createMock(Config::class);
         $this->dataUtil->method('getConfig')->willReturn($this->config);
-        $this->checkoutSession = $this->getMockBuilder(CheckoutSession::class)
-            ->disableOriginalConstructor()
-            ->disableOriginalClone()
-            ->disableArgumentCloning()
-            ->disallowMockingUnknownTypes()
-            ->addMethods([
-                'getBillmateQuoteId',
-                'getBillmateSubscribeNewsletter',
-                'getBillmatePaymentNumber',
-                'unsBillmatePaymentNumber'
-            ])
-            ->onlyMethods(['getQuote', 'clearQuote'])
-            ->getMock()
-        ;
-        $this->controllerUtil->method('getCheckoutSession')->willReturn($this->checkoutSession);
     }
 
     /**
@@ -111,8 +83,7 @@ class ConfirmOrderTest extends TestCase
         $confirmOrder = new Confirmorder(
             $this->controllerUtil,
             $this->orderUtil,
-            $this->dataUtil,
-            $this->subscriptionManager
+            $this->dataUtil
         );
         $this->dataUtil->expects($this->never())
             ->method('displayErrorMessage');
@@ -133,19 +104,16 @@ class ConfirmOrderTest extends TestCase
     {
         $this->setupFailureMock();
         $this->config->method('getTestMode')->willReturn(true);
-        $this->dataUtil->expects($this->exactly(3))
+        $this->dataUtil->expects($this->exactly(1))
             ->method('displayErrorMessage')
-            ->withConsecutive(
-                ['Invalid hash in request from Billmate'],
-                ['Order with this increment ID (orderid) already exists in Magento'],
-                ['No quote ID found in the session']
+            ->with(
+                'Order with this increment ID (orderid) already exists in Magento'
             );
         $this->controllerUtil->expects($this->once())->method('redirect')->with('checkout/cart');
         $confirmOrder = new Confirmorder(
             $this->controllerUtil,
             $this->orderUtil,
-            $this->dataUtil,
-            $this->subscriptionManager
+            $this->dataUtil
         );
         $confirmOrder->execute();
     }
@@ -168,8 +136,7 @@ class ConfirmOrderTest extends TestCase
         $confirmOrder = new Confirmorder(
             $this->controllerUtil,
             $this->orderUtil,
-            $this->dataUtil,
-            $this->subscriptionManager
+            $this->dataUtil
         );
         $confirmOrder->execute();
     }
@@ -190,11 +157,9 @@ class ConfirmOrderTest extends TestCase
         $quote->method('getId')->willReturn(1);
         $payment = $this->createMock(Payment::class);
         $quote->method('getPayment')->willReturn($payment);
-        $this->checkoutSession->method('getBillmateQuoteId')->willReturn(1);
-        $this->checkoutSession->method('getBillmateSubscribeNewsletter')->willReturn(false);
-        $this->checkoutSession->method('getQuote')->willReturn($quote);
 
         $this->orderUtil->method('loadOrderByIncrementId')->willReturn($order);
+        $this->orderUtil->method('getQuoteByReservedOrderId')->willReturn($quote);
     }
 
     /**
@@ -213,9 +178,6 @@ class ConfirmOrderTest extends TestCase
         $quote->method('getId')->willReturn(null);
         $payment = $this->createMock(Payment::class);
         $quote->method('getPayment')->willReturn($payment);
-        $this->checkoutSession->method('getBillmateQuoteId')->willReturn(null);
-        $this->checkoutSession->method('getBillmateSubscribeNewsletter')->willReturn(false);
-        $this->checkoutSession->method('getQuote')->willReturn($quote);
 
         $this->orderUtil->method('loadOrderByIncrementId')->willReturn($order);
     }

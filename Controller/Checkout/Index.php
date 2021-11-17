@@ -115,16 +115,11 @@ class Index implements HttpGetActionInterface
         $quotePaymentNumber = $quote->getPayment()->getAdditionalInformation('billmate_payment_number');
 
         try {
-            if (!$quotePaymentNumber) {
-                $initCheckoutData = $this->billmateAdapter->initCheckout($quote);
-                $paymentNumber = $initCheckoutData->getNumber();
-                $quote->getPayment()->setAdditionalInformation('billmate_payment_number', $paymentNumber);
-                $checkoutSession->setData('billmate_iframe_url', $initCheckoutData->getUrl());
-                $checkoutSession->setData('billmate_payment_number', $paymentNumber);
-            } else {
-                $updateCheckoutData = $this->billmateAdapter->updateCheckout($quote);
-                $checkoutSession->setData('billmate_iframe_url', $updateCheckoutData->getUrl());
-            }
+            $initCheckoutData = $this->billmateAdapter->initCheckout($quote);
+            $paymentNumber = $initCheckoutData->getNumber();
+            $quote->getPayment()->setAdditionalInformation('billmate_payment_number', $paymentNumber);
+            $checkoutSession->setData('billmate_iframe_url', $initCheckoutData->getUrl());
+            $checkoutSession->setData('billmate_payment_number', $paymentNumber);
         } catch (\Exception $e) {
             $this->dataUtil->setContextPaymentNumber($quotePaymentNumber);
             $this->dataUtil->displayExceptionMessage($e);

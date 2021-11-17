@@ -7,18 +7,23 @@ use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil;
 use Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder\CredentialsDataBuilder;
 use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
+use InvalidArgumentException;
 use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\Quote;
 use Magento\Framework\Controller\AbstractResult;
-use Magento\Newsletter\Model\SubscriptionManager;
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\App\Request\InvalidRequestException;
 
 /**
- * Used as accepturl for billmate payments
+ * Used as accepturl for billmate payments.
+ * Creates orders for payment methods that don't use the checkout_success js event,
+ * like Card and Bank Transfer payments
  */
-class Confirmorder implements HttpGetActionInterface
+class Confirmorder implements HttpPostActionInterface, CsrfAwareActionInterface
 {
     /**
      * @var ControllerUtil
@@ -36,28 +41,29 @@ class Confirmorder implements HttpGetActionInterface
     private $dataUtil;
 
     /**
-     * @var SubscriptionManager
-     */
-    private $subscriptionManager;
-
-    /**
      * Stores result of request verification
      *
      * @var DataObject
      */
     private DataObject $verifyResult;
 
+    /**
+     * Request content as a DataObject
+     *
+     * @var DataObject
+     */
+    private DataObject $requestContent;
+
     public function __construct(
         ControllerUtil $util,
         OrderUtil $orderUtil,
-        DataUtil $dataUtil,
-        SubscriptionManager $subscriptionManager
+        DataUtil $dataUtil
     ) {
         $this->util = $util;
         $this->orderUtil = $orderUtil;
         $this->dataUtil = $dataUtil;
-        $this->subscriptionManager = $subscriptionManager;
         $this->verifyResult = $dataUtil->createDataObject(['verified' => false]);
+        $this->requestContent = $dataUtil->createDataObject();
     }
 
     /**
@@ -67,16 +73,15 @@ class Confirmorder implements HttpGetActionInterface
      */
     public function execute()
     {
-        $checkoutSession = $this->util->getCheckoutSession();
-        $this->dataUtil->setContextPaymentNumber($checkoutSession->getBillmatePaymentNumber());
         try {
-            $content = $this->extractContent();
+            $this->extractContent();
         } catch (\Exception $e) {
             $this->addExceptionMessage($e);
             return $this->redirectToCart();
         }
 
-        $this->verifyRequest($content);
+        $this->dataUtil->setContextPaymentNumber($this->requestContent->getDataByPath('data/number'));
+        $this->verifyRequest();
         if (!$this->handleVerifyResult()) {
             return $this->redirectToCart();
         }
@@ -88,14 +93,13 @@ class Confirmorder implements HttpGetActionInterface
             return $this->redirectToCart();
         }
 
-        $checkoutSession->clearQuote();
-        $invoiceNumber = $content->getData('data')->getNumber();
+        $invoiceNumber = $this->requestContent->getDataByPath('data/number');
 
         $payment = $quote->getPayment();
         $payment->setAdditionalInformation(ResponseValidator::KEY_INVOICE_NUMBER, $invoiceNumber);
         $payment->setAdditionalInformation(
             CredentialsDataBuilder::KEY_BILLMATE_TEST_MODE,
-            $this->dataUtil->getConfig()->getTestMode()
+            $this->dataUtil->getConfig()->getTestMode($quote->getStoreId())
         );
         $this->orderUtil->getQuoteRepository()->save($quote);
 
@@ -106,12 +110,41 @@ class Confirmorder implements HttpGetActionInterface
             return $this->redirectToCart();
         }
 
-        if ($checkoutSession->getBillmateSubscribeNewsletter()) {
-            $this->subscriptionManager->subscribe($quote->getCustomerEmail(), $quote->getStore()->getWebsiteId());
+        return $this->util->redirect('billmate/checkout/success');
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
+    {
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateForCsrf(RequestInterface $request): ?bool
+    {
+        if ($this->util->getRequest()->getMethod() !== 'POST') {
+            return false;
         }
 
-        $checkoutSession->unsBillmatePaymentNumber();
-        return $this->util->redirect('billmate/checkout/success');
+        try {
+            $this->extractContent();
+        } catch (InvalidArgumentException $e) {
+            $this->addExceptionMessage($e);
+            return false;
+        }
+
+        $this->dataUtil->setContextPaymentNumber($this->requestContent->getDataByPath('data/number'));
+        if (!$this->dataUtil->verifyHash($this->requestContent)) {
+            $this->addErrorMessage('Invalid hash in request from Billmate');
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -149,63 +182,35 @@ class Confirmorder implements HttpGetActionInterface
     }
 
     /**
-     * Get request content dependeing on configured return method
+     * Set request content property
      *
-     * @return DataObject
+     * @return void
      * @throws \InvalidArgumentException
      */
-    private function extractContent(): DataObject
+    private function extractContent(): void
     {
-        $returnMethod = 'GET'; // TODO change to config;
-        if ($returnMethod === 'GET') {
-            $params = $this->util->getRequest()->getParams();
-            $credentials = $this->dataUtil->unserialize($params['credentials']);
-            $data = $this->dataUtil->unserialize($params['data']);
-            return $this->dataUtil->createDataObject([
-                'credentials' => $credentials,
-                'data' =>  $data
-            ]);
-        }
-
-        $this->dataUtil->unserialize($this->util->getRequest()->getContent());
+        $credentials = $this->dataUtil->unserialize($this->util->getRequest()->getParam('credentials', ''));
+        $data = $this->dataUtil->unserialize($this->util->getRequest()->getParam('data', ''));
+        $this->requestContent = $this->dataUtil->createDataObject(['credentials' => $credentials, 'data' => $data]);
     }
 
     /**
      * Verifies request content and stores result in self::verifyResult
      *
-     * @param DataObject $requestContent
-     * @throws CreateOrderException
      * @return void
      */
-    private function verifyRequest($requestContent): void
+    private function verifyRequest(): void
     {
         $errors = 0;
-
-        // Error = hash not valid
-        $errors |= !$this->dataUtil->verifyHash($requestContent);
-
         // Error = order already exists for this increment ID
-        $incrementId = $requestContent->getData('data')->getOrderid();
-        $errors |= ($this->orderUtil->loadOrderByIncrementId($incrementId)->getId()) ? 2 : 0;
-
-        // Error = Missing quote to process
-        $quoteId = $this->util->getCheckoutSession()->getBillmateQuoteId();
-        $errors |= (!$quoteId) ? 4 : 0;
+        $incrementId = $this->requestContent->getData('data')->getOrderid();
+        $errors |= ($this->orderUtil->loadOrderByIncrementId($incrementId)->getId());
 
         if ($errors > 0) {
             $messages = [];
             if ($errors & 1) {
-                $messages[] = 'Invalid hash in request from Billmate';
-            }
-
-            if ($errors & 2) {
                 $messages[] = sprintf('Order with this increment ID (%s) already exists in Magento', $incrementId);
             }
-
-            if ($errors & 4) {
-                $messages[] = 'No quote ID found in the session';
-            }
-
             $this->verifyResult->setMessages($messages);
             return;
         }
@@ -255,22 +260,23 @@ class Confirmorder implements HttpGetActionInterface
      */
     private function getQuoteForOrder(): Quote
     {
-        $checkoutSession = $this->util->getCheckoutSession();
-        $billmateQuoteId = $checkoutSession->getBillmateQuoteId();
-        $quote = $checkoutSession->getQuote();
-
         /**
-         * Since we set the quote as inactive before checkout reaches this point,
+         * Since we set the session quote as inactive before checkout reaches this point,
          * it is theorerically possible that the customer has started a new checkout session
          * before completing the payment.
          *
          * Very unlikely to happen, but if it does, it will be a major headache.
-         * So we handle it by loading the quote from the stored Id if it differs from the current active quote ID.
+         * So we handle it by loading the quote by the reserved order ID
          */
-        if ($quote->getId() !== $billmateQuoteId) {
-            $quote = $this->orderUtil->getQuoteRepository()->get($billmateQuoteId);
+        $orderId = $this->requestContent->getDataByPath('data/orderid');
+        $quote = $this->orderUtil->getQuoteByReservedOrderId($orderId);
+        if (null === $quote) {
+            throw new NoSuchEntityException(
+                __(
+                    sprintf('Could not find quote with matching reserved order id (%s)', $orderId)
+                )
+            );
         }
-
         return $quote;
     }
 }

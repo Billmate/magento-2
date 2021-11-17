@@ -129,9 +129,15 @@ class BillmateAdapter
             'orderid' => $quote->getReservedOrderId(),
             'accepturl' => $this->url->getUrl('billmate/checkout/confirmorder'),
             'cancelurl' => $this->url->getUrl('checkout/cart'),
-            'callbackurl' => $this->url->getUrl('billmate/checkout/callback'),
-            'returnmethod' => 'GET'
         ];
+
+        // Callback URL can use a dev setting
+        $callbackUrl = $this->url->getUrl('billmate/checkout/callback');
+        $devCallbackDomain = $this->config->getCallbackDomain();
+        if ($devCallbackDomain) {
+            $callbackUrl = $devCallbackDomain . 'billmate/checkout/callback';
+        }
+        $paymentData['callbackurl'] = $callbackUrl;
 
         $checkoutData = [
             'terms' => $this->config->getTermsUrl(),
