@@ -1,0 +1,283 @@
+.billmate-checkout-index.page-layout-2columns-billmate {
+    .billmate-heading {
+        font-size: 26px;
+        text-align: left;
+        padding-bottom: 25px;
+        @include breakpoint('tablet-down') {
+            text-align: center;
+        }
+        @include breakpoint('mobile') {
+            font-size: 20px;
+            padding-bottom: 15px;
+        }
+    }
+    .column.main {
+        display: flex;
+        justify-content: space-between;
+        @include breakpoint('tablet-down') {
+            flex-wrap: wrap;
+        }
+    }
+    .cart-container,
+    .billmate-sidebar {
+        width: calc(50% - 25px);
+        @include breakpoint('tablet-down') {
+            width: 100%;
+            margin-bottom: 30px;
+            border: 1px solid $border-color;
+            border-radius: 10px;
+            box-shadow: $box-shadow;
+            margin-bottom: 60px;
+            padding: 30px 15px;
+        }
+        @include breakpoint('mobile') {
+            margin-bottom: 30px;
+        }
+    }
+    .cart-container {
+        button {
+            max-width: 100%;
+        }
+    }
+    .billmate-iframe-wrapper,
+    .billmate-checkout-sidebar {
+        border: 1px solid $border-color;
+        border-radius: 10px;
+        box-shadow: $box-shadow;
+        margin-bottom: 60px;
+        padding: 30px 20px;
+        @include breakpoint('small') {
+            padding: 40px 20px;
+        }
+        @include breakpoint('tablet-down') {
+            box-shadow: none;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            margin-bottom: 0;
+            border: 0;
+        }
+        @include breakpoint('mobile') {
+            padding: 0;
+            margin-bottom: 0;
+        }
+    }
+    .billmate-checkout-sidebar {
+        margin-bottom: 0;
+        padding-top: 10px;
+        @include breakpoint('(max-width: 1060px)') {
+            padding-bottom: 30px;
+        }
+        &:before,
+        &:after {
+            display: none;
+        }
+        .cart.table-wrapper {
+            .product-item-details {
+                padding-bottom: 0;
+            }
+        }
+    }
+    #billmateCheckoutIframe {
+        padding-top: 0;
+    }
+    .cart-container {
+        .form-cart {
+            margin: 0;
+        }
+    }
+    .cart.table tbody {
+        &:first-child {
+            border-top: 0;
+            @include breakpoint('mobile') {
+                border-top: 1px solid $border-color-1;
+            }
+        }
+        tr {
+            td {
+                &.item-img {
+                    display: none;
+                }
+                .field.qty {
+                    margin-bottom: 0;
+                    padding-top: 25px;
+                    @include breakpoint('mobile') {
+                        position: relative;
+                        left: auto;
+                        margin-bottom: 0;
+                    }
+                    @include breakpoint('(max-width: 320px)') {
+                        left: auto;
+                    }
+                    label {
+                        margin-bottom: 0;
+                    }
+                    .input-number-decrement,
+                    .input-number-increment,
+                    input.qty {
+                        float: left;
+                    }
+                }
+                .item-options {
+                    margin-bottom: 0;
+                }
+                &.price {
+                    padding-right: 0;
+                    @include breakpoint('mobile') {
+                        width: auto;
+                    }
+                    .price {
+                        font-size: 16px;
+                        @include breakpoint('mobile') {
+                            font-size: 14px;
+                        }
+                    }
+                }
+                &.item-desc {
+                    @include breakpoint('mobile') {
+                        padding-bottom: 15px;
+                    }
+                }
+                @include breakpoint('mobile') {
+                    .actions-toolbar {
+                        .action-edit {
+                            display: block !important;
+                            color: $black;
+                            padding-right: 40px;
+                            &:before {
+                                display: none;
+                            }
+                            span {
+                                font-size: 14px;
+                                text-decoration: underline;
+                                height: auto;
+                                margin: 0;
+                                position: static;
+                                width: auto;
+                            }
+                            &:hover {
+                                text-decoration: none;
+                            }
+                        }
+                    }
+                }
+                .subtotal-container {
+                    position: relative;
+                    top: 25px;
+                }
+            }
+        }
+    }
+    .billmate-cart-summary,
+    .cart-discount,
+    .billmate-newsletter {
+        float: none;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    .cart-discount {
+        padding-bottom: 15px;
+        @include breakpoint('mobile') {
+            padding-top: 20px;
+        }
+        .block.discount {
+            float: none;
+            [name="coupon_code"] {
+                max-width: 100%;
+            }
+        }
+    }
+    .billmate-newsletter {
+        .wrapper {
+            width: 100%;
+        }
+        @include breakpoint('mobile') {
+            padding-bottom: 20px;
+        }
+    }
+    .billmate-cart-summary {
+        padding-bottom: 30px;
+        .data.totals {
+            td {
+                font-size: 16px;
+                @include breakpoint('mobile') {
+                    font-size: 14px;
+
+                }
+            }
+            .grand.totals {
+                position: relative;
+                width: 100%;
+                right: 0;
+                bottom: 0;
+                display: table-row;
+                border-top: 1px solid $border-color-1;
+                border-bottom: 1px solid $border-color-1;
+                td {
+                    padding-right: 0;
+                    font-size: 18px;
+                    @include breakpoint('mobile') {
+                        font-size: 16px;
+                    }
+                }
+                th, td {
+                    padding: 20px 0;
+                    @include breakpoint('mobile') {
+                        padding: 15px 0;
+                    }
+                }
+            }
+            tr:first-child {
+                th, td {
+                    padding-top: 15px;
+                }
+            }
+            tr.shipping {
+                th, td {
+                    padding-bottom: 15px;
+                }
+            }
+            @include breakpoint('mobile') {
+                tr {
+                    display: table-row;
+                    th {
+                        font-weight: 400;
+                    }
+                }
+            }
+        }
+        .checkout-methods-items {
+            margin: 0;
+        }
+    }
+    .block.shipping {
+        padding-top: 20px;
+        margin-top: 30px;
+        border-top: 1px solid $border-color-1;
+        @include breakpoint('mobile-down') {
+            order: 11;
+            margin-top: 0;
+            border-top: 0;
+        }
+        .billmate-heading {
+            font-size: 18px;
+            padding-bottom: 0;
+            @include breakpoint('mobile-down') {
+                font-size: 26px;
+            }
+            @include breakpoint('mobile') {
+                font-size: 20px;
+            }
+        }
+        .item-options {
+            padding: 17px 0;
+            &:first-child {
+                border-top: 0;
+                @include breakpoint('mobile') {
+                    border-top: 1px solid $border-color-1;
+                }
+            }
+        }
+    }
+}

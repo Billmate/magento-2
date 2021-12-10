@@ -1,0 +1,87 @@
+<?php
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\AbstractBlock;
+
+/**
+ * @var AbstractBlock $block
+ * @var Escaper $escaper
+ */
+
+// We should use strlen function because coupon code could be "0", converted to bool will lead to false
+$hasCouponCode = (bool) strlen($block->getCouponCode());
+?>
+
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Magento_Ui/js/core/app": {
+                "components": {
+                    "billmateCheckoutCoupon": {
+                        "component": "Billmate_NwtBillmateCheckout/js/checkout/view/coupon",
+                        "couponCode": "<?= $escaper->escapeHtml($block->getCouponCode()) ?>"
+                    }
+                }
+            }
+        }
+    }
+</script>
+<div class="block discount"
+    id="block-discount"
+    data-mage-init='{"collapsible":{"active": <?= $hasCouponCode ? 'true' : 'false' ?>, "openedState": "active", "saveState": false}}'
+>
+    <div class="title" data-role="title">
+        <input type="checkbox" name="billmate-discount" />
+        <span id="block-discount-heading" role="heading" aria-level="2"><?= $escaper->escapeHtml(__('Enter discount code')) ?></span>
+    </div>
+    <div class="content" data-role="content" aria-labelledby="block-discount-heading">
+        <form id="discount-coupon-form"
+            action="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/couponPost')) ?>"
+            method="post"
+            data-mage-init=
+            '{
+                "Billmate_NwtBillmateCheckout/js/checkout/discount-codes":
+                {
+                    "couponCodeSelector": "#coupon_code",
+                    "removeCouponSelector": "#remove-coupon",
+                    "applyButton": "button.action.apply",
+                    "cancelButton": "button.action.cancel"
+                }
+            }'
+        >
+            <div class="fieldset coupon<?= $hasCouponCode ? ' applied' : '' ?>">
+                <input type="hidden" name="remove" id="remove-coupon" value="0" />
+                <input type="hidden" name="billmate" id="billmate-identifier" value="1" />
+                <div class="field">
+                    <div class="control">
+                        <input type="text"
+                                class="input-text"
+                                id="coupon_code"
+                                name="coupon_code"
+                                value="<?= $escaper->escapeHtmlAttr($block->getCouponCode()) ?>"
+                                placeholder="<?= $escaper->escapeHtmlAttr(__('Enter discount code')) ?>"
+                                <?php if ($hasCouponCode):?>
+                                   disabled="disabled"
+                                <?php endif; ?>
+                        />
+                    </div>
+                </div>
+                <div class="actions-toolbar">
+                    <div class="primary" <?= ($hasCouponCode) ? 'style="display: none"' : '' ?>>
+                        <button class="action apply primary" type="button" value="<?= $escaper->escapeHtmlAttr(__('Apply Discount')) ?>">
+                            <span><?= $escaper->escapeHtml(__('Apply Discount')) ?></span>
+                        </button>
+                    </div>
+                    <div class="primary" <?= (!$hasCouponCode) ? 'style="display: none"' : '' ?>>
+                        <button type="button" class="action cancel primary" value="<?= $escaper->escapeHtmlAttr(__('Cancel Coupon')) ?>">
+                            <span><?= $escaper->escapeHtml(__('Cancel Coupon')) ?></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <?php if (!$hasCouponCode): ?>
+                <?= /* @noEscape */ $block->getChildHtml('captcha') ?>
+            <?php endif; ?>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="Billmate_NwtBillmateCheckout::css/billmate-checkout.css"/>
+    </head>
+    <update handle="checkout_cart_index"/>
+    <body>
+        <referenceBlock name="page.main.title" template="Billmate_NwtBillmateCheckout::checkout/title.phtml" />
+        <referenceBlock name="checkout.cart.form" template="Billmate_NwtBillmateCheckout::checkout/cart.phtml">
+            <arguments>
+                <argument name="view_model" xsi:type="object">Billmate\NwtBillmateCheckout\ViewModel\HelperData</argument>
+            </arguments>
+        </referenceBlock>
+
+        <referenceContainer name="content">
+            <block
+                before="-"
+                class="Magento\Cms\Block\Block"
+                name="billmate.checkout.additionalblock.top"
+                ifconfig="payment/nwt_billmate/design/enable_additional_block">
+                <arguments> 
+                    <argument name="block_id" xsi:type="helper" helper="Billmate\NwtBillmateCheckout\Gateway\Config\Config::getAdditionalBlock"/>
+                </arguments>
+            </block>
+        </referenceContainer>
+        <referenceBlock name="top.search" remove="true" />
+        <referenceBlock name="minicart" remove="true" />
+
+        <referenceBlock name="checkout.item.price.row" template="Billmate_NwtBillmateCheckout::checkout/cart/item/price/row.phtml">
+            <block class="Magento\Checkout\Block\Item\Price\Renderer" name="checkout.item.price.row.ko-viewmodel" as="ko-viewmodel" template="Billmate_NwtBillmateCheckout::checkout/cart/item/price/row/ko-viewmodel.phtml" />
+        </referenceBlock>
+        <referenceContainer name="cart.summary" htmlClass="billmate-cart-summary" />
+
+        <referenceContainer name="checkout.cart.container">
+            <container name="billmate_checkoutSidebar" htmlTag="div" htmlClass="billmate-checkout-sidebar" />
+            <block name="billmate.checkout.iframe" cacheable="false" template="Billmate_NwtBillmateCheckout::checkout/iframe.phtml" after="-">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Billmate\NwtBillmateCheckout\ViewModel\Checkout</argument>
+                    <argument name="purchase_initialized_hide_target" xsi:type="string">.billmate-checkout-sidebar,#billmate-block-shipping,.block.crosssell</argument>
+                    <argument name="default_error_message" xsi:type="helper" helper="Billmate\NwtBillmateCheckout\Gateway\Config\Config::getDefaultErrorMessage" />
+                </arguments>
+            </block>
+            <block
+                class="Magento\Checkout\Block\Cart\Crosssell"
+                name="checkout.cart.crosssell"
+                template="Magento_Catalog::product/list/items.phtml"
+                after="-"
+                ifconfig="payment/nwt_billmate/design/enable_crosssell">
+                <arguments>
+                    <argument name="type" xsi:type="string">crosssell</argument>
+                    <argument name="view_model" xsi:type="object">Magento\Catalog\ViewModel\Product\Listing\PreparePostData</argument>
+                </arguments>
+                <block class="Magento\Catalog\Block\Product\ProductList\Item\Container" name="crosssell.product.addto" as="addto">
+                    <block class="Magento\Catalog\Block\Product\ProductList\Item\AddTo\Compare"
+                           name="crosssell.product.addto.compare" as="compare"
+                           template="Magento_Catalog::product/list/addto/compare.phtml"/>
+                </block>
+            </block>
+        </referenceContainer>
+
+        <referenceContainer name="page.wrapper">
+            <container name="main.content.billmate.wrapper" htmlTag="div" htmlClass="billmate-content-wrapper" before="footer" />
+        </referenceContainer>
+        <referenceBlock name="checkout.cart.shipping" template="Billmate_NwtBillmateCheckout::checkout/shipping.phtml">
+            <arguments>
+                <argument name="jsLayout" xsi:type="array">
+                    <item name="components" xsi:type="array">
+                        <item name="block-summary" xsi:type="array">
+                            <item name="children" xsi:type="array">
+                                <item name="block-rates" xsi:type="array">
+                                    <item name="component" xsi:type="string">Billmate_NwtBillmateCheckout/js/checkout/view/shipping-rates</item>
+                                </item>
+                                <item name="block-shipping" xsi:type="array">
+                                    <item name="children" xsi:type="null" />
+                                </item>
+                            </item>
+                        </item>
+                    </item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="checkout.cart.totals">
+            <arguments>
+                <argument name="jsLayout" xsi:type="array">
+                    <item name="components" xsi:type="array">
+                        <item name="block-totals" xsi:type="array">
+                            <item name="children" xsi:type="array">
+                                <item name="shipping" xsi:type="array">
+                                    <item name="config" xsi:type="array">
+                                        <item name="title" xsi:type="string" translate="true">Delivery</item>
+                                    </item>
+                                </item>
+                                <item name="tax" xsi:type="array">
+                                    <item name="config" xsi:type="array">
+                                        <item name="title" xsi:type="string" translate="true">VAT</item>
+                                    </item>
+                                </item>
+                                <item name="grand-total" xsi:type="array">
+                                    <item name="config" xsi:type="array">
+                                        <item name="title" xsi:type="string" translate="true">Total sum</item>
+                                    </item>
+                                </item>
+                            </item>
+                        </item>
+                    </item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="checkout.cart.item.renderers.bundle" template="Billmate_NwtBillmateCheckout::checkout/item/default.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.virtual" template="Billmate_NwtBillmateCheckout::checkout/item/default.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.default" template="Billmate_NwtBillmateCheckout::checkout/item/default.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.simple" template="Billmate_NwtBillmateCheckout::checkout/item/default.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.configurable" template="Billmate_NwtBillmateCheckout::checkout/item/default.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.downloadable" template="Billmate_NwtBillmateCheckout::checkout/item/default.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.giftcard" template="Billmate_NwtBillmateCheckout::checkout/item/default.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.grouped" template="Billmate_NwtBillmateCheckout::checkout/item/default.phtml" />
+
+        <referenceBlock name="checkout.cart.item.renderers.bundle.actions.edit" template="Billmate_NwtBillmateCheckout::checkout/item/renderer/actions/edit.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.virtual.actions.edit" template="Billmate_NwtBillmateCheckout::checkout/item/renderer/actions/edit.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.default.actions.edit" template="Billmate_NwtBillmateCheckout::checkout/item/renderer/actions/edit.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.simple.actions.edit" template="Billmate_NwtBillmateCheckout::checkout/item/renderer/actions/edit.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.configurable.actions.edit" template="Billmate_NwtBillmateCheckout::checkout/item/renderer/actions/edit.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.downloadable.actions.edit" template="Billmate_NwtBillmateCheckout::checkout/item/renderer/actions/edit.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.giftcard.actions.edit" template="Billmate_NwtBillmateCheckout::checkout/item/renderer/actions/edit.phtml" />
+        <referenceBlock name="checkout.cart.item.renderers.grouped.actions.edit" template="Billmate_NwtBillmateCheckout::checkout/item/renderer/actions/edit.phtml" />
+        
+        <referenceBlock name="checkout.cart.crosssell" template="Billmate_NwtBillmateCheckout::product/list/items.phtml" />
+
+        <block
+            name="billmate.checkout.newsletter"
+            template="Billmate_NwtBillmateCheckout::checkout/newsletter.phtml"
+            ifconfig="payment/nwt_billmate/design/enable_newsletter" />
+
+        <block
+            class="Magento\Checkout\Block\Cart\Coupon"
+            name="checkout.cart.coupon" as="coupon"
+            template="Billmate_NwtBillmateCheckout::checkout/coupon.phtml"
+            ifconfig="payment/nwt_billmate/design/enable_discount" />
+
+            <move element="page.main.title" destination="billmate_checkoutSidebar" before="-" />
+        <move element="checkout.cart.form" destination="billmate_checkoutSidebar" after="page.main.title" />
+        <move element="cart.summary" destination="billmate_checkoutSidebar" after="checkout.cart.form" />
+        <move element="cart.discount" destination="billmate_checkoutSidebar" after="cart.summary" />
+        <move element="billmate.checkout.newsletter" destination="billmate_checkoutSidebar" after="cart.discount" />
+        <move element="checkout.cart.shipping" destination="checkout.cart.container" before="billmate.checkout.iframe" />
+        <move element="checkout.cart.crosssell" destination="checkout.cart.container" before="checkout.cart.shipping" />
+        <move element="main.content" destination="main.content.billmate.wrapper" />
+
+        <referenceContainer name="checkout.cart.methods" remove="true" />
+        <referenceContainer name="checkout.cart.order.actions.gift_options" remove="true" />
+        <referenceContainer name="checkout.cart.giftcardaccount" remove="true" />
+        <referenceBlock name="checkout.cart.summary.title" remove="true" />
+    </body>
+</page>

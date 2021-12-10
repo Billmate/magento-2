@@ -1,0 +1,22 @@
+<?php
+
+use Magento\Framework\Escaper;
+use Magento\Checkout\Block\Cart\Item\Renderer\Actions\Remove;
+
+/**
+ * @var Remove $block
+ * @var Escaper $escaper
+ */
+
+?>
+<a 
+    href="#"
+    title="<?= $escaper->escapeHtml(__('Remove item')) ?>"
+    class="action action-delete"
+    data-item-id="<?= $escaper->escapeHtmlAttr($block->getItem()->getId()) ?>"
+    data-item-name="<?= $escaper->escapeHtmlAttr($block->getItem()->getProduct()->getName()) ?>"
+>
+    <span>
+        <?= $escaper->escapeHtml(__('Remove item')) ?>
+    </span>
+</a>

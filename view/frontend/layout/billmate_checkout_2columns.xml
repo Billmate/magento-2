@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <container name="billmate.checkout.sidebar" htmlTag="div" htmlClass="billmate-sidebar" />
+        </referenceContainer>
+        <referenceBlock name="billmate.checkout.iframe" template="Billmate_NwtBillmateCheckout::checkout/iframe-2columns.phtml" />
+        
+        <move element="billmate.checkout.iframe" destination="billmate.checkout.sidebar" />
+        <move element="page.main.title" destination="checkout.cart.container" before="-" />
+        <move element="checkout.cart.shipping" destination="billmate_checkoutSidebar" after="-" />
+
+        <referenceBlock name="checkout.cart.crosssell" remove="true" />
+        <referenceBlock name="billmate.checkout.iframe">
+            <arguments>
+                <argument name="purchase_initialized_hide_target" xsi:type="string">div.cart-container</argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

@@ -1,0 +1,34 @@
+// - - - - - - - - - - - - - - - - - - -
+// - - padding
+
+@mixin outputPadding($map, $paddingValue) {
+    @each $key, $value in $map {
+        @if $value == true {
+            #{$key}: $paddingValue;
+        } @else if type-of($value) == number {
+        @if $paddingValue + $value < 15 {
+            #{$key}: 15px;
+        } @else {
+            #{$key}: $paddingValue + $value;
+            }
+        }
+    }
+}
+
+@mixin elementPadding($top: false, $right: false, $bottom: false, $left: false) {
+    $map: (
+        'padding-top': $top,
+        'padding-right': $right,
+        'padding-bottom': $bottom,
+        'padding-left': $left
+    );
+    @include breakpoint('(min-width: 1061px)') {
+        @include outputPadding($map, 80px);
+    }
+    @include breakpoint('(min-width: 768px) and (max-width: 1060px)') {
+        @include outputPadding($map, 20px);
+    }
+    @include breakpoint('mobile') {
+        @include outputPadding($map, 15px);
+    }
+}

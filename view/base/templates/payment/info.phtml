@@ -1,0 +1,37 @@
+<?php
+
+use Billmate\NwtBillmateCheckout\ViewModel\Adminhtml\Payment;
+use Magento\Framework\Escaper;
+use Magento\Payment\Block\ConfigurableInfo;
+
+/**
+ * @var ConfigurableInfo $block
+ * @var Escaper $escaper
+ * @var Payment $viewModel;
+ */
+
+?>
+<div class="order-payment-method-name"><?= $escaper->escapeHtml($block->getMethod()->getTitle()); ?></div>
+<table class="data-table admin__table-secondary">
+    <tr>
+        <th><?= $escaper->escapeHtml(__('Billmate Invoice Number')); ?>:</th>
+        <td><?= $escaper->escapeHtml($block->getInfo()->getAdditionalInformation('billmate_invoice_number')); ?></td>
+    </tr>
+    <tr>
+        <th><?= $escaper->escapeHtml(__('Billmate Payment Number')); ?>:</th>
+        <td><?= $escaper->escapeHtml($block->getInfo()->getAdditionalInformation('billmate_payment_number')); ?></td>
+    </tr>
+    <tr>
+        <th><?= $escaper->escapeHtml(__('Billmate Payment Method Id')); ?>:</th>
+        <td><?= $escaper->escapeHtml($block->getInfo()->getAdditionalInformation('billmate_method_id')); ?></td>
+    </tr>
+    <tr>
+        <th><?= $escaper->escapeHtml(__('Billmate Payment Method')); ?>:</th>
+        <td>
+            <?= $escaper->escapeHtml(
+                $block->getInfo()->getAdditionalInformation('billmate_method_description')
+            );
+            ?>
+        </td>
+    </tr>
+</table>

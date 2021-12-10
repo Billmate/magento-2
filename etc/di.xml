@@ -1,0 +1,228 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Payment Gateway Configuration -->
+    <virtualType name="BillmateFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">BillmateCommandPool</argument>
+            <argument name="code" xsi:type="const">Billmate\NwtBillmateCheckout\Gateway\Config\Config::METHOD_CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">BillmateInfoBlock</argument>
+            <argument name="valueHandlerPool" xsi:type="object">BillmateValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">BillmateValidatorPool</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="authorize" xsi:type="string">BillmateAuthorizeCommand</item>
+                <item name="capture" xsi:type="string">BillmateCaptureCommand</item>
+                <item name="refund" xsi:type="string">BillmateRefundCommand</item>
+                <item name="cancel" xsi:type="string">BillmateCancelCommand</item>
+                <item name="void" xsi:type="string">BillmateCancelCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateGeneralRequest" type="Magento\Payment\Gateway\Request\BuilderComposite">
+        <arguments>
+            <argument name="builders" xsi:type="array">
+                <item name="payment" xsi:type="string">Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder\PaymentDataBuilder</item>
+                <item name="credentials" xsi:type="string">Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder\CredentialsDataBuilder</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateGeneralHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="txn_id" xsi:type="string">Billmate\NwtBillmateCheckout\Gateway\Response\TransactionIdHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">BillmateConfigValueHandler</item>
+                <item name="can_void" xsi:type="string">Billmate\NwtBillmateCheckout\Gateway\Config\CanVoidHandler</item>
+                <item name="can_cancel" xsi:type="string">Billmate\NwtBillmateCheckout\Gateway\Config\CanVoidHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">BillmateCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Config\Config</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateGatewayCommand" type="Magento\Payment\Gateway\Command\GatewayCommand">
+        <arguments>
+            <argument name="requestBuilder" xsi:type="object">BillmateGeneralRequest</argument>
+            <argument name="transferFactory" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\TransferFactory</argument>
+            <argument name="handler" xsi:type="object">BillmateGeneralHandler</argument>
+            <argument name="validator" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateAuthorizeCommand" type="BillmateGatewayCommand">
+        <arguments>
+            <argument name="client" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\Client\TransactionAuthorize</argument>
+            <argument name="handler" xsi:type="object">BillmateAuthorizationHandler</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateAuthorizationHandler" type="BillmateGeneralHandler">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="payment_details" xsi:type="string">Billmate\NwtBillmateCheckout\Gateway\Response\PaymentDetailsHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateCaptureCommand" type="BillmateGatewayCommand">
+        <arguments>
+            <argument name="client" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\Client\TransactionActivate</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateRefundCommand" type="BillmateGatewayCommand">
+        <arguments>
+            <argument name="client" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\Client\TransactionCredit</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateCancelCommand" type="BillmateGatewayCommand">
+        <arguments>
+            <argument name="client" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\Client\TransactionCancel</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateInfoBlock" type="Magento\Payment\Block\ConfigurableInfo">
+        <arguments>
+            <argument name="config" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Config\Config</argument>
+            <argument name="data" xsi:type="array">
+                <item name="template" xsi:type="string">Billmate_NwtBillmateCheckout::payment/info.phtml</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Other Virtual type and argument configurations -->
+    <virtualType name="BillmateQuoteManagement" type="Magento\Quote\Model\QuoteManagement">
+        <arguments>
+            <argument name="quoteRepository" xsi:type="object">Billmate\NwtBillmateCheckout\Model\BillmateQuoteRepository</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil">
+        <arguments>
+            <argument name="quoteManagement" xsi:type="object">BillmateQuoteManagement</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="BillmateCheckoutLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="handlers"  xsi:type="array">
+                <item name="error" xsi:type="object">Billmate\NwtBillmateCheckout\Logger\Handler\Error</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Billmate\NwtBillmateCheckout\Model\Utils\ErrorUtil">
+        <arguments>
+            <argument name="logger" xsi:type="object">BillmateCheckoutLogger</argument>
+        </arguments>
+    </type>
+
+    <!-- Proxy configurations -->
+    <type name="Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter">
+        <arguments>
+            <argument name="localeResolver" xsi:type="object">Magento\Framework\Locale\Resolver\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Billmate\NwtBillmateCheckout\Controller\ControllerUtil">
+        <arguments>
+            <argument name="jsonFactory" xsi:type="object">Magento\Framework\Controller\Result\JsonFactory\Proxy</argument>
+            <argument name="forwardFactory" xsi:type="object">Magento\Framework\Controller\Result\ForwardFactory\Proxy</argument>
+            <argument name="redirectFactory" xsi:type="object">Magento\Framework\Controller\Result\RedirectFactory\Proxy</argument>
+            <argument name="pageFactory" xsi:type="object">Magento\Framework\View\Result\PageFactory\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil">
+        <arguments>
+            <argument name="orderResourceFactory" xsi:type="object">Magento\Sales\Model\ResourceModel\OrderFactory\Proxy</argument>
+            <argument name="orderFactory" xsi:type="object">Magento\Sales\Model\OrderFactory\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Billmate\NwtBillmateCheckout\Model\Utils\DataUtil">
+        <arguments>
+            <argument name="dataObjectFactory" xsi:type="object">Magento\Framework\DataObjectFactory\Proxy</argument>
+            <argument name="config" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Config\Config\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Billmate\NwtBillmateCheckout\Controller\Checkout\Index">
+        <arguments>
+            <argument name="billmateAdapter" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter\Proxy</argument>
+            <argument name="checkoutHelper" xsi:type="object">Magento\Checkout\Helper\Data\Proxy</argument>
+            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
+            <argument name="totalsCollector" xsi:type="object">Magento\Quote\Model\Quote\TotalsCollector\Proxy</argument>
+            <argument name="directoryHelper" xsi:type="object">Magento\Directory\Helper\Data\Proxy</argument>
+        </arguments>
+    </type>
+
+    <!-- Configuration reader -->
+    <type name="Billmate\NwtBillmateCheckout\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">Billmate\NwtBillmateCheckout\Gateway\Config\Config::METHOD_CODE</argument>
+        </arguments>
+    </type>
+
+    <!-- Plugins -->
+    <type name="Magento\Checkout\Controller\Cart\UpdatePost">
+        <plugin name="billmateAjaxCartUpdate" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Controller\Cart\UpdatePostPlugin"/>
+    </type>
+    <type name="Magento\Checkout\Controller\Cart\CouponPost">
+        <plugin name="billmateAjaxCouponPost" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Controller\Cart\CouponPostPlugin"/>
+    </type>
+    <type name="Magento\Checkout\Controller\Cart\Delete">
+        <plugin name="billmateAjaxCouponPost" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Controller\Cart\DeletePlugin"/>
+    </type>
+    <type name="Magento\Checkout\Model\DefaultConfigProvider">
+        <plugin name="billmateConfigProvider" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Model\DefaultConfigProviderPlugin" />
+    </type>
+    <type name="Magento\Checkout\Block\Cart\Item\Renderer\Actions\Remove">
+        <plugin name="billmateRemoveTemplate" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Block\Cart\Item\Renderer\Actions\RemovePlugin" />
+    </type>
+    <type name="Magento\Quote\Api\BillingAddressManagementInterface">
+        <plugin name="billmateBillingAddressManagement" type="Billmate\NwtBillmateCheckout\Plugin\Quote\Model\BillingAddressManagementPlugin" />
+    </type>
+    <type name="Magento\Checkout\Api\ShippingInformationManagementInterface">
+        <plugin name="billmateShippingInformationManagement" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Model\ShippingInformationManagementPlugin" />
+    </type>
+    <type name="Magento\Tax\Block\Item\Price\Renderer">
+        <plugin name="billmateItemPriceRenderer" type="Billmate\NwtBillmateCheckout\Plugin\Tax\Block\Item\Price\RendererPlugin"/>
+    </type>
+    <type name="Magento\Checkout\Block\Cart">
+        <plugin name="bm_url" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Block\ChangeCheckoutUrl"/>
+    </type>
+    <type name="Magento\Checkout\Block\Onepage\Link">
+        <plugin name="bm_url" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Block\ChangeCheckoutUrl" />
+    </type>
+    <type name="Magento\Checkout\Block\Cart\Sidebar">
+        <plugin name="bm_url" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Block\ChangeCheckoutUrl" />
+    </type>
+</config>

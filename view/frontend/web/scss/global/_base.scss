@@ -1,0 +1,196 @@
+.billmate-heading {
+    font-size: 32px;
+    font-weight: 500;
+    display: block;
+    margin: 0 auto;
+    text-transform: initial;
+    text-align: center;
+    @include breakpoint('mobile') {
+        font-size: 20px;
+    }
+    strong {
+        font-weight: 500;
+    }
+}
+
+.billmate-content-wrapper {
+    overflow-x: hidden;
+}
+
+.billmate-mobile-hidden {
+    @include breakpoint('mobile') {
+        display: none !important;
+    }
+}
+.billmate-desktop-hidden {
+    @include breakpoint('large') {
+        display: none !important;
+    }
+}
+
+body.billmate-checkout-index,
+body.billmate-checkout-success {
+    .loading-mask {
+        display: block;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+        .loader {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+    .column.main {
+        @include breakpoint('large') {
+            min-height: 830px;
+        }
+        @include breakpoint('mobile') {
+            min-height: 450px;
+        }
+    }
+    .cart-container {
+        color: $black;
+        @include breakpoint('large') {
+            .form-cart {
+                margin: 15px 0;
+            }
+        }
+        input[type="text"] {
+            padding: .786em 1em;
+        }
+        input[type="text"], select, textarea {
+            appearance: none;
+            font-size: 16px;
+            height: auto;
+        }
+        input[type="checkbox"],
+        input[type="radio"] {
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            border: 1px solid $border-color-1;
+            position: relative;
+            height: 21px;
+            width: 21px;
+            border-radius: 3px;
+            margin: 0;
+            appearance: none;
+            &:focus {
+                box-shadow: none;
+            }
+            &:checked:after {
+                content: url('../images/checked.svg');
+                display: block;
+                margin-top: -1px;
+                margin-left: -1px;
+                top: 0;
+                left: 0;
+            }
+        }
+        input[type="text"] {
+            border-color: $border-color-1;
+            border-radius: 5px;
+            line-height: 23px;
+            max-width: 275px;
+            @include breakpoint('mobile') {
+                line-height: 21px;
+                width: 100%;
+            }
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        button,
+        .billmate-btn {
+            text-transform: initial;
+            padding: 0 15px;
+            border-radius: 5px;
+            height: 50px;
+            max-width: 255px;
+            width: 100%;
+            @include breakpoint('mobile') {
+                font-size: 16px;
+                max-width: 100%;
+            }
+            &.action.primary {
+                background-color: $light-blue;
+                border-color: $light-blue;
+                box-shadow: none !important;
+                &:hover {
+                    background-color: $light-blue;
+                    border-color: $light-blue;
+                }
+            }
+            span {
+                @include breakpoint('desktop') {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    transition: left ease-out 300ms, transform ease-out 300ms;
+                    white-space: nowrap;
+                }
+            }
+            &:after {
+                @include breakpoint('desktop') {
+                    content: url('../images/caret-right.svg');
+                    position: absolute;
+                    top: 0;
+                    right: 15px;
+                    line-height: 52px;
+                    opacity: 0;
+                    transition: opacity ease-out 300ms;
+                }
+            }
+            &:hover {
+                @include breakpoint('desktop') {
+                    &:after {
+                        opacity: 1;
+                    }
+                    span {
+                        left: 15px;
+                        transform: translate(0, -50%);
+                    }
+                }
+            }
+        }
+        .field {
+            margin-bottom: .857em;
+            label {
+                display: block;
+                margin-bottom: .857em;
+                letter-spacing: .2px;
+            }
+        }
+        .price {
+            color: $black;
+        }
+        .actions-toolbar,
+        .product-item-actions .actions-primary {
+            display: block;
+            width: 100%;
+            .primary {
+                display: block;
+                width: 100%;
+                float: none;
+                color: $white;
+                border-radius: 5px;
+                margin: 0;
+                position: relative;
+                font-size: 16px;
+                &:hover {
+                    color: $white;
+                    border: 0;
+                }
+            }
+        }
+    }
+    @include breakpoint('mobile') {
+        .page-header {
+            margin-bottom: 0;
+        }
+    }
+}

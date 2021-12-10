@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="nwt_billmate" translate="label" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+				<label>Billmate Checkout by Nordic Web Team</label>
+                <group id="general" translate="label comment" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>General</label>
+                    <field id="active" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Active</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/nwt_billmate/active</config_path>
+                    </field>
+                    <field id="merchant_id" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchant ID</label>
+                    </field>
+                    <field id="secret_key" translate="label" type="obscure" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Secret key</label>
+                        <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    </field>
+                    <field id="testmode" translate="label" type="select" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Test mode</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="terms_url" translate="label" type="text" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Absolute URL of Terms and Conditions</label>
+                    </field>
+                    <field id="privacy_policy_url" translate="label" type="text" sortOrder="600" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Absolute URL of Privacy Policy</label>
+                    </field>
+                    <field id="company_view" translate="label" type="select" sortOrder="700" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable company view</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="phone_on_delivery" translate="label" type="select" sortOrder="800" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Request alternative phone number for delivery</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="default_country" translate="label comment" type="select" sortOrder="900" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Default country</label>
+                        <comment>For shipping calculation</comment>
+                        <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    </field>
+                    <field id="default_postcode" translate="label comment" type="text" sortOrder="1000" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Default postcode</label>
+                        <comment>For shipping calculation</comment>
+                    </field>
+                    <field id="default_shippingmethod" translate="label comment" type="select" sortOrder="1100" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Default shipping method</label>
+                        <source_model>Magento\Shipping\Model\Config\Source\Allmethods</source_model>
+                    </field>
+                    <field id="enable_invoice_fee" translate="label" type="select" sortOrder="1200" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Use invoice fee</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="invoice_fee_amount" translate="label" type="text" sortOrder="1300" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Invoice fee amount</label>
+                        <validate>validate-number validate-zero-or-greater</validate>
+                        <depends>
+                            <field id="enable_invoice_fee" />
+                        </depends>
+                    </field>
+                    <field id="default_error_message" translate="label comment" type="textarea" sortOrder="1400" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                        <label>Default Error Message</label>
+                        <comment>Error message to display to customer if in production mode and a critical error occurs in backend</comment>
+                    </field>
+                </group>
+                <group id="design" translate="label comment" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Design</label>
+                    <field id="layout_type" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Layout</label>
+                        <source_model>Billmate\NwtBillmateCheckout\Model\Config\Source\LayoutTypes</source_model>
+                    </field>
+                    <field id="enable_additional_block" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Use additional block</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Shown above the checkout content</comment>
+                    </field>
+                    <field id="additional_block" translate="label comment" type="select" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Additional block</label>
+                        <source_model>Magento\Cms\Model\Config\Source\Block</source_model>
+                        <comment>Shown above the checkout content</comment>
+                        <depends>
+                            <field id="enable_additional_block">1</field>
+                        </depends>
+                    </field>
+                    <field id="enable_discount" translate="label" type="select" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Display Discount code field</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="enable_crosssell" translate="label" type="select" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Display Crosssell section</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="enable_newsletter" translate="label" type="select" sortOrder="500" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Display Newsletter subscription form</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                </group>
+            </group>
+        </section>
+    </system>
+</config>

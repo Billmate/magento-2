@@ -1,0 +1,37 @@
+<?php
+
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+use Billmate\NwtBillmateCheckout\ViewModel\Checkout;
+
+$viewModel = $block->getViewModel();
+
+/**
+ * @var Template $block
+ * @var Escaper $escaper
+ * @var Checkout $viewModel
+ */
+
+?>
+
+<strong class="billmate-heading"><?= __('Address and payment') ?></strong>
+<div class="billmate-iframe-wrapper">
+    <iframe
+        id="billmateCheckoutIframe"
+        name="billmateCheckoutIframe"
+        title="<?= $escaper->escapeHtmlAttr(__('Billmate Checkout Window')) ?>"
+        style="min-height:810px;"
+        src="<?= /* @noEscape */ $viewModel->getIframeUrl()  ?>?activateJsEvents=1"
+        scrolling="no"
+        sandbox="allow-same-origin allow-scripts allow-modals allow-popups allow-forms allow-top-navigation"
+        data-mage-init='{
+            "Billmate_NwtBillmateCheckout/js/checkout/model/checkout-handler": {
+                "purchaseInitializedHideTarget":"<?= /* @noEscape */ $block->getPurchaseInitializedHideTarget() ?>",
+                "methodCode":"<?= $escaper->escapeHtmlAttr($viewModel->getPaymentMethodCode()) ?>",
+                "methodTitle":"<?= $escaper->escapeHtmlAttr($viewModel->getPaymentMethodTitle()) ?>",
+                "defaultErrorMessage":"<?= $escaper->escapeHtmlAttr($block->getDefaultErrorMessage()) ?>"
+            }
+        }'
+    >
+    </iframe>
+</div>

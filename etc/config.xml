@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <nwt_billmate>
+                <model>BillmateFacade</model>
+                <title>Billmate Checkout</title>
+                <payment_action>authorize</payment_action>
+                <order_status>processing</order_status>
+                <order_state>processing</order_state>
+                <is_gateway>1</is_gateway>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_use_internal>1</can_use_internal>
+                <can_refund_partial_per_invoice>1</can_refund_partial_per_invoice>
+                <can_refund>1</can_refund>
+                <can_void>1</can_void>
+                <can_cancel>1</can_cancel>
+                <can_review_payment>1</can_review_payment>
+                <general>
+                    <secret_key backend_model="Magento\Config\Model\Config\Backend\Encrypted" />
+                    <default_country>SE</default_country>
+                    <default_postcode>100 12</default_postcode>
+                    <default_error_message>We are sorry, an error has occurred with our payment service. If this error persists, please contact customer support.</default_error_message>
+                </general>
+            </nwt_billmate>
+        </payment>
+    </default>
+</config>

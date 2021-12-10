@@ -1,0 +1,31 @@
+<?php
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/**
+ * @var Template $block
+ * @var Escaper $escaper
+ */
+?>
+<div class="billmate-newsletter newsletter">
+    <form 
+        method="post"
+        id="billmate-checkout-newsletter-form"
+        action="<?= $block->getUrl('billmate/checkout/setNewsletter') ?>"
+        data-mage-init='{
+            "Billmate_NwtBillmateCheckout/js/checkout/model/newsletter-handler": {}
+        }'>
+        <div class="fieldset comment wrapper">
+            <?= $block->getBlockHtml('formkey') ?>
+            <input 
+                type="checkbox"
+                name="newsletter"
+                value="1"
+                id="newsletter"
+                title="<?= $escaper->escapeHtmlAttr(__('Subscribe to the newsletter')) ?>" class="checkbox"/>
+            <label for="newsletter">
+                <?= $escaper->escapeHtml(__('Subscribe to the newsletter')) ?>
+            </label>
+        </div>
+    </form>
+</div>
