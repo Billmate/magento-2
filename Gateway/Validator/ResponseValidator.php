@@ -18,10 +18,10 @@ class ResponseValidator extends AbstractValidator
     public function validate(array $validationSubject)
     {
         // Error messages are set by the respectice Transaction classes.
-        if (isset($validationSubject[self::KEY_ERROR])) {
+        if (isset($validationSubject['response'][self::KEY_ERROR])) {
             return $this->createResult(
                 false,
-                [$validationSubject[self::KEY_ERROR]]
+                [$validationSubject['response'][self::KEY_ERROR]]
             );
         }
 
