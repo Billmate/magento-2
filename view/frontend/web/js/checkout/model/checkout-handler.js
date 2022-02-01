@@ -100,6 +100,7 @@ define([
         _create: function () {
             this._super();
             quote.paymentMethod({method: this.options.methodCode, title: this.options.methodTitle});
+            quote.shippingMethod(window.checkoutConfig.selectedShippingMethod);
             window.addEventListener('message', this._handleMessage.bind(this));
             window.addEventListener('billmateLock', this.lock.bind(this));
             window.addEventListener('billmateUpdate', this._handleBillmateUpdateEvent.bind(this));
