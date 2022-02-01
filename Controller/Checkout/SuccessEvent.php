@@ -49,7 +49,7 @@ class SuccessEvent implements HttpPostActionInterface
             );
     
             $this->dataUtil->setContextPaymentNumber(
-                $quote->getAddressByCustomerAddressId(PaymentDataBuilder::PAYMENT_NUMBER)
+                $quote->getPayment()->getAdditionalInformation(PaymentDataBuilder::PAYMENT_NUMBER)
             );
     
             $this->orderUtil->placeOrder($quote->getId());
