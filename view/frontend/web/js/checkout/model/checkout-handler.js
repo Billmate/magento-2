@@ -20,6 +20,15 @@ define([
     'use strict';
 
     /**
+     * Handle payment_method_selected event
+     *
+     * @param {Object} data
+     */
+    const _handlePaymentMethodSelected = function (data) {
+        this._selectedPaymentMethod = data.method;
+    }
+
+    /**
      * Handle purchase_initialized event
      * 
      * @param {Object} data 
@@ -30,7 +39,10 @@ define([
         $.ajax({
             method: 'POST',
             url: mageurl.build('billmate/checkout/purchaseInitialized'),
-            data: {form_key: $.mage.cookies.get('form_key')},
+            data: {
+                form_key: $.mage.cookies.get('form_key'),
+                payment_method_code: this._selectedPaymentMethod
+            },
             dataType: 'json'
         }).done(function (response) {
             if (!response.success) {
@@ -92,8 +104,10 @@ define([
     $.widget('billmate.checkoutHandler', {
         _isLocked: false,
         _invalidated: true,
+        _selectedPaymentMethod: null,
         _eventHandlers: {
             'address_selected': addressHandler(),
+            'payment_method_selected': _handlePaymentMethodSelected,
             'purchase_initialized': _handlePurchaseInitialized,
             'content_height': _handleContentHeight,
             'checkout_success': _handleCheckoutSuccess,

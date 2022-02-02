@@ -5,15 +5,15 @@ namespace Billmate\NwtBillmateCheckout\Logger\Handler;
 use Magento\Framework\Logger\Handler\Base;
 use Monolog\Logger;
 
-class Error extends Base
+class Critical extends Base
 {
     /**
      * @var string
      */
-    protected $fileName = 'var/log/billmatecheckout/error.log';
+    protected $fileName = 'var/log/billmatecheckout/critical.log';
 
     /**
      * @var int
      */
-    protected $loggerType = Logger::ERROR;
+    protected $loggerType = Logger::CRITICAL;
 }

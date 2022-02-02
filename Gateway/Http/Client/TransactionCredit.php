@@ -60,14 +60,9 @@ class TransactionCredit extends AbstractTransaction
         $requestObject = $this->dataUtil->createDataObject($creditRequestData);
 
         $result = [];
-        try {
-            $response = $this->adapter->creditPayment($requestObject, $credentials);
-            $result[ResponseValidator::KEY_STATUS] = $response->getData('status');
-            $result[ResponseValidator::KEY_INVOICE_NUMBER] = $invoiceNumber;
-        } catch (\Exception $e) {
-            $result[ResponseValidator::KEY_ERROR] = $e->getMessage();
-        }
-
+        $response = $this->adapter->creditPayment($requestObject, $credentials);
+        $result[ResponseValidator::KEY_STATUS] = $response->getData('status');
+        $result[ResponseValidator::KEY_INVOICE_NUMBER] = $invoiceNumber;
         return $result;
     }
 

@@ -2,6 +2,7 @@
 
 namespace Billmate\NwtBillmateCheckout\Gateway\Validator;
 
+use Magento\Framework\DataObject;
 use Magento\Payment\Gateway\Validator\AbstractValidator;
 
 class ResponseValidator extends AbstractValidator
@@ -18,10 +19,12 @@ class ResponseValidator extends AbstractValidator
     public function validate(array $validationSubject)
     {
         // Error messages are set by the respectice Transaction classes.
-        if (isset($validationSubject['response'][self::KEY_ERROR])) {
+        $errorObj = $validationSubject['response'][self::KEY_ERROR] ?? null;
+        if ($errorObj instanceof DataObject) {
             return $this->createResult(
                 false,
-                [$validationSubject['response'][self::KEY_ERROR]]
+                [$errorObj->getMessage()],
+                [$errorObj->getCode()]
             );
         }
 

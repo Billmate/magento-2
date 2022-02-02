@@ -4,10 +4,15 @@ namespace Billmate\NwtBillmateCheckout\Controller\Checkout;
 
 use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil;
+use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
+use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\AbstractResult;
 use Magento\Quote\Model\QuoteValidator;
 
+/**
+ * Sets payment method on quote payment and prepares quote for order completion
+ */
 class PurchaseInitialized implements HttpPostActionInterface
 {
     /**
@@ -48,8 +53,26 @@ class PurchaseInitialized implements HttpPostActionInterface
 
         $checkoutSession = $this->util->getCheckoutSession();
         $quote = $checkoutSession->getQuote();
+        $payment = $quote->getPayment();
+        $paymentMethodCode = $this->util->getRequest()->getParam('payment_method_code', false);
+
+        if (!$paymentMethodCode) {
+            return $this->util->jsonResult([
+                'success' => false,
+                'message' => 'Please choose a payment method'
+            ]);
+        }
+
         try {
             $this->quoteValidator->validateBeforeSubmit($quote);
+            $payment->setAdditionalInformation(
+                ResponseValidator::KEY_METHOD_ID,
+                $paymentMethodCode
+            );
+            $payment->setAdditionalInformation(
+                ResponseValidator::KEY_METHOD_DESCRIPTION,
+                Config::PAYMENT_METHOD_MAPPING[$paymentMethodCode]
+            );
         } catch (\Exception $e) {
             return $this->util->jsonResult([
                 'success' => false,

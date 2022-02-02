@@ -115,6 +115,8 @@ class BillmateAdapter
      * @throws ClientException
      *
      * @return DataObject Contains 'url' (for iframe) and 'number' (payment number)
+     * @throws ClientException
+     * @throws HttpException
      */
     public function initCheckout($quote)
     {
@@ -263,6 +265,8 @@ class BillmateAdapter
      * @param DataObject $data
      * @param DataObject $credentials Object containing secret key, merchant ID, and test mode flag
      * @return DataObject
+     * @throws ClientException
+     * @throws HttpException
      */
     public function creditPayment(DataObject $data, DataObject $credentials): DataObject
     {
