@@ -36,12 +36,16 @@ define([
             if (!response.success) {
                 const message = response.message ?? this.options.defaultErrorMessage;
                 magealert({content: message});
+                $(this.options.purchaseInitializedHideTarget).show();
+                window.dispatchEvent(new Event('enableCartAutoUpdate'));
                 return;
             }
             this._postMessage('purchase_complete');
         }.bind(this))
         .fail(function (fail) {
             magealert({content: this.options.defaultErrorMessage});
+            $(this.options.purchaseInitializedHideTarget).show();
+            window.dispatchEvent(new Event('enableCartAutoUpdate'));
         }.bind(this));
     }
 
@@ -64,10 +68,8 @@ define([
      * @param {Object} data 
      */
     const _handleCheckoutSuccess = function (data) {
-        if (this._checkoutComplete) {
-            return;
-        }
-
+        const origHandler = this._eventHandlers['checkout_success'];
+        this._eventHandlers['checkout_success'] = null;
         $.ajax({
             method: 'POST',
             url: mageurl.build('billmate/checkout/successEvent'),
@@ -77,9 +79,9 @@ define([
             if (!response.success) {
                 const message = response.message ?? this.options.defaultErrorMessage;
                 magealert({content: message});
+                this._eventHandlers['checkout_success'] = origHandler;
                 return;
             }
-            this.checkoutComplete = true;
             location.href = mageurl.build('billmate/checkout/success');
         }.bind(this))
         .fail(function () {
@@ -90,7 +92,6 @@ define([
     $.widget('billmate.checkoutHandler', {
         _isLocked: false,
         _invalidated: true,
-        _checkoutComplete: false,
         _eventHandlers: {
             'address_selected': addressHandler(),
             'purchase_initialized': _handlePurchaseInitialized,
