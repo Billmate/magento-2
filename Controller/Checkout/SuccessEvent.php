@@ -51,7 +51,8 @@ class SuccessEvent implements HttpPostActionInterface
             $this->dataUtil->setContextPaymentNumber(
                 $quote->getPayment()->getAdditionalInformation(PaymentDataBuilder::PAYMENT_NUMBER)
             );
-    
+
+            $this->orderUtil->getQuoteRepository()->save($quote);
             $this->orderUtil->placeOrder($quote->getId());
         } catch (\Exception $e) {
             $this->dataUtil->logErrorMessage('Failed to place order! Exception: ' . $e->getMessage());
