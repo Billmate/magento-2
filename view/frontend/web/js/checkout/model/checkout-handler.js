@@ -34,8 +34,6 @@ define([
      * @param {Object} data 
      */
     const _handlePurchaseInitialized = function (data) {
-        window.dispatchEvent(new Event('disableCartAutoUpdate'));
-        $(this.options.purchaseInitializedHideTarget).hide();
         $.ajax({
             method: 'POST',
             url: mageurl.build('billmate/checkout/purchaseInitialized'),
@@ -48,16 +46,12 @@ define([
             if (!response.success) {
                 const message = response.message ?? this.options.defaultErrorMessage;
                 magealert({content: message});
-                $(this.options.purchaseInitializedHideTarget).show();
-                window.dispatchEvent(new Event('enableCartAutoUpdate'));
                 return;
             }
             this._postMessage('purchase_complete');
         }.bind(this))
         .fail(function (fail) {
             magealert({content: this.options.defaultErrorMessage});
-            $(this.options.purchaseInitializedHideTarget).show();
-            window.dispatchEvent(new Event('enableCartAutoUpdate'));
         }.bind(this));
     }
 
