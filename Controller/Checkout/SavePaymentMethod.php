@@ -4,6 +4,7 @@ namespace Billmate\NwtBillmateCheckout\Controller\Checkout;
 
 use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
+use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Quote\Api\CartRepositoryInterface as QuoteRepositoryInterface;
@@ -46,8 +47,8 @@ class SavePaymentMethod implements HttpPostActionInterface
 
         $quote = $this->checkoutSession->getQuote();
         $payment = $quote->getPayment();
-        $payment->setAdditionalInformation('billmate_method_id', $methodId);
-        $payment->setAdditionalInformation('billmate_method_description', $methodDescription);
+        $payment->setAdditionalInformation(ResponseValidator::KEY_METHOD_ID, $methodId);
+        $payment->setAdditionalInformation(ResponseValidator::KEY_METHOD_DESCRIPTION, $methodDescription);
         $this->quoteRepo->save($quote);
 
         return $this->util->jsonResult(['success' => true]);

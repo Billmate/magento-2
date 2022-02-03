@@ -25,7 +25,24 @@ define([
      * @param {Object} data
      */
     const _handlePaymentMethodSelected = function (data) {
-        this._selectedPaymentMethod = data.method;
+        $.ajax({
+            method: 'POST',
+            url: mageurl.build('billmate/checkout/savePaymentMethod'),
+            data: {
+                form_key: $.mage.cookies.get('form_key'),
+                methodId: data.method
+            },
+            dataType: 'json'
+        }).done(function (response) {
+            if (!response.success) {
+                const message = response.message ?? this.options.defaultErrorMessage;
+                magealert({content: message});
+                return;
+            }
+        }.bind(this))
+        .fail(function () {
+            magealert({content: this.options.defaultErrorMessage});
+        }.bind(this));
     }
 
     /**
@@ -45,7 +62,14 @@ define([
         }).done(function (response) {
             if (!response.success) {
                 const message = response.message ?? this.options.defaultErrorMessage;
-                magealert({content: message});
+                magealert({
+                    content: message,
+                    actions: {
+                        always: function () {
+                            location.reload()
+                        }
+                    }
+                });
                 return;
             }
             this._postMessage('purchase_complete');
