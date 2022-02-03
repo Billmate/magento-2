@@ -21,10 +21,18 @@ class ResponseValidator extends AbstractValidator
         // Error messages are set by the respectice Transaction classes.
         $errorObj = $validationSubject['response'][self::KEY_ERROR] ?? null;
         if ($errorObj instanceof DataObject) {
+            // Build an error message to be displayed
+            $msgFormat = 'Operation failed. %s';
+            $errorDetail = sprintf('Message: %s', $errorObj->getMessage());
+            $errorCode = $errorObj->getCode();
+
+            if ($errorCode) {
+                $errorDetail = sprintf('Code: %s. Message: %s', $errorCode, $errorObj->getMessage());
+            }
+
             return $this->createResult(
                 false,
-                [$errorObj->getMessage()],
-                [$errorObj->getCode()]
+                [sprintf($msgFormat, $errorDetail)]
             );
         }
 

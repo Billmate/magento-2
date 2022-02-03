@@ -6,10 +6,7 @@ use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
-use Magento\Framework\DataObject;
 use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
-use Magento\Framework\HTTP\AsyncClient\HttpException;
-use Magento\Payment\Gateway\Http\ClientException;
 
 abstract class AbstractTransaction implements ClientInterface
 {
@@ -64,8 +61,8 @@ abstract class AbstractTransaction implements ClientInterface
      *
      * @param array $data
      * @return array
-     * @throws ClientException;
-     * @throws HttpException;
+     * @throws \Magento\Payment\Gateway\Http\ClientException;
+     * @throws \Magento\Framework\HTTP\AsyncClient\HttpException;
      */
     abstract protected function process(array $data);
 }

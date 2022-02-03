@@ -13,7 +13,7 @@ use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Payment\Gateway\Http\ClientException;
 
 class TransactionCredit extends AbstractTransaction
-{   
+{
     use CentsFormatter;
 
     /**
@@ -109,7 +109,7 @@ class TransactionCredit extends AbstractTransaction
     }
 
     /**
-     * Generate the Cart section for API calls
+     * Generate Cart section for credit operation
      *
      * @param Creditmemo $crMemo
      * @return array
