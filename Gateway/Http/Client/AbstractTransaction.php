@@ -6,6 +6,7 @@ use Magento\Payment\Gateway\Http\ClientInterface;
 use Magento\Payment\Gateway\Http\TransferInterface;
 use Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
+use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
 
 abstract class AbstractTransaction implements ClientInterface
 {
@@ -36,7 +37,23 @@ abstract class AbstractTransaction implements ClientInterface
     public function placeRequest(TransferInterface $transferObject)
     {
         $data = $transferObject->getBody();
-        return $this->process($data);
+        try {
+            return $this->process($data);
+        } catch (\Exception $e) {
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     * @param \Exception $exception
+     * @return array
+     */
+    protected function handleException(\Exception $exception): array
+    {
+        return [ResponseValidator::KEY_ERROR => $this->dataUtil->createDataObject([
+            'code' => $exception->getCode(),
+            'message' => $exception->getMessage()
+        ])];
     }
 
     /**
@@ -44,6 +61,8 @@ abstract class AbstractTransaction implements ClientInterface
      *
      * @param array $data
      * @return array
+     * @throws \Magento\Payment\Gateway\Http\ClientException;
+     * @throws \Magento\Framework\HTTP\AsyncClient\HttpException;
      */
     abstract protected function process(array $data);
 }

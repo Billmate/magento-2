@@ -15,13 +15,9 @@ class TransactionCancel extends AbstractTransaction
         $credentials = $data['credentials'];
 
         $result = [];
-        try {
-            $response = $this->adapter->cancelPayment($invoiceNumber, $credentials);
-            $result[ResponseValidator::KEY_STATUS] = $response->getData('status');
-            $result[ResponseValidator::KEY_INVOICE_NUMBER] = $invoiceNumber;
-        } catch (\Exception $e) {
-            $result[ResponseValidator::KEY_ERROR] = $e->getMessage();
-        }
+        $response = $this->adapter->cancelPayment($invoiceNumber, $credentials);
+        $result[ResponseValidator::KEY_STATUS] = $response->getData('status');
+        $result[ResponseValidator::KEY_INVOICE_NUMBER] = $invoiceNumber;
 
         return $result;
     }

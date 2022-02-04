@@ -139,7 +139,7 @@ class OrderUtil
     }
 
      /**
-     * Get quote by Reserved Order Id
+      * Get quote by Reserved Order Id
       *
       * @param string $reservedOrderId
       * @return CartInterface|null

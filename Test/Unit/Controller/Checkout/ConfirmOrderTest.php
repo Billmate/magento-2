@@ -11,7 +11,6 @@ use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\DataObject;
 use Magento\Sales\Model\Order;
 use Magento\Quote\Model\Quote;
-use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Quote\Model\Quote\Payment;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -96,7 +95,7 @@ class ConfirmOrderTest extends TestCase
     }
 
     /**
-     * Tests that on failure and in test mode, all error messages are displayed and redirect to cart happens 
+     * Tests that on failure and in test mode, all error messages are displayed and redirect to cart happens
      *
      * @return void
      */
@@ -119,7 +118,7 @@ class ConfirmOrderTest extends TestCase
     }
 
     /**
-     * Tests that on failure and in production mode, default error message is displayed and redirect to cart happens 
+     * Tests that on failure and in production mode, default error message is displayed and redirect to cart happens
      *
      * @return void
      */

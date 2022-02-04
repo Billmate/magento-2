@@ -9,8 +9,10 @@ use Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil;
 use Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder\CredentialsDataBuilder;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 use Billmate\NwtBillmateCheckout\Gateway\Request\DataBuilder\PaymentDataBuilder;
+
 /**
- * Controller for checkout_success event. Used by Invoice and Swish payments to create order instead of Connfirmorder controller
+ * Controller for checkout_success event.
+ * Used by Invoice and Swish payments to create order instead of Confirmorder controller
  */
 class SuccessEvent implements HttpPostActionInterface
 {
@@ -47,7 +49,7 @@ class SuccessEvent implements HttpPostActionInterface
             );
     
             $this->dataUtil->setContextPaymentNumber(
-                $quote->getAddressByCustomerAddressId(PaymentDataBuilder::PAYMENT_NUMBER)
+                $quote->getPayment()->getAdditionalInformation(PaymentDataBuilder::PAYMENT_NUMBER)
             );
     
             $this->orderUtil->placeOrder($quote->getId());

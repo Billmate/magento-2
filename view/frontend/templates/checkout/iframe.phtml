@@ -15,7 +15,7 @@ $viewModel = $block->getViewModel();
 ?>
 
 <div class="billmate-iframe-wrapper">
-    <strong class="billmate-heading"><?= __('Address and payment') ?></strong>
+    <strong class="billmate-heading"><?= $escaper->escapeHtml(__('Address and payment')) ?></strong>
     <iframe
         id="billmateCheckoutIframe"
         name="billmateCheckoutIframe"
