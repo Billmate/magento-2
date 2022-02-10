@@ -130,9 +130,11 @@ class MatchesPayment implements QuoteValidationRuleInterface
             return false;
         }
 
-        $quoteShipping = (string)$quoteCart['Shipping']['withouttax'] ?? null;
-        if ($pInfo->getCart()->getShipping()->getWithouttax() !== $quoteShipping) {
-            return false;
+        if (isset($quoteCart['Shipping'])) {
+            $quoteShipping = (string)$quoteCart['Shipping']['withouttax'] ?? null;
+            if ($pInfo->getCart()->getShipping()->getWithouttax() !== $quoteShipping) {
+                return false;
+            }
         }
 
         // Sort and compare arrays of articles
