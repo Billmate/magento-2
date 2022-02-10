@@ -25,6 +25,7 @@ define([
      * @param {Object} data
      */
     const _handlePaymentMethodSelected = function (data) {
+        window.dispatchEvent(new Event('disableCartAutoUpdate'));
         $.ajax({
             method: 'POST',
             url: mageurl.build('billmate/checkout/savePaymentMethod'),
@@ -34,11 +35,13 @@ define([
             },
             dataType: 'json'
         }).done(function (response) {
+            window.dispatchEvent(new Event('enableCartAutoUpdate'));
             if (!response.success) {
                 const message = response.message ?? this.options.defaultErrorMessage;
                 magealert({content: message});
                 return;
             }
+            window.dispatchEvent(new Event('updatePrivateContentVersion'));
         }.bind(this))
         .fail(function () {
             magealert({content: this.options.defaultErrorMessage});
@@ -51,6 +54,7 @@ define([
      * @param {Object} data 
      */
     const _handlePurchaseInitialized = function (data) {
+        window.dispatchEvent(new Event('disableCartAutoUpdate'));
         $.ajax({
             method: 'POST',
             url: mageurl.build('billmate/checkout/purchaseInitialized'),

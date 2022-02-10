@@ -2,11 +2,12 @@
 
 namespace Billmate\NwtBillmateCheckout\Test\Unit\Controller\Checkout;
 
-use Billmate\NwtBillmateCheckout\Controller\Checkout\Confirmorder;
+use Billmate\NwtBillmateCheckout\Controller\Processing\Confirmorder;
 use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
+use Billmate\NwtBillmateCheckout\Model\Service\ReturnRequestData;
 use Magento\Framework\App\Request\Http as HttpRequest;
 use Magento\Framework\DataObject;
 use Magento\Sales\Model\Order;
@@ -33,6 +34,11 @@ class ConfirmOrderTest extends TestCase
     private $dataUtil;
 
     /**
+     * @var ReturnRequestData|MockObject
+     */
+    private $returnRequestData;
+
+    /**
      * @var Config|MockObject
      */
     private $config;
@@ -47,6 +53,10 @@ class ConfirmOrderTest extends TestCase
         $this->controllerUtil = $this->createMock(ControllerUtil::class);
         $this->orderUtil = $this->createMock(OrderUtil::class);
         $this->dataUtil = $this->createMock(DataUtil::class);
+        $this->returnRequestData = $this->createPartialMock(
+            ReturnRequestData::class,
+            ['setRequestContent', 'getRequestContent']
+        );
 
         $request = $this->createMock(HttpRequest::class);
 
@@ -69,6 +79,8 @@ class ConfirmOrderTest extends TestCase
 
         $this->config = $this->createMock(Config::class);
         $this->dataUtil->method('getConfig')->willReturn($this->config);
+
+        $this->returnRequestData->method('getRequestContent')->willReturn($requestObj);
     }
 
     /**
@@ -80,9 +92,10 @@ class ConfirmOrderTest extends TestCase
     {
         $this->setupSuccessMock();
         $confirmOrder = new Confirmorder(
-            $this->controllerUtil,
             $this->orderUtil,
-            $this->dataUtil
+            $this->controllerUtil,
+            $this->dataUtil,
+            $this->returnRequestData
         );
         $this->dataUtil->expects($this->never())
             ->method('displayErrorMessage');
@@ -110,9 +123,10 @@ class ConfirmOrderTest extends TestCase
             );
         $this->controllerUtil->expects($this->once())->method('redirect')->with('checkout/cart');
         $confirmOrder = new Confirmorder(
-            $this->controllerUtil,
             $this->orderUtil,
-            $this->dataUtil
+            $this->controllerUtil,
+            $this->dataUtil,
+            $this->returnRequestData
         );
         $confirmOrder->execute();
     }
@@ -133,9 +147,10 @@ class ConfirmOrderTest extends TestCase
         ;
         $this->controllerUtil->expects($this->once())->method('redirect')->with('checkout/cart');
         $confirmOrder = new Confirmorder(
-            $this->controllerUtil,
             $this->orderUtil,
-            $this->dataUtil
+            $this->controllerUtil,
+            $this->dataUtil,
+            $this->returnRequestData
         );
         $confirmOrder->execute();
     }

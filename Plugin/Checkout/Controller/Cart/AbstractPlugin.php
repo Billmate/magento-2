@@ -56,7 +56,7 @@ abstract class AbstractPlugin
      *
      * @param CartController $subject
      * @param ResultInterface $result
-     * @return void
+     * @return ResultInterface
      */
     public function afterExecute(CartController $subject, ResultInterface $result)
     {

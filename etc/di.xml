@@ -184,6 +184,7 @@
         <arguments>
             <argument name="validationRules" xsi:type="array">
                 <item name="BillmatePaymentMethodRule" xsi:type="object">Billmate\NwtBillmateCheckout\Model\QuoteValidationRules\HasPaymentMethod</item>
+                <item name="BillmateMatchesPaymentRule" xsi:type="object">Billmate\NwtBillmateCheckout\Model\QuoteValidationRules\MatchesPayment</item>
             </argument>
         </arguments>
     </type>
@@ -196,6 +197,9 @@
     </type>
 
     <!-- Plugins -->
+    <type name="Magento\Checkout\Controller\Cart\Index">
+        <plugin name="billmateCartIndex" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Controller\Cart\IndexPlugin"/>
+    </type>
     <type name="Magento\Checkout\Controller\Cart\UpdatePost">
         <plugin name="billmateAjaxCartUpdate" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Controller\Cart\UpdatePostPlugin"/>
     </type>

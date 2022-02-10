@@ -3,7 +3,8 @@
 namespace Billmate\NwtBillmateCheckout\Gateway\Http\Client;
 
 use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
-use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\ArticleFactory;
+use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Article\ArticleGenerator;
+use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Cart\CartGenerator;
 use Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter;
 use Billmate\NwtBillmateCheckout\Gateway\Helper\CentsFormatter;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
@@ -17,23 +18,23 @@ class TransactionCredit extends AbstractTransaction
     use CentsFormatter;
 
     /**
-     * @var ArticleFactory
+     * @var ArticleGenerator
      */
-    private $articleFactory;
+    private $articleGenerator;
 
     /**
-     * @var DiscountsHandler
+     * @var CartFactory
      */
-    private $discountsHandler;
+    private $cartGenerator;
 
     public function __construct(
-        ArticleFactory $articleFactory,
-        DiscountsHandler $discountsHandler,
+        ArticleGenerator $articleGenerator,
+        CartGenerator $cartGenerator,
         BillmateAdapter $billmateAdapter,
         DataUtil $dataUtil
     ) {
-        $this->articleFactory = $articleFactory;
-        $this->discountsHandler = $discountsHandler;
+        $this->articleGenerator = $articleGenerator;
+        $this->cartGenerator = $cartGenerator;
         parent::__construct($billmateAdapter, $dataUtil);
     }
 
@@ -54,8 +55,8 @@ class TransactionCredit extends AbstractTransaction
                 'number' => $invoiceNumber,
                 'partcredit' => $partCredit
             ],
-            'Articles' => ($partCredit) ? $this->generateCreditArticles($creditMemo) : [],
-            'Cart' => ($partCredit) ? $this->generateCreditCart($creditMemo) : []
+            'Articles' => ($partCredit) ? $this->articleGenerator->generateArticles($creditMemo) : [],
+            'Cart' => ($partCredit) ? $this->cartGenerator->generateCart($creditMemo) : []
         ]);
         $requestObject = $this->dataUtil->createDataObject($creditRequestData);
 
@@ -78,72 +79,5 @@ class TransactionCredit extends AbstractTransaction
         }
 
         return $payment;
-    }
-
-    /**
-     * Generate Articles for credit operation
-     *
-     * @param Creditmemo $crMemo
-     * @return array
-     */
-    private function generateCreditArticles(Creditmemo $crMemo): array
-    {
-        $articlesToCredit = [];
-        foreach ($crMemo->getItems() as $crMemoItem) {
-            if (!$crMemoItem->getQty()) {
-                continue;
-            }
-
-            $article = $this->articleFactory->create();
-            $article->initializForCredit($crMemoItem);
-            $articlesToCredit[] = $article->propertiesToArray();
-        }
-
-        $discountArticles = $this->discountsHandler->toArticles();
-
-        foreach ($discountArticles as $discountArticle) {
-            $articlesToCredit[] = $discountArticle->propertiesToArray();
-        }
-
-        return $articlesToCredit;
-    }
-
-    /**
-     * Generate Cart section for credit operation
-     *
-     * @param Creditmemo $crMemo
-     * @return array
-     */
-    private function generateCreditCart(Creditmemo $crMemo): array
-    {
-        $cart = [];
-
-        $discountTaxComp = $crMemo->getDiscountTaxCompensationAmount();
-        $discountAmount = $crMemo->getDiscountAmount();
-        $withoutTax = $crMemo->getSubtotal() + $discountAmount + $discountTaxComp;
-        $taxAmount = $crMemo->getTaxAmount();
-        $total = [
-            'withouttax' => $this->toCents($withoutTax),
-            'tax' => $this->toCents($taxAmount),
-            'withtax' => $this->toCents($crMemo->getGrandTotal())
-        ];
-
-        $shippingExclTax = $this->toCents($crMemo->getShippingAmount());
-
-        if ($shippingExclTax > 0) {
-            $shippingTaxAmount = $this->toCents($crMemo->getShippingTaxAmount());
-            $shippingInclTax = (int)$shippingExclTax + $shippingTaxAmount;
-            $shipping = [
-                'withouttax' => $shippingExclTax,
-                'taxrate' => $this->toCents($shippingTaxAmount / $shippingExclTax),
-                'withtax' => $shippingInclTax
-            ];
-
-            $cart['Shipping'] = $shipping;
-            $total['withouttax'] += $shippingExclTax;
-        }
-
-        $cart['Total'] = $total;
-        return $cart;
     }
 }

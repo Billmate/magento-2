@@ -99,7 +99,7 @@ class Article extends DataObject
      * @param OrderItem $crMemoItem
      * @return void
      */
-    public function initializForCredit(CreditMemoItem $crMemoItem)
+    public function initializeForCredit(CreditMemoItem $crMemoItem)
     {
         $this->artnr = $crMemoItem->getSku();
         $this->title = $crMemoItem->getName();

@@ -27,7 +27,7 @@ class HasPaymentMethod implements QuoteValidationRuleInterface
         $methodDescription = $quote->getPayment()->getAdditionalInformation(ResponseValidator::KEY_METHOD_DESCRIPTION);
         $validationErrors = [];
 
-        if (!$methodId || $methodDescription || $methodDescription !== Config::PAYMENT_METHOD_MAPPING[$methodId]) {
+        if (!$methodId || !$methodDescription || $methodDescription !== Config::PAYMENT_METHOD_MAPPING[$methodId]) {
             $validationErrors[] = __(
                 'Payment method not registered, '
                 . 'please choose your preferred payment method again and click Purchase again.'

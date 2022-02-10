@@ -78,6 +78,10 @@ define([
                     this._disableAutoUpdate = false;
                 }.bind(this));
 
+                window.addEventListener('updatePrivateContentVersion', function () {
+                    this._setNewPrivateContentVersion();
+                }.bind(this));
+
                 this._bindEventsToElements();
                 this._setNewPrivateContentVersion();
                 this._encodedCart = cartEncoder(customerData.get('cart-data')());

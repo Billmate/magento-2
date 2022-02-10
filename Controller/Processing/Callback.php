@@ -1,57 +1,61 @@
 <?php
 
-namespace Billmate\NwtBillmateCheckout\Controller\Checkout;
+namespace Billmate\NwtBillmateCheckout\Controller\Processing;
 
 use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
+use Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter;
 use Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 use Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator;
-use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\DataObject;
+use Billmate\NwtBillmateCheckout\Model\Service\ReturnRequestData;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Newsletter\Model\SubscriptionManager;
 
 /**
  * Callback will search for created order (created by either by SuccessEvent or Confirmorder),
  * and perform the Authorize operation
  */
-class Callback implements HttpPostActionInterface, CsrfAwareActionInterface
+class Callback extends ProcessingAbstract
 {
-    private ControllerUtil $util;
-
-    private OrderUtil $orderUtil;
-
-    private DataUtil $dataUtil;
+    private BillmateAdapter $billmateAdapter;
 
     private SubscriptionManager $subscriptionManager;
 
-    /**
-     * Request content as a DataObject
-     *
-     * @var DataObject
-     */
-    private DataObject $requestContent;
-
     public function __construct(
         ControllerUtil $util,
-        OrderUtil $orderUtil,
         DataUtil $dataUtil,
+        OrderUtil $orderUtil,
+        ReturnRequestData $returnRequestData,
+        BillmateAdapter $billmateAdapter,
         SubscriptionManager $subscriptionManager
     ) {
-        $this->util = $util;
-        $this->orderUtil = $orderUtil;
-        $this->dataUtil = $dataUtil;
+        parent::__construct($util, $dataUtil, $orderUtil, $returnRequestData);
+        $this->billmateAdapter = $billmateAdapter;
         $this->subscriptionManager = $subscriptionManager;
     }
 
     public function execute()
     {
         $result = $this->util->jsonResult();
-        $orderId = $this->requestContent->getDataByPath('data/orderid');
+        $requestContent = $this->returnRequestData->getRequestContent();
+        $orderId = $requestContent->getDataByPath('data/orderid');
         if (null === $orderId) {
             return $result->setHttpResponseCode(400)->setData(['error' => 'Invalid order id']);
+        }
+
+        $invoiceNumber = $requestContent->getDataByPath('data/number');
+
+        try {
+            $paymentInfo = $this->billmateAdapter->getPaymentInfo($invoiceNumber);
+            if ($paymentInfo->getPaymentData()->getStatus() === 'Cancelled') {
+                return $result->setHttpResponseCode(200)->setData(
+                    ['message' => 'Ignoring callback for cancelled payment']
+                );
+            }
+        } catch (\Exception $e) {
+            return $result->setHttpResponseCode(404)->setData(
+                ['error' => 'Unable to retrieve Billmate payment info']
+            );
         }
 
         $order = $this->orderUtil->loadOrderByIncrementId($orderId);
@@ -60,7 +64,6 @@ class Callback implements HttpPostActionInterface, CsrfAwareActionInterface
             return $result->setHttpResponseCode(406)->setData(['error' => 'Order not found']);
         }
 
-        $invoiceNumber = $this->requestContent->getDataByPath('data/number');
         $order->getPayment()->setAdditionalInformation(ResponseValidator::KEY_INVOICE_NUMBER, $invoiceNumber);
         $this->orderUtil->authorizePayment($order);
 
@@ -69,14 +72,6 @@ class Callback implements HttpPostActionInterface, CsrfAwareActionInterface
         }
 
         return $result->setHttpResponseCode(200);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
-    {
-        return null;
     }
 
     /**
@@ -91,13 +86,10 @@ class Callback implements HttpPostActionInterface, CsrfAwareActionInterface
         try {
             $this->extractContent();
         } catch (\InvalidArgumentException $e) {
-            $this->dataUtil->logErrorMessage('Callback: Received invalid request data');
             return false;
         }
 
-        $this->dataUtil->setContextPaymentNumber($this->requestContent->getDataByPath('data/number'));
-        if (!$this->dataUtil->verifyHash($this->requestContent)) {
-            $this->dataUtil->logErrorMessage('Callback: Invalid hash in request from Billmate');
+        if (!$this->dataUtil->verifyHash($this->returnRequestData->getRequestContent())) {
             return false;
         }
 
@@ -110,8 +102,9 @@ class Callback implements HttpPostActionInterface, CsrfAwareActionInterface
      * @return void
      * @throws \InvalidArgumentException
      */
-    private function extractContent(): void
+    protected function extractContent(): void
     {
-        $this->requestContent = $this->dataUtil->unserialize($this->util->getRequest()->getContent());
+        $requestContent = $this->dataUtil->unserialize($this->util->getRequest()->getContent());
+        $this->returnRequestData->setRequestContent($requestContent);
     }
 }

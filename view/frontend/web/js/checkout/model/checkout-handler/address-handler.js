@@ -181,6 +181,7 @@ define([
                 }
             }
 
+            window.dispatchEvent(new Event('updatePrivateContentVersion'));
             return action > 0;
         }
 

@@ -13,14 +13,31 @@ use Magento\Framework\DataObject;
  */
 class DataUtil
 {
+    /**
+     * @var SerializerInterface
+     */
     private SerializerInterface $serializer;
 
+    /**
+     * @var DataObjectFactory
+     */
     private DataObjectFactory $dataObjectFactory;
 
+    /**
+     * @var Config
+     */
     private Config $config;
 
+    /**
+     * @var ErrorUtil
+     */
     private ErrorUtil $errorUtil;
 
+    /**
+     * Billmate payment number, to use as log message prefix
+     *
+     * @var string|null
+     */
     private ?string $contextPaymentNumber;
 
     public function __construct(
