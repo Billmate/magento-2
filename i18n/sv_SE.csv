@@ -2,7 +2,7 @@
 "Order details", "Orderdetaljer", module, Billmate_NwtBillmateCheckout
 "Modify", "Redigera", module, Billmate_NwtBillmateCheckout
 "Delivery", "Leverans", module, Billmate_NwtBillmateCheckout
-"VAT", "Varav moms", module, Billmate_NwtBillmateCheckout
+"VAT", "Moms", module, Billmate_NwtBillmateCheckout
 "Total sum", "Totalsumma", module, Billmate_NwtBillmateCheckout
 "Add the following products", "Lägg till följande produkter", module, Billmate_NwtBillmateCheckout
 "Add to cart", "Lägg i varukorg", module, Billmate_NwtBillmateCheckout
