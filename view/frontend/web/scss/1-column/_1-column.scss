@@ -51,9 +51,6 @@
                         width: calc(100% - 30px);
                     }
                 }
-                &:after {
-                    bottom: 65px;
-                }
             }
             @include breakpoint('(max-width: 1060px)') {
                 padding-bottom: 110px;
