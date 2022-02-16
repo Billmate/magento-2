@@ -252,9 +252,7 @@
         }
     }
     .block.shipping {
-        padding-top: 20px;
-        margin-top: 30px;
-        border-top: 1px solid $border-color-1;
+        margin-top: 20px;
         @include breakpoint('mobile-down') {
             order: 11;
             margin-top: 0;
