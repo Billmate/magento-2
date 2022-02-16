@@ -44,9 +44,9 @@ class PaymentInfoTest extends TestCase
             '3dsecure' => '',
             'recurring' => '',
             'recurringnr' => '',
-            'accepturl' => 'https://billmate.test/billmate/checkout/saveOrder',
-            'cancelurl' => 'https://billmate.test/billmate/checkout/cancelOrder',
-            'callbackurl' => 'https://billmate.test/billmate/checkout/callback',
+            'accepturl' => 'https://billmate.test/billmate/processing/saveOrder',
+            'cancelurl' => 'https://billmate.test/billmate/processing/cancelOrder',
+            'callbackurl' => 'https://billmate.test/billmate/processing/callback',
             'returnmethod' => 'POST'
         ],
         'Settlement' => [

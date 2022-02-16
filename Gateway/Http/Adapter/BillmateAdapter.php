@@ -4,20 +4,17 @@ namespace Billmate\NwtBillmateCheckout\Gateway\Http\Adapter;
 
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
 use Billmate\NwtBillmateCheckout\Model\Api\Client\Request\Factory as RequestFactory;
-use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\ArticleFactory;
-use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Article\DiscountsHandler;
+use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Article\ArticleGenerator;
+use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Cart\CartGenerator;
 use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Response\PaymentInfoFactory;
 use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Response\PaymentInfo;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
-use Billmate\NwtBillmateCheckout\Gateway\Helper\CentsFormatter;
 use Magento\Framework\HTTP\AsyncClient\GuzzleAsyncClientFactory;
 use Magento\Framework\HTTP\AsyncClient\Request;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\Locale\Resolver as LocaleResolver;
 use Magento\Framework\HTTP\AsyncClient\HttpException;
 use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\Quote\Item;
-use Magento\Bundle\Model\Product\Type as BundleType;
 use Magento\Payment\Gateway\Http\ClientException;
 use Magento\Framework\DataObject;
 
@@ -33,8 +30,6 @@ class BillmateAdapter
     const FUNCTION_ACTIVATE_PAYMENT = 'activatePayment';
     const FUNCTION_CREDIT_PAYMENT = 'creditPayment';
     const FUNCTION_CANCEL_PAYMENT = 'cancelPayment';
-
-    use CentsFormatter;
 
     /**
      * @var RequestFactory
@@ -67,14 +62,14 @@ class BillmateAdapter
     private $localeResolver;
 
     /**
-     * @var ArticleFactory
+     * @var ArticleGenerator
      */
-    private $articleFactory;
+    private $articleGenerator;
 
     /**
-     * @var DiscountsHandler
+     * @var CartGenerator
      */
-    private $discountsHandler;
+    private $cartGenerator;
 
     /**
      * @var PaymentInfoFactory
@@ -84,7 +79,13 @@ class BillmateAdapter
     /**
      * @param GuzzleAsyncClientFactory $httpClientFactory
      * @param RequestFactory $httpRequestFactory
+     * @param DataUtil $dataUtil
      * @param Config $config
+     * @param UrlInterface $url
+     * @param LocaleResolver $localeResolver
+     * @param ArticleGenerator $articleGenerator
+     * @param CartGenerator $cartGenerator
+     * @param PaymentInfoFactory $paymentInfoFactory
      */
     public function __construct(
         GuzzleAsyncClientFactory $httpClientFactory,
@@ -93,8 +94,8 @@ class BillmateAdapter
         Config $config,
         UrlInterface $url,
         LocaleResolver $localeResolver,
-        ArticleFactory $articleFactory,
-        DiscountsHandler $discountsHandler,
+        ArticleGenerator $articleGenerator,
+        CartGenerator $cartGenerator,
         PaymentInfoFactory $paymentInfoFactory
     ) {
         $this->httpClientFactory = $httpClientFactory;
@@ -103,8 +104,8 @@ class BillmateAdapter
         $this->config = $config;
         $this->url = $url;
         $this->localeResolver = $localeResolver;
-        $this->articleFactory = $articleFactory;
-        $this->discountsHandler = $discountsHandler;
+        $this->articleGenerator = $articleGenerator;
+        $this->cartGenerator = $cartGenerator;
         $this->paymentInfoFactory = $paymentInfoFactory;
     }
 
@@ -112,8 +113,6 @@ class BillmateAdapter
      * Perform an initCheckout call to the Billmate API
      *
      * @param Quote $quote
-     * @throws ClientException
-     *
      * @return DataObject Contains 'url' (for iframe) and 'number' (payment number)
      * @throws ClientException
      * @throws HttpException
@@ -129,15 +128,16 @@ class BillmateAdapter
             'language' => $language,
             'country' => $country,
             'orderid' => $quote->getReservedOrderId(),
-            'accepturl' => $this->url->getUrl('billmate/checkout/confirmorder'),
-            'cancelurl' => $this->url->getUrl('checkout/cart'),
+            'accepturl' => $this->url->getUrl('billmate/processing/confirmorder'),
+            'cancelurl' => $this->url->getUrl('billmate/processing/cancel'),
         ];
 
         // Callback URL can use a dev setting
-        $callbackUrl = $this->url->getUrl('billmate/checkout/callback');
+        $callbackPath = 'billmate/processing/callback';
+        $callbackUrl = $this->url->getUrl($callbackPath);
         $devCallbackDomain = $this->config->getCallbackDomain();
         if ($devCallbackDomain) {
-            $callbackUrl = $devCallbackDomain . 'billmate/checkout/callback';
+            $callbackUrl = $devCallbackDomain . $callbackPath;
         }
         $paymentData['callbackurl'] = $callbackUrl;
 
@@ -152,8 +152,8 @@ class BillmateAdapter
         $data = [
             'CheckoutData' => $checkoutData,
             'PaymentData' => $paymentData,
-            'Articles' => $this->generateArticles($quote),
-            'Cart' => $this->generateCart($quote)
+            'Articles' => $this->articleGenerator->generateArticles($quote),
+            'Cart' => $this->cartGenerator->generateCart($quote)
         ];
 
         $result = $this->post(
@@ -176,8 +176,8 @@ class BillmateAdapter
     public function updateCheckout(Quote $quote)
     {
         $data = [
-            'Articles' => $this->generateArticles($quote),
-            'Cart' => $this->generateCart($quote),
+            'Articles' => $this->articleGenerator->generateArticles($quote),
+            'Cart' => $this->cartGenerator->generateCart($quote),
             'PaymentData' => [
                 'number' => $quote->getPayment()->getAdditionalInformation('billmate_payment_number')
             ]
@@ -239,14 +239,15 @@ class BillmateAdapter
     /**
      * Cancel a payment
      *
-     * @param string $number Invoice number of payment to activate
-     * @param DataObject $credentials Object containing secret key, merchant ID, and test mode flag
+     * @param string $number Invoice number of payment to cancel
+     * @param DataObject $credentials Optional object containing secret key, merchant ID, and test mode flag
      * @throws ClientException
      * @throws HttpException
      * @return DataObject
      */
-    public function cancelPayment(string $number, DataObject $credentials): DataObject
+    public function cancelPayment(string $number, DataObject $credentials = null): DataObject
     {
+        $credentials = $credentials ?? $this->getCurrentStoreCredentials();
         $data = [
             'number' => $number
         ];
@@ -344,81 +345,5 @@ class BillmateAdapter
         }
 
         throw new ClientException(__('Invalid hash from response'));
-    }
-
-    /**
-     * Generate the Articles section for API calls
-     *
-     * @param Quote $quote
-     * @return array
-     */
-    private function generateArticles($quote)
-    {
-        $articles = [];
-        foreach ($quote->getAllVisibleItems() as $quoteItem) {
-            /** @var Item $quoteItem */
-            if ($quoteItem->getProductType() === BundleType::TYPE_CODE) {
-                foreach ($quoteItem->getChildren() as $bundleChildItem) {
-                    $article = $this->articleFactory->create();
-                    $article->initializeByQuoteItem($bundleChildItem);
-                    $articles[] = $article->propertiesToArray();
-                }
-            }
-            $article = $this->articleFactory->create();
-            $article->initializeByQuoteItem($quoteItem);
-            $articles[] = $article->propertiesToArray();
-        }
-
-        $discountArticles = $this->discountsHandler->toArticles();
-
-        foreach ($discountArticles as $discountArticle) {
-            $articles[] = $discountArticle->propertiesToArray();
-        }
-
-        return $articles;
-    }
-
-    /**
-     * Generate the Cart section for API calls
-     *
-     * @param Quote $quote
-     * @return array
-     */
-    private function generateCart($quote)
-    {
-        $cart = [];
-
-        $calculationAddress = ($quote->isVirtual()) ? $quote->getBillingAddress() : $quote->getShippingAddress();
-        $discountTaxComp = $calculationAddress->getDiscountTaxCompensationAmount();
-        $discountAmount = $calculationAddress->getDiscountAmount();
-        $withoutTax = $quote->getSubtotal() + $discountAmount + $discountTaxComp;
-        $taxAmount = $calculationAddress->getTaxAmount();
-        $total = [
-            'withouttax' => $this->toCents($withoutTax),
-            'tax' => $this->toCents($taxAmount),
-            'withtax' => $this->toCents($quote->getGrandTotal())
-        ];
-
-        if (!$quote->isVirtual()) {
-            $shippingInclTax = $this->toCents($quote->getShippingAddress()->getShippingInclTax());
-
-            if ($shippingInclTax > 0) {
-                $shippingTaxAmount = $this->toCents($quote->getShippingAddress()->getShippingTaxAmount());
-                $shippingExclTax = (int)$shippingInclTax - $shippingTaxAmount;
-                $shipping = [
-                    'withouttax' => $shippingExclTax,
-                    'taxrate' => $this->toCents($shippingTaxAmount / $shippingExclTax),
-                    'withtax' => $shippingInclTax,
-                    'method' => $quote->getShippingAddress()->getShippingDescription(),
-                    'method_code' => $quote->getShippingAddress()->getShippingMethod()
-                ];
-    
-                $cart['Shipping'] = $shipping;
-                $total['withouttax'] += $shippingExclTax;
-            }
-        }
-
-        $cart['Total'] = $total;
-        return $cart;
     }
 }

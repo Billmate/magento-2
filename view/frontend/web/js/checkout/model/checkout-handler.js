@@ -25,7 +25,27 @@ define([
      * @param {Object} data
      */
     const _handlePaymentMethodSelected = function (data) {
-        this._selectedPaymentMethod = data.method;
+        window.dispatchEvent(new Event('disableCartAutoUpdate'));
+        $.ajax({
+            method: 'POST',
+            url: mageurl.build('billmate/checkout/savePaymentMethod'),
+            data: {
+                form_key: $.mage.cookies.get('form_key'),
+                methodId: data.method
+            },
+            dataType: 'json'
+        }).done(function (response) {
+            window.dispatchEvent(new Event('enableCartAutoUpdate'));
+            if (!response.success) {
+                const message = response.message ?? this.options.defaultErrorMessage;
+                magealert({content: message});
+                return;
+            }
+            window.dispatchEvent(new Event('updatePrivateContentVersion'));
+        }.bind(this))
+        .fail(function () {
+            magealert({content: this.options.defaultErrorMessage});
+        }.bind(this));
     }
 
     /**
@@ -35,7 +55,6 @@ define([
      */
     const _handlePurchaseInitialized = function (data) {
         window.dispatchEvent(new Event('disableCartAutoUpdate'));
-        $(this.options.purchaseInitializedHideTarget).hide();
         $.ajax({
             method: 'POST',
             url: mageurl.build('billmate/checkout/purchaseInitialized'),
@@ -47,17 +66,20 @@ define([
         }).done(function (response) {
             if (!response.success) {
                 const message = response.message ?? this.options.defaultErrorMessage;
-                magealert({content: message});
-                $(this.options.purchaseInitializedHideTarget).show();
-                window.dispatchEvent(new Event('enableCartAutoUpdate'));
+                magealert({
+                    content: message,
+                    actions: {
+                        always: function () {
+                            location.reload()
+                        }
+                    }
+                });
                 return;
             }
             this._postMessage('purchase_complete');
         }.bind(this))
         .fail(function (fail) {
             magealert({content: this.options.defaultErrorMessage});
-            $(this.options.purchaseInitializedHideTarget).show();
-            window.dispatchEvent(new Event('enableCartAutoUpdate'));
         }.bind(this));
     }
 

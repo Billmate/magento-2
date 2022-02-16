@@ -76,7 +76,7 @@ class OrderUtil
      * Authorizes order payment.
      * Creates and captures invoice if payment method is Swish.
      * Saves Order and Invoice.
-     * 
+     *
      * @param Order $order
      * @return void
      */

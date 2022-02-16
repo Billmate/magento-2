@@ -78,6 +78,10 @@ define([
                     this._disableAutoUpdate = false;
                 }.bind(this));
 
+                window.addEventListener('updatePrivateContentVersion', function () {
+                    this._setNewPrivateContentVersion();
+                }.bind(this));
+
                 this._bindEventsToElements();
                 this._setNewPrivateContentVersion();
                 this._encodedCart = cartEncoder(customerData.get('cart-data')());
@@ -102,40 +106,14 @@ define([
                             return;
                         }
 
-                        $.ajax({
-                            url: mageurl.build('billmate/checkout/getCartHtml'),
-                            method: 'GET',
-                            dataType: 'json',
-                            context: this,
-
-                            beforeSend: function () {
-                                $(document.body).trigger('processStart');
-                            }
-                        })
-                        .done(function (response) {
-                            if (!response.success) {
-                                magealert({content: response.message});
-                                return;
-                            }
-                            reloadTotals(response);
-                            // We receive new html for all cart items
-                            this._updateCartItems(response.carthtml);
-                        })
-                        .fail(function (fail) {
-                            magealert({
-                                content: 'We are sorry, an error occurred, and we need to reload the checkout.',
-                                actions: {
-                                    always: function () {
-                                        window.location.reload();
-                                    }
+                        magealert({
+                            content: 'Cart was updated in another tab/window. Reloading checkout now.',
+                            actions: {
+                                always: function () {
+                                    location.reload();
                                 }
-                            });
-                            return;
-                        })
-                        .always(function () {
-                            $(document.body).trigger('processStop');
-                            this._disableAutoUpdate = false;
-                        })
+                            }
+                        });
                     }.bind(this));
 
                 }.bind(this), 2000);

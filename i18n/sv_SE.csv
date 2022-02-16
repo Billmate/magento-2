@@ -30,4 +30,7 @@
 "Sum", "Summa", module, Billmate_NwtBillmateCheckout
 "We are sorry, an error has occurred with our payment service. If this error persists, please contact customer support.","Vi beklagar - ett fel har uppstått med vår betaltjänst. Om felet inte upphör, vänligen kontakta kundtjänst.", module, Billmate_NwtBillmateCheckout
 "We are sorry, an error occurred, and we need to reload the checkout.","Vi beklagar, ett fel uppstod och vi behöver ladda om kassan.", module, Billmate_NwtBillmateCheckout
-"Please choose a payment method.","Vänligen välj ett betalningsalternativ.", module, Billmate_NwtBillmateCheckout
+"Payment method not registered, please choose your preferred payment method again and click Purchase again.","Betalmetod har inte registrerats. Vänligen välj önskad betalmetod igen och klicka sedan på Slutför Köp igen.", module, Billmate_NwtBillmateCheckout
+"Cart was updated in another tab/window. Reloading checkout now.","Varukorgen uppdaterades i ett annat fönster. Laddar om kassan nu.", module, Billmate_NwtBillmateCheckout
+"You canceled the payment, but you can still proceed with your order.","Du avbröt betalningen, men kan fortsätta med din beställning.", module, Billmate_NwtBillmateCheckout
+"Your cart differs from the payment. Please try placing the order again. Avoid updating your cart between starting and finishing the payment.","Din varukorg stämmer inte överens med betalningen. Vänligen försök beställa igen. Undvik att ändra varukorgen från att du påbörjar till att du avslutar betalningen."
