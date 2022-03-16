@@ -63,6 +63,7 @@ abstract class AbstractTransaction implements ClientInterface
      * @return array
      * @throws \Magento\Payment\Gateway\Http\ClientException;
      * @throws \Magento\Framework\HTTP\AsyncClient\HttpException;
+     * @throws \Magento\Framework\Exception\PaymentException;
      */
     abstract protected function process(array $data);
 }

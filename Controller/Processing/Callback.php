@@ -53,7 +53,7 @@ class Callback extends ProcessingAbstract
                 );
             }
         } catch (\Exception $e) {
-            return $result->setHttpResponseCode(404)->setData(
+            return $result->setHttpResponseCode(503)->setData(
                 ['error' => 'Unable to retrieve Billmate payment info']
             );
         }

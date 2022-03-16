@@ -18,13 +18,13 @@ class CredentialsDataBuilder extends AbstractDataBuilder
 
         $order = $paymentDO->getOrder();
         $storeId = $order->getStoreId();
-        $testMode = $paymentDO->getPayment()->getAdditionalInformation(self::KEY_BILLMATE_TEST_MODE);
+        $testMode = !!$paymentDO->getPayment()->getAdditionalInformation(self::KEY_BILLMATE_TEST_MODE);
 
         $result = [
             'credentials' => $this->dataObjectFactory->create()->setData([
                 'id' => $this->config->getMerchantAccountId($storeId),
                 'key' => $this->config->getSecretKey($storeId),
-                'test' => $testMode ? 'true' : 'false'
+                'test' => $testMode
             ])
         ];
 
