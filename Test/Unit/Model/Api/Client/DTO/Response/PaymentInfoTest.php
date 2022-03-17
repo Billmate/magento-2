@@ -3,7 +3,6 @@
 namespace Billmate\NwtBillmateCheckout\Test\Unit\Model\Api\Client\DTO\Response;
 
 use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Response\PaymentInfo;
@@ -45,9 +44,9 @@ class PaymentInfoTest extends TestCase
             '3dsecure' => '',
             'recurring' => '',
             'recurringnr' => '',
-            'accepturl' => 'https://billmate.test/billmate/checkout/saveOrder',
-            'cancelurl' => 'https://billmate.test/billmate/checkout/cancelOrder',
-            'callbackurl' => 'https://billmate.test/billmate/checkout/callback',
+            'accepturl' => 'https://billmate.test/billmate/processing/saveOrder',
+            'cancelurl' => 'https://billmate.test/billmate/processing/cancelOrder',
+            'callbackurl' => 'https://billmate.test/billmate/processing/callback',
             'returnmethod' => 'POST'
         ],
         'Settlement' => [
@@ -120,8 +119,9 @@ class PaymentInfoTest extends TestCase
             ]
         ]
     ];
+
     /**
-     * @var DataObjectFactory|Stub
+     * @var DataObjectFactory|MockObject
      */
     private $dataObjectFactory;
 

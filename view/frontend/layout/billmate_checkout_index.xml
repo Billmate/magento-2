@@ -2,6 +2,7 @@
 
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
+        <title>Billmate Checkout</title>
         <css src="Billmate_NwtBillmateCheckout::css/billmate-checkout.css"/>
     </head>
     <update handle="checkout_cart_index"/>
@@ -62,24 +63,63 @@
         <referenceContainer name="page.wrapper">
             <container name="main.content.billmate.wrapper" htmlTag="div" htmlClass="billmate-content-wrapper" before="footer" />
         </referenceContainer>
-        <referenceBlock name="checkout.cart.shipping" template="Billmate_NwtBillmateCheckout::checkout/shipping.phtml">
-            <arguments>
-                <argument name="jsLayout" xsi:type="array">
-                    <item name="components" xsi:type="array">
-                        <item name="block-summary" xsi:type="array">
-                            <item name="children" xsi:type="array">
-                                <item name="block-rates" xsi:type="array">
-                                    <item name="component" xsi:type="string">Billmate_NwtBillmateCheckout/js/checkout/view/shipping-rates</item>
-                                </item>
-                                <item name="block-shipping" xsi:type="array">
-                                    <item name="children" xsi:type="null" />
+        <container name="checkout.cart.shipping.container">
+            <block name="checkout.cart.shipping-wrapper" template="Billmate_NwtBillmateCheckout::checkout/shipping-wrapper.phtml">
+                <arguments>
+                    <argument name="alternative_shipping" xsi:type="boolean">0</argument>
+                </arguments>
+                <block class="Magento\Checkout\Block\Cart\Shipping" name="checkout.cart.shipping" as="shipping" template="Billmate_NwtBillmateCheckout::checkout/shipping.phtml">
+                    <arguments>
+                        <argument name="jsLayout" xsi:type="array">
+                            <item name="types" xsi:type="array">
+                                <item name="form.input" xsi:type="array">
+                                    <item name="component" xsi:type="string">Magento_Ui/js/form/element/abstract</item>
+                                    <item name="config" xsi:type="array">
+                                        <item name="provider" xsi:type="string">checkoutProvider</item>
+                                        <item name="deps" xsi:type="array">
+                                            <item name="0" xsi:type="string">checkoutProvider</item>
+                                        </item>
+                                        <item name="template" xsi:type="string">ui/form/field</item>
+                                        <item name="elementTmpl" xsi:type="string">ui/form/element/input</item>
+                                    </item>
                                 </item>
                             </item>
-                        </item>
-                    </item>
-                </argument>
-            </arguments>
-        </referenceBlock>
+                            <item name="components" xsi:type="array">
+                                <item name="summary-block-config" xsi:type="array">
+                                    <item name="component" xsi:type="string">uiComponent</item>
+                                    <item name="children" xsi:type="array">
+                                        <item name="shipping-rates-validation" xsi:type="array">
+                                            <item name="children" xsi:type="array">
+                                                <!--Step configuration components-->
+                                            </item>
+                                        </item>
+                                    </item>
+                                </item>
+                                <item name="block-summary" xsi:type="array">
+                                    <item name="component" xsi:type="string">uiComponent</item>
+                                    <item name="deps" xsi:type="array">
+                                        <item name="0" xsi:type="string">summary-block-config</item>
+                                    </item>
+                                    <item name="children" xsi:type="array">
+                                        <item name="block-rates" xsi:type="array">
+                                            <item name="component" xsi:type="string">Billmate_NwtBillmateCheckout/js/checkout/view/shipping-rates</item>
+                                            <item name="sortOrder" xsi:type="string">2</item>
+                                        </item>
+                                    </item>
+                                </item>
+                                <item name="checkoutProvider" xsi:type="array">
+                                    <item name="component" xsi:type="string">uiComponent</item>
+                                </item>
+                            </item>
+                        </argument>
+                    </arguments>
+                </block>
+
+                <!-- Alternative shipping solutions can be injected here-->
+                <block class="Magento\Checkout\Block\Cart\Shipping" name="checkout.cart.alternative-shipping" as="alternative-shipping" />
+            </block>
+        </container>
+
         <referenceBlock name="checkout.cart.totals">
             <arguments>
                 <argument name="jsLayout" xsi:type="array">
@@ -143,12 +183,20 @@
         <move element="cart.summary" destination="billmate_checkoutSidebar" after="checkout.cart.form" />
         <move element="cart.discount" destination="billmate_checkoutSidebar" after="cart.summary" />
         <move element="billmate.checkout.newsletter" destination="billmate_checkoutSidebar" after="cart.discount" />
-        <move element="checkout.cart.shipping" destination="checkout.cart.container" before="billmate.checkout.iframe" />
-        <move element="checkout.cart.crosssell" destination="checkout.cart.container" before="checkout.cart.shipping" />
+        <move element="checkout.cart.shipping.container" destination="checkout.cart.container" before="billmate.checkout.iframe" />
+        <move element="checkout.cart.crosssell" destination="checkout.cart.container" before="checkout.cart.shipping.container" />
         <move element="main.content" destination="main.content.billmate.wrapper" />
 
         <referenceContainer name="checkout.cart.methods" remove="true" />
-        <referenceContainer name="checkout.cart.order.actions.gift_options" remove="true" />
+        <referenceBlock name="checkout.cart.order.actions.gift_options" remove="true" />
+        <referenceBlock name="checkout.cart.item.renderers.bundle.actions.gift_options" remove="true" />
+        <referenceBlock name="checkout.cart.item.renderers.virtual.actions.gift_options" remove="true" />
+        <referenceBlock name="checkout.cart.item.renderers.default.actions.gift_options" remove="true" />
+        <referenceBlock name="checkout.cart.item.renderers.simple.actions.gift_options" remove="true" />
+        <referenceBlock name="checkout.cart.item.renderers.configurable.actions.gift_options" remove="true" />
+        <referenceBlock name="checkout.cart.item.renderers.downloadable.actions.gift_options" remove="true" />
+        <referenceBlock name="checkout.cart.item.renderers.giftcard.actions.gift_options" remove="true" />
+        <referenceBlock name="checkout.cart.item.renderers.grouped.actions.gift_options" remove="true" />
         <referenceContainer name="checkout.cart.giftcardaccount" remove="true" />
         <referenceBlock name="checkout.cart.summary.title" remove="true" />
     </body>

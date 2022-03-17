@@ -6,6 +6,7 @@ use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Cart;
 use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\PaymentData;
 use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\Customer;
 use Billmate\NwtBillmateCheckout\Model\Api\Client\DTO\ResponseArticle;
+use Billmate\NwtBillmateCheckout\Gateway\Helper\CentsFormatter;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\DataObject;
 
@@ -20,6 +21,8 @@ use Magento\Framework\DataObject;
  */
 class PaymentInfo extends DataObject
 {
+    use CentsFormatter;
+
     /**
      * @var DataObjectFactory
      */
@@ -114,7 +117,10 @@ class PaymentInfo extends DataObject
 
         $cart = $this->dataObjectFactory->create();
         $handling = $this->dataObjectFactory->create()->setData($handlingData);
-        $shipping = $this->dataObjectFactory->create()->setData($shippingData);
+        $shipping = $this->dataObjectFactory->create();
+        if ($shippingData) {
+            $shipping->setData($shippingData);
+        }
         $total = $this->dataObjectFactory->create()->setData($totalData);
 
         $cart->setHandling($handling);

@@ -1,0 +1,12 @@
+<?php
+
+use Magento\Framework\View\Element\Template;
+
+/**
+ * @var Template $block
+ */
+
+$childBlock = ($block->getAlternativeShipping()) ? 'alternative-shipping' : 'shipping';
+?>
+
+<?= /* @noEscape */ $block->getChildHtml($childBlock) ?>

@@ -5,6 +5,7 @@ namespace Billmate\NwtBillmateCheckout\Controller\Checkout;
 use Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter;
 use Billmate\NwtBillmateCheckout\Gateway\Config\Config;
 use Billmate\NwtBillmateCheckout\Controller\ControllerUtil;
+use Billmate\NwtBillmateCheckout\Model\QuoteValidationRules\MatchesPayment;
 use Billmate\NwtBillmateCheckout\Model\Utils\DataUtil;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Quote\Model\Quote;
@@ -115,16 +116,7 @@ class Index implements HttpGetActionInterface
         $quotePaymentNumber = $quote->getPayment()->getAdditionalInformation('billmate_payment_number');
 
         try {
-            if (!$quotePaymentNumber) {
-                $initCheckoutData = $this->billmateAdapter->initCheckout($quote);
-                $paymentNumber = $initCheckoutData->getNumber();
-                $quote->getPayment()->setAdditionalInformation('billmate_payment_number', $paymentNumber);
-                $checkoutSession->setData('billmate_iframe_url', $initCheckoutData->getUrl());
-                $checkoutSession->setData('billmate_payment_number', $paymentNumber);
-            } else {
-                $updateCheckoutData = $this->billmateAdapter->updateCheckout($quote);
-                $checkoutSession->setData('billmate_iframe_url', $updateCheckoutData->getUrl());
-            }
+            $this->initOrUpdateCheckout($quote);
         } catch (\Exception $e) {
             $this->dataUtil->setContextPaymentNumber($quotePaymentNumber);
             $this->dataUtil->displayExceptionMessage($e);
@@ -132,19 +124,60 @@ class Index implements HttpGetActionInterface
         }
 
         $this->saveQuote($quote);
-
-        if (!is_null($layoutType = $this->config->getLayoutType())) {
-            $resultPage->getConfig()->setPageLayout($layoutType);
-        }
+        $layoutType = $this->config->getLayoutType();
+        $resultPage->getConfig()->setPageLayout($layoutType);
 
         if ($layoutType == '2columns-billmate') {
             $resultPage->addHandle('billmate_checkout_2columns');
-            $resultPage->getConfig()->getTitle()->set(__('Order details'));
-        } else {
-            $resultPage->getConfig()->getTitle()->set(__('Billmate Checkout'));
         }
 
         return $resultPage;
+    }
+
+    /**
+     * Inits checkout if payment does not have Billmate payment number, or if currency has changed.
+     * Otherwise it runs updateCheckout instead.
+     *
+     * @param Quote $quote
+     * @return void
+     * @throws \Magento\Payment\Gateway\Http\ClientException
+     * @throws \Magento\Framework\HTTP\AsyncClient\HttpException
+     */
+    private function initOrUpdateCheckout(Quote $quote): void
+    {
+        $quotePaymentNumber = $quote->getPayment()->getAdditionalInformation('billmate_payment_number');
+
+        if (!$quotePaymentNumber) {
+            $this->initCheckout($quote);
+            return;
+        }
+
+        $checkoutSession = $this->util->getCheckoutSession();
+        if ($quote->getQuoteCurrencyCode() !== $checkoutSession->getData('billmate_payment_currency')) {
+            $this->initCheckout($quote);
+            return;
+        }
+
+        $this->billmateAdapter->updateCheckout($quote);
+    }
+
+    /**
+     * Performs initCheckout API call and sets needed data in session and on quote
+     *
+     * @param Quote $quote
+     * @return void
+     * @throws \Magento\Payment\Gateway\Http\ClientException
+     * @throws \Magento\Framework\HTTP\AsyncClient\HttpException
+     */
+    private function initCheckout(Quote $quote): void
+    {
+        $checkoutSession = $this->util->getCheckoutSession();
+        $initCheckoutData = $this->billmateAdapter->initCheckout($quote);
+        $paymentNumber = $initCheckoutData->getNumber();
+        $quote->getPayment()->setAdditionalInformation('billmate_payment_number', $paymentNumber);
+        $checkoutSession->setData('billmate_iframe_url', $initCheckoutData->getUrl());
+        $checkoutSession->setData('billmate_payment_number', $paymentNumber);
+        $checkoutSession->setData('billmate_payment_currency', $quote->getQuoteCurrencyCode());
     }
 
     /**
@@ -202,31 +235,37 @@ class Index implements HttpGetActionInterface
         $this->totalsCollector->collectAddressTotals($quote, $shippingAddress);
 
         if (!$shippingAddress->getShippingMethod()) {
-            $shippingRates = $shippingAddress->getGroupedAllShippingRates();
-            $defShippingMethod = $this->config->getDefaultShippingMethod();
-            $shippingMethodCode = null;
-    
-            $methods = [];
-            // Set a default shipping method
-            foreach ($shippingRates as $carrierRates) {
-                foreach ($carrierRates as $rate) {
-                    $methods[$rate->getCode()] = $rate;
-                }
-            }
-    
-            $firstAvailable = current($methods);
-            if (!empty($methods)) {
-                if (isset($methods[$defShippingMethod])) {
-                    $shippingMethodCode = $methods[$defShippingMethod]->getCode();
-                } else {
-                    $shippingMethodCode = $firstAvailable->getCode();
-                }
-            }
-    
-            $shippingAddress->setShippingMethod($shippingMethodCode);
+            $this->setDefaultShippingMethod($shippingAddress);
         }
+
         $shippingAddress->collectShippingRates();
         $quote->collectTotals();
+        $quote->getPayment()->unsAdditionalInformation(MatchesPayment::KEY_VALIDATE_PAYMENT_MATCH);
+    }
+
+    /**
+     * Set a default shipping method
+     *
+     * @param \Magento\Quote\Model\Quote\Address $shippingAddress
+     * @return void
+     */
+    private function setDefaultShippingMethod(\Magento\Quote\Model\Quote\Address $shippingAddress)
+    {
+        $shippingRates = $shippingAddress->getAllShippingRates();
+        /** @var \Magento\Quote\Model\Quote\Address\Rate[] $rates */
+        $defShippingMethod = $this->config->getDefaultShippingMethod();
+
+        $methods = [];
+        foreach ($shippingRates as $rate) {
+            $methods[$rate->getCode()] = 1;
+        }
+
+        // Use configured default method if it's available. Else, use the first available method.
+        if (!empty($methods)) {
+            $firstAvailable = current($methods);
+            $dueMethod = isset($methods[$defShippingMethod]) ? $defShippingMethod : $firstAvailable;
+            $shippingAddress->setShippingMethod($dueMethod);
+        }
     }
 
     /**
@@ -244,7 +283,6 @@ class Index implements HttpGetActionInterface
         if (!$address->getCountry() ||
             !$address->getPostcode() ||
             !in_array($country, array_column($allowedCountries, 'value'))) {
-
             $country = $this->config->getDefaultCountry();
             $postcode = $this->config->getDefaultPostcode();
 

@@ -14,6 +14,7 @@
     <virtualType name="BillmateCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
         <arguments>
             <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">BillmateInitializeCommand</item>
                 <item name="authorize" xsi:type="string">BillmateAuthorizeCommand</item>
                 <item name="capture" xsi:type="string">BillmateCaptureCommand</item>
                 <item name="refund" xsi:type="string">BillmateRefundCommand</item>
@@ -76,21 +77,21 @@
             <argument name="transferFactory" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\TransferFactory</argument>
             <argument name="handler" xsi:type="object">BillmateGeneralHandler</argument>
             <argument name="validator" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Validator\ResponseValidator</argument>
+            <argument name="errorMessageMapper" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Validator\ErrorMessageMapper</argument>
+            <argument name="logger" xsi:type="object">BillmateCheckoutLogger</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="BillmateInitializeCommand" type="BillmateGatewayCommand">
+        <arguments>
+            <argument name="client" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\Client\TransactionInitialize</argument>
+            <argument name="handler" xsi:type="object">Magento\Payment\Gateway\Response\HandlerChain</argument>
         </arguments>
     </virtualType>
 
     <virtualType name="BillmateAuthorizeCommand" type="BillmateGatewayCommand">
         <arguments>
             <argument name="client" xsi:type="object">Billmate\NwtBillmateCheckout\Gateway\Http\Client\TransactionAuthorize</argument>
-            <argument name="handler" xsi:type="object">BillmateAuthorizationHandler</argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="BillmateAuthorizationHandler" type="BillmateGeneralHandler">
-        <arguments>
-            <argument name="handlers" xsi:type="array">
-                <item name="payment_details" xsi:type="string">Billmate\NwtBillmateCheckout\Gateway\Response\PaymentDetailsHandler</item>
-            </argument>
         </arguments>
     </virtualType>
 
@@ -121,23 +122,18 @@
         </arguments>
     </virtualType>
 
-    <!-- Other Virtual type and argument configurations -->
+    <!-- Other Virtual type, argument, and proxy configurations -->
     <virtualType name="BillmateQuoteManagement" type="Magento\Quote\Model\QuoteManagement">
         <arguments>
             <argument name="quoteRepository" xsi:type="object">Billmate\NwtBillmateCheckout\Model\BillmateQuoteRepository</argument>
         </arguments>
     </virtualType>
 
-    <type name="Billmate\NwtBillmateCheckout\Model\Utils\OrderUtil">
-        <arguments>
-            <argument name="quoteManagement" xsi:type="object">BillmateQuoteManagement</argument>
-        </arguments>
-    </type>
-
     <virtualType name="BillmateCheckoutLogger" type="Magento\Framework\Logger\Monolog">
         <arguments>
             <argument name="handlers"  xsi:type="array">
                 <item name="error" xsi:type="object">Billmate\NwtBillmateCheckout\Logger\Handler\Error</item>
+                <item name="critical" xsi:type="object">Billmate\NwtBillmateCheckout\Logger\Handler\Critical</item>
             </argument>
         </arguments>
     </virtualType>
@@ -148,7 +144,6 @@
         </arguments>
     </type>
 
-    <!-- Proxy configurations -->
     <type name="Billmate\NwtBillmateCheckout\Gateway\Http\Adapter\BillmateAdapter">
         <arguments>
             <argument name="localeResolver" xsi:type="object">Magento\Framework\Locale\Resolver\Proxy</argument>
@@ -166,6 +161,7 @@
         <arguments>
             <argument name="orderResourceFactory" xsi:type="object">Magento\Sales\Model\ResourceModel\OrderFactory\Proxy</argument>
             <argument name="orderFactory" xsi:type="object">Magento\Sales\Model\OrderFactory\Proxy</argument>
+            <argument name="quoteManagement" xsi:type="object">BillmateQuoteManagement</argument>
         </arguments>
     </type>
     <type name="Billmate\NwtBillmateCheckout\Model\Utils\DataUtil">
@@ -184,6 +180,15 @@
         </arguments>
     </type>
 
+    <type name="Magento\Quote\Model\ValidationRules\QuoteValidationComposite">
+        <arguments>
+            <argument name="validationRules" xsi:type="array">
+                <item name="BillmatePaymentMethodRule" xsi:type="object">Billmate\NwtBillmateCheckout\Model\QuoteValidationRules\HasPaymentMethod</item>
+                <item name="BillmateMatchesPaymentRule" xsi:type="object">Billmate\NwtBillmateCheckout\Model\QuoteValidationRules\MatchesPayment</item>
+            </argument>
+        </arguments>
+    </type>
+
     <!-- Configuration reader -->
     <type name="Billmate\NwtBillmateCheckout\Gateway\Config\Config">
         <arguments>
@@ -192,6 +197,9 @@
     </type>
 
     <!-- Plugins -->
+    <type name="Magento\Checkout\Controller\Cart\Index">
+        <plugin name="billmateCartIndex" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Controller\Cart\IndexPlugin"/>
+    </type>
     <type name="Magento\Checkout\Controller\Cart\UpdatePost">
         <plugin name="billmateAjaxCartUpdate" type="Billmate\NwtBillmateCheckout\Plugin\Checkout\Controller\Cart\UpdatePostPlugin"/>
     </type>

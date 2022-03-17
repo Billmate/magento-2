@@ -17,6 +17,8 @@ class Config extends \Magento\Payment\Gateway\Config\Config
 
     const GROUP_DESIGN = 'design';
 
+    const GROUP_DEV = 'dev';
+
     /**
      * Field keys
      */
@@ -67,6 +69,11 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     const KEY_LAYOUT_TYPE = 'layout_type';
 
     /**
+     * Group = dev
+     */
+    const KEY_CALLBACK_DOMAIN = 'callback_domain';
+
+    /**
      * Mapping of payment method IDs to descriptors
      * @link https://billmate.github.io/api-docs/#getpaymentinfo - See Response Body -> PaymentData -> method
      */
@@ -77,9 +84,9 @@ class Config extends \Magento\Payment\Gateway\Config\Config
         '8' => 'Card',
         '16' => 'Bank',
         '24' => 'Card/Bank',
-        '32' => 'Cash (Receipt)'
+        '32' => 'Cash (Receipt)',
+        '1024' => 'Swish'
     ];
-
 
     /**
      * Get Active flag
@@ -334,6 +341,20 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     }
 
     /**
+     * Get callback domain
+     *
+     * @param integer|null $storeId
+     * @return string
+     */
+    public function getCallbackDomain(int $storeId = null): string
+    {
+        return $this->getDevGroupValue(
+            self::KEY_CALLBACK_DOMAIN,
+            $storeId
+        ) ?? '';
+    }
+
+    /**
      * Use for fields in the general group
      *
      * @param string $field
@@ -359,6 +380,21 @@ class Config extends \Magento\Payment\Gateway\Config\Config
     {
         return $this->getValue(
             self::GROUP_DESIGN . '/' . $field,
+            $storeId
+        );
+    }
+
+    /**
+     * Use for fields in the design group
+     *
+     * @param string $field
+     * @param integer $storeId
+     * @return mixed
+     */
+    private function getDevGroupValue(string $field, int $storeId = null)
+    {
+        return $this->getValue(
+            self::GROUP_DEV. '/' . $field,
             $storeId
         );
     }

@@ -31,9 +31,16 @@ class Success implements HttpGetActionInterface
 
     public function execute()
     {
+        if (!$this->sessionIsValid()) {
+            return $this->util->redirect('checkout/cart');
+        }
+
         $session = $this->util->getCheckoutSession();
         $lastOrderId = $session->getLastOrderId();
         $session->clearQuote();
+        $session->unsBillmatePaymentNumber();
+        $session->unsBillmatePaymentCurrency();
+        $session->unsBillmateQuoteId();
 
         $resultPage = $this->util->pageResult();
 
@@ -45,7 +52,7 @@ class Success implements HttpGetActionInterface
         return $resultPage;
     }
 
-    public function sessionIsValid()
+    private function sessionIsValid()
     {
         if (!$this->util->getCheckoutSession()->getLastSuccessQuoteId()) {
             return false;

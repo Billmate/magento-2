@@ -31,7 +31,7 @@ class SetNewsletter implements HttpPostActionInterface
         }
 
         $subscribeStatus = $this->util->getRequest()->getParam('newsletter', false);
-        $this->util->getCheckoutSession()->setData(
+        $this->util->getQuote()->getPayment()->setAdditionalInformation(
             'billmate_subscribe_newsletter',
             $subscribeStatus
         );
