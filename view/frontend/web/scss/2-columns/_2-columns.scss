@@ -3,6 +3,7 @@
         font-size: 26px;
         text-align: left;
         padding-bottom: 25px;
+        line-height: initial;
         @include breakpoint('tablet-down') {
             text-align: center;
         }
@@ -65,6 +66,8 @@
     .billmate-checkout-sidebar {
         margin-bottom: 0;
         padding-top: 10px;
+        display: flex;
+        flex-direction: column;
         @include breakpoint('(max-width: 1060px)') {
             padding-bottom: 30px;
         }
@@ -84,6 +87,7 @@
     .cart-container {
         .form-cart {
             margin: 0;
+            order: -1;
         }
     }
     .cart.table tbody {
@@ -177,6 +181,7 @@
         margin: 0;
     }
     .cart-discount {
+        order: 1;
         padding-bottom: 15px;
         @include breakpoint('mobile') {
             padding-top: 20px;
@@ -189,21 +194,26 @@
         }
     }
     .billmate-newsletter {
+        order: 2;
         .wrapper {
             width: 100%;
         }
         @include breakpoint('mobile') {
-            padding-bottom: 20px;
+            padding-bottom: 30px;
+            border-bottom: 0;
         }
     }
     .billmate-cart-summary {
+        order: 0;
         padding-bottom: 30px;
+        @include breakpoint('mobile') {
+            padding-bottom: 0;
+        }
         .data.totals {
             td {
                 font-size: 16px;
                 @include breakpoint('mobile') {
                     font-size: 14px;
-
                 }
             }
             .grand.totals {
@@ -252,6 +262,7 @@
         }
     }
     .block.shipping {
+        order: 3;
         margin-top: 20px;
         @include breakpoint('mobile-down') {
             order: 11;
